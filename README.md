@@ -178,10 +178,7 @@ cs-07/
 ├── docs/                         # Project documentation
 │   ├── PROJECT_STATUS.md         # What's done / not done
 │   ├── PROJECT_CONTEXT.md        # Academic context, RTM, risks
-│   ├── AGENT_HANDOFF.md          # Prompt for next Claude Code session
-│   ├── PROJECT_SPEC_ORIGINAL.md  # Full original project spec & ADRs
 │   └── diagrams/                 # Mermaid architecture diagrams
-├── CLAUDE.md                     # Claude Code auto-loaded context
 ├── demo-curl.sh                  # API demo script
 ├── postman_collection.json       # Postman collection
 ├── Dockerfile
@@ -193,8 +190,6 @@ cs-07/
 
 - [Project Status](docs/PROJECT_STATUS.md) — Feature checklist and RTM coverage
 - [Project Context](docs/PROJECT_CONTEXT.md) — Academic context, team, architecture, risks
-- [Agent Handoff](docs/AGENT_HANDOFF.md) — Prompt for new Claude Code sessions
-- [Original Project Spec](docs/PROJECT_SPEC_ORIGINAL.md) — Full ADRs, domain model, build phases
 - [Diagrams Index](docs/diagrams/README.md) — how to view + full list
 - [System Overview](docs/diagrams/system-overview.md) — elevator pitch for stakeholders
 - [Architecture Diagram](docs/diagrams/architecture.md)
