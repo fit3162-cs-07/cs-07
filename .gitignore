@@ -1,0 +1,39 @@
+# Personal AI workflow files (not for team repo)
+/CLAUDE.md
+/docs/AGENT_HANDOFF.md
+ClaudeCode_*.md
+*_Prompt.md
+PROMPT_*.md
+prompts/
+ai-prompts/
+claude-prompts/
+*.local.md
+.claude-local/
+
+# Environment and secrets
+.env
+.env.local
+*.env.local
+
+# Build outputs
+dist/
+build/
+coverage/
+*.tsbuildinfo
+*.js.map
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# IDE (keep extensions.json for team, exclude personal settings)
+.vscode/settings.json
+.idea/
+*.swp
