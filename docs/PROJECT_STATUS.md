@@ -1,6 +1,6 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-12
+**Last updated:** 2026-04-13
 
 ---
 
@@ -26,9 +26,11 @@
 - ✅ DeleteTaskUseCase + TaskDeletedEvent
 - ✅ AssignTaskUseCase + TaskAssignedEvent
 - ✅ ChangeTaskStatusUseCase + TaskStatusChangedEvent
-- ✅ GetTasksUseCase (filters: status, priority, assigneeId)
+- ✅ GetTasksUseCase (filter by status, priority, assigneeId, tags, search, dueBefore/After + pagination + RBAC)
 - ✅ GetTaskByIdUseCase
-- ✅ Task routes: full CRUD + assign + status change
+- ✅ Tag value object (1-30 chars, lowercase normalized, max 10 per task)
+- ✅ TaskFilter value object (cross-field validation)
+- ✅ Task routes: full CRUD + assign + status change + filter/search/pagination
 
 ### Shared Infrastructure
 - ✅ Base Entity class (id, createdAt, updatedAt)
@@ -85,13 +87,16 @@
 
 ## Testing
 
-- ✅ 6 test suites, 21 tests — all passing
+- ✅ 9 test suites, 61 tests — all passing
 - ✅ Unit: Task entity (5 tests)
+- ✅ Unit: Tag value object (8 tests)
+- ✅ Unit: TaskFilter value object (6 tests)
+- ✅ Unit: GetTasksUseCase (11 tests — filters, pagination, RBAC)
 - ✅ Unit: CreateTaskUseCase (2 tests)
 - ✅ Unit: LoginUseCase (3 tests)
 - ✅ Unit: EventBus (1 test)
 - ✅ Integration: Auth routes (6 tests)
-- ✅ Integration: Task routes (4 tests)
+- ✅ Integration: Task routes (18 tests — CRUD, filter, search, pagination, RBAC)
 - ❌ E2E tests
 - ❌ Test coverage reporting configured
 
@@ -120,7 +125,7 @@
 | R2 | Admin assign tasks to members | High | ✅ Done |
 | R3 | Deadlines and reminders | Medium | 🚧 Partial — dueDate stored, no reminder logic |
 | R4 | Kanban status view (ToDo/InProgress/Done) | Medium | 🚧 Backend done, needs frontend |
-| R5 | Categorize/filter/search tasks | Medium | 🚧 Partial — filters done, no full-text search or tags |
+| R5 | Categorize/filter/search tasks | Medium | ✅ Done — tags, text search, date range, pagination, RBAC scoping |
 | R6 | File attachments | Low | ❌ Not started |
 | R7 | Role-based access control | High | ✅ Done |
 | R8 | Responsive design | Medium | ❌ Not started (no frontend yet) |

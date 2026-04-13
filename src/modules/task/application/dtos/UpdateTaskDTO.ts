@@ -8,6 +8,7 @@ export const UpdateTaskSchema = z.object({
   priority: z.nativeEnum(TaskPriority).optional(),
   status: z.nativeEnum(TaskStatus).optional(),
   dueDate: z.string().datetime().optional().transform(v => v ? new Date(v) : undefined),
+  tags: z.array(z.string().min(1).max(30)).max(10).optional(),
 });
 
 export type UpdateTaskDTO = z.infer<typeof UpdateTaskSchema>;

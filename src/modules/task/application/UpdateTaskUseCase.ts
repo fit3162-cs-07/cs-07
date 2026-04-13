@@ -16,6 +16,7 @@ export class UpdateTaskUseCase implements UseCase<{ id: string } & UpdateTaskDTO
       priority: input.priority,
       dueDate: input.dueDate,
       status: input.status,
+      tags: input.tags,
     });
 
     await this.taskRepo.update(task);

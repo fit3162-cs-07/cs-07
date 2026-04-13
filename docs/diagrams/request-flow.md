@@ -43,7 +43,51 @@ sequenceDiagram
 
 ---
 
-## 2. Create Task
+## 2. Filter & Search Tasks (with Pagination + RBAC)
+
+```mermaid
+---
+title: 🔍 GET /api/v1/tasks — Filter, Search & Pagination
+---
+sequenceDiagram
+    actor C as 👤 Client
+    participant R as 🌐 taskRoutes
+    participant Auth as 🔐 authMiddleware
+    participant UC as ⚙️ GetTasksUseCase
+    participant Repo as 🗄️ InMemoryTaskRepository
+
+    C->>+Auth: GET /api/v1/tasks?status=TODO&tag=urgent&search=venue&page=1&limit=10<br/>Authorization: Bearer <JWT>
+
+    Auth->>Auth: Decode JWT → { userId, role }
+    Auth-->>R: next()
+
+    R->>R: Validate query params with Zod
+    alt Invalid params (bad status, etc.)
+        R-->>C: 400 { success: false, error: "VALIDATION_ERROR" }
+    else Valid params
+        R->>+UC: execute({ filter, page, limit, userId, userRole })
+        UC->>UC: Clamp page (min 1), limit (1–100)
+        UC->>UC: TaskFilter.create(filterProps)
+        UC->>+Repo: findByFilter(filter, page, limit, userId, userRole)
+
+        Repo->>Repo: Apply RBAC filter<br/>(admin: all, member: created or assigned)
+        Repo->>Repo: Apply status/priority/assigneeId filters
+        Repo->>Repo: Apply tag filter (all tags must match)
+        Repo->>Repo: Apply text search (title + description)
+        Repo->>Repo: Apply date range (dueBefore/dueAfter)
+        Repo->>Repo: Sort by createdAt descending
+        Repo->>Repo: Paginate (slice page)
+
+        Repo-->>-UC: { items, total, page, limit, totalPages }
+        UC-->>-R: GetTasksOutput
+
+        R-->>-C: 200 { success: true, data: [...tasks], meta: { total, page, limit, totalPages } }
+    end
+```
+
+---
+
+## 3. Create Task
 
 ```mermaid
 ---
@@ -100,7 +144,7 @@ sequenceDiagram
 
 ---
 
-## 3. Assign Task — RBAC Fail then Success
+## 4. Assign Task — RBAC Fail then Success
 
 ```mermaid
 ---

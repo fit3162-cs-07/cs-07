@@ -43,7 +43,7 @@ header "4. Get all tasks (seeded data)"
 curl -s -X GET "$BASE/tasks" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
 
-# ---- 4. FILTER TASKS ----
+# ---- 4. FILTER, SEARCH & PAGINATION ----
 header "5. Filter tasks — status=TODO"
 curl -s -X GET "$BASE/tasks?status=TODO" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
@@ -51,6 +51,26 @@ curl -s -X GET "$BASE/tasks?status=TODO" \
 header "6. Filter tasks — priority=HIGH"
 curl -s -X GET "$BASE/tasks?priority=HIGH" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+header "6a. Filter tasks — tag=urgent"
+curl -s -X GET "$BASE/tasks?tag=urgent" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+header "6b. Filter tasks — multiple tags (events AND urgent)"
+curl -s -X GET "$BASE/tasks?tag=events&tag=urgent" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+header "6c. Search tasks — keyword 'venue'"
+curl -s -X GET "$BASE/tasks?search=venue" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+header "6d. Paginate tasks — page 1, limit 2"
+curl -s -X GET "$BASE/tasks?page=1&limit=2" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+header "6e. Member view — RBAC scoped (only assigned/created tasks)"
+curl -s -X GET "$BASE/tasks" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" | jq .
 
 # ---- 5. CREATE A TASK ----
 header "7. Create a new task (Admin only)"

@@ -27,6 +27,7 @@ erDiagram
         string description "optional, defaults to empty"
         enum status "TODO | IN_PROGRESS | DONE"
         enum priority "LOW | MEDIUM | HIGH"
+        string_array tags "Tag VOs, max 10, lowercase, 1-30 chars each"
         string assigneeId FK "optional, references User.id"
         datetime dueDate "optional"
         string createdBy FK "required, references User.id"
@@ -95,6 +96,7 @@ erDiagram
 | `description` | `string` | `Task.ts` | Defaults to `""` |
 | `status` | `TaskStatus` | `TaskStatus.ts` | Enum: `TODO`, `IN_PROGRESS`, `DONE`. Defaults to `TODO` |
 | `priority` | `TaskPriority` | `TaskPriority.ts` | Enum: `LOW`, `MEDIUM`, `HIGH`. Defaults to `MEDIUM` |
+| `tags` | `Tag[]` | `Tag.ts` | Array of Tag value objects. Max 10, each 1-30 chars, lowercase normalized, deduplicated |
 | `assigneeId` | `string?` | `Task.ts` | Optional reference to `User.id` |
 | `dueDate` | `Date?` | `Task.ts` | Optional |
 | `createdBy` | `string` | `Task.ts` | Required reference to `User.id` |

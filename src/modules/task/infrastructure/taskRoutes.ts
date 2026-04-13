@@ -1,4 +1,5 @@
 import { Router, Response, NextFunction } from 'express';
+import { z } from 'zod';
 import { AuthRequest } from '../../../shared/infrastructure/middleware/authMiddleware';
 import { requireRole } from '../../../shared/infrastructure/middleware/requireRole';
 import { CreateTaskSchema } from '../application/dtos/CreateTaskDTO';
@@ -18,6 +19,18 @@ import { sendSuccess } from '../../../shared/infrastructure/http/ApiResponse';
 import { TaskStatus } from '../domain/TaskStatus';
 import { TaskPriority } from '../domain/TaskPriority';
 
+const GetTasksQuerySchema = z.object({
+  status: z.nativeEnum(TaskStatus).optional(),
+  priority: z.nativeEnum(TaskPriority).optional(),
+  assigneeId: z.string().uuid().optional(),
+  tag: z.union([z.string(), z.array(z.string())]).optional(),
+  search: z.string().max(200).optional(),
+  dueBefore: z.string().datetime().optional(),
+  dueAfter: z.string().datetime().optional(),
+  page: z.string().regex(/^\d+$/).optional(),
+  limit: z.string().regex(/^\d+$/).optional(),
+});
+
 export function createTaskRouter(taskRepo: ITaskRepository, eventBus: IEventBus): Router {
   const router = Router();
 
@@ -31,13 +44,35 @@ export function createTaskRouter(taskRepo: ITaskRepository, eventBus: IEventBus)
 
   router.get('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
-      const { status, assigneeId, priority } = req.query;
-      const tasks = await getTasks.execute({
-        status: status as TaskStatus | undefined,
-        assigneeId: assigneeId as string | undefined,
-        priority: priority as TaskPriority | undefined,
+      const query = GetTasksQuerySchema.parse(req.query);
+
+      // Normalize tag param: single string → array
+      const tags = query.tag
+        ? Array.isArray(query.tag) ? query.tag : [query.tag]
+        : undefined;
+
+      const result = await getTasks.execute({
+        filter: {
+          status: query.status,
+          priority: query.priority,
+          assigneeId: query.assigneeId,
+          tags,
+          search: query.search,
+          dueBefore: query.dueBefore ? new Date(query.dueBefore) : undefined,
+          dueAfter: query.dueAfter ? new Date(query.dueAfter) : undefined,
+        },
+        page: query.page ? parseInt(query.page, 10) : undefined,
+        limit: query.limit ? parseInt(query.limit, 10) : undefined,
+        userId: req.auth!.userId,
+        userRole: req.auth!.role,
       });
-      sendSuccess(res, tasks);
+
+      sendSuccess(res, result.tasks, 200, {
+        total: result.total,
+        page: result.page,
+        limit: result.limit,
+        totalPages: result.totalPages,
+      });
     } catch (err) {
       next(err);
     }
