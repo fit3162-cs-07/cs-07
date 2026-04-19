@@ -1,139 +1,158 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-12
+**Last updated:** 2026-04-19
+**Sprint:** Sprint 7 (week beginning Mon 21 Apr 2026)
+
+---
+
+## Truth-in-state notes (read first)
+
+- **R5 (filter/search/pagination)** is complete on `feat/task-filter-search` and
+  awaiting PR review/merge — not yet on `main`.
+- **R3 (deadlines and reminders)** is in progress on **this branch**
+  (`feat/reminder-module`): `TaskReminderDueEvent`, `CheckDueRemindersUseCase`,
+  `node-cron`-driven `ReminderScheduler`, and unit tests are in place. PR open.
+- **`frontend/src/App.tsx` currently contains a demo UI** (login form, Kanban
+  board, task cards, modal, toast) committed during the initial scaffold. It is
+  **not** Ruizhi's work — it predates her sprint. Decision on whether to extend
+  or replace it sits with Ruizhi when her PR lands.
+- **Active feature branches in remote:**
+  - `feat/task-filter-search` — R5, awaiting merge (Thanh)
+  - `feat/reminder-module` — R3, this PR (Thanh)
+  - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch (login
+    screen + UI work; **do not touch**)
+- **Stale remote branches removed this sprint** (all were at-or-behind `main`
+  with no unique commits): `backend`, `frontend`, `feature/database`. The
+  branch `feature/set-up-skeleton` could not be deleted because it is still
+  set as the GitHub repository default branch — flagged for the team to flip
+  the default to `main` and prune.
+
+---
+
+## RTM Coverage (gap analysis)
+
+| Req | Description | Priority | Status | What's missing | Covering branch / PR |
+|-----|-------------|----------|--------|----------------|----------------------|
+| R1  | Admin CRUD tasks | High | ✅ On main | — | merged |
+| R2  | Admin assign tasks to members | High | ✅ On main | — | merged |
+| R3  | Deadlines and reminders | Medium | 🚧 PR pending | Reminder delivery channel (email / push); persistence of "reminded" set across restarts | `feat/reminder-module` (this PR) |
+| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | 🚧 Backend complete; frontend pending | None on backend — `PATCH /tasks/:id/status` plus `GET /tasks?status=...` already cover column-move and column-load. Frontend Kanban rendering owned by Ruizhi/Ethan. | frontend track |
+| R5  | Categorize / filter / search | Medium | 🚧 PR pending | Code complete; awaiting review of `feat/task-filter-search` | `feat/task-filter-search` |
+| R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
+| R7  | Role-based access control | High | ✅ On main | — | merged |
+| R8  | Responsive design | Medium | ❌ Frontend concern | Layout, breakpoints, touch targets | `feature/front-end-set-up-ray` |
+| R13 | Page load under 3 s | High | ❌ N/A until frontend ships | Lighthouse budget, code-splitting, image strategy | future sprint |
 
 ---
 
 ## Backend
 
-### Identity Module
-- ✅ User entity (id, email, name, passwordHash, role)
-- ✅ Role enum (ADMIN, MEMBER)
-- ✅ IUserRepository interface + InMemoryUserRepository
-- ✅ RegisterUseCase (Zod validation, bcrypt hashing)
-- ✅ LoginUseCase (credential verification, JWT issuance)
-- ✅ Auth routes: `POST /register`, `POST /login`
-- ✅ authMiddleware (JWT verification)
-- ✅ requireRole middleware (RBAC)
+### Identity Module — on main
+- ✅ User entity, Role enum (ADMIN, MEMBER)
+- ✅ `IUserRepository` + `InMemoryUserRepository`
+- ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance)
+- ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`
+- ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
 
-### Task Module
-- ✅ Task entity (title, description, status, priority, assigneeId, dueDate, createdBy, clubId)
-- ✅ TaskStatus enum (TODO, IN_PROGRESS, DONE)
-- ✅ TaskPriority enum (LOW, MEDIUM, HIGH)
-- ✅ ITaskRepository interface + InMemoryTaskRepository
-- ✅ CreateTaskUseCase + TaskCreatedEvent
-- ✅ UpdateTaskUseCase (no domain event — see Known Issues)
-- ✅ DeleteTaskUseCase + TaskDeletedEvent
-- ✅ AssignTaskUseCase + TaskAssignedEvent
-- ✅ ChangeTaskStatusUseCase + TaskStatusChangedEvent
-- ✅ GetTasksUseCase (filters: status, priority, assigneeId)
-- ✅ GetTaskByIdUseCase
-- ✅ Task routes: full CRUD + assign + status change
+### Task Module — partially on main
+- ✅ Task entity, `TaskStatus`, `TaskPriority`
+- ✅ `ITaskRepository` + `InMemoryTaskRepository`
+- ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks (basic filters)
+- ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`, `TaskDeleted`
+- ✅ Routes: full CRUD + `/assign` + `/status`
+- 🚧 (on `feat/task-filter-search`, awaiting merge) `Tag` value object, `TaskFilter`
+  value object, `GetTasksUseCase` with pagination + RBAC scoping, multi-tag /
+  text / date-range filters
+- 🚧 (on `feat/reminder-module`, this PR) `TaskReminderDueEvent`,
+  `CheckDueRemindersUseCase`, `ReminderScheduler` (node-cron), audit-logger
+  registration of `TaskReminderDue`
 
-### Shared Infrastructure
-- ✅ Base Entity class (id, createdAt, updatedAt)
-- ✅ DomainEvent interface + EventBus (NodeEventBus via EventEmitter)
-- ✅ UseCase interface
-- ✅ AuditLogger (subscribes to events, stores audit trail)
-- ✅ Audit route: `GET /api/v1/audit` (admin only)
-- ✅ ApiResponse helpers (standard response envelope)
-- ✅ Error handler middleware
-- ✅ Request logger middleware
+### Shared Infrastructure — on main
+- ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
+- ✅ `UseCase` interface
+- ✅ `AuditLogger` subscribed to task events; `GET /api/v1/audit` (admin only)
+- ✅ Middleware: auth, requireRole, errorHandler, requestLogger
+- ✅ `ApiResponse` helpers; standard `{ success, data | error }` envelope
 - ✅ Config module (env vars)
 
-### Seed Data
-- ✅ 3 pre-seeded users (1 admin, 2 members)
-- ✅ 5 pre-seeded tasks (various statuses/priorities)
+### Seed Data — on main
+- ✅ 3 users (1 admin, 2 members) and 5 tasks across statuses/priorities
 
-### Club/Event Module
-- ❌ Club entity (id, name, description, members)
-- ❌ IClubRepository interface + implementation
-- ❌ Club CRUD use cases and routes
-- ❌ Link tasks to clubs (clubId field exists on Task but unused)
-
-### Notification Module
-- ❌ Notification entity
-- ❌ Reminder logic for approaching deadlines
-- ❌ Email or in-app notification delivery
-- ❌ Notification preferences
+### Not started
+- ❌ Club entity / `IClubRepository` (Task already has unused `clubId` field)
+- ❌ Notification module (delivery channel / preferences)
+- ❌ R6 file attachments
 
 ---
 
 ## Frontend
 
-- 🚧 Vite + React + TypeScript scaffold created (`frontend/`)
-- ❌ Login page
-- ❌ Kanban board UI
-- ❌ Task cards / detail view
-- ❌ Admin panel (create/edit/delete/assign tasks)
+- 🚧 Vite + React + TypeScript scaffold in `frontend/`
+- 🚧 `frontend/src/App.tsx` contains a single-file demo UI (login form, Kanban,
+  task cards, modal, filter, toast) committed during initial scaffold —
+  **demo only, not the production frontend**
+- ❌ Production-grade login (owned by Ruizhi on `feature/front-end-set-up-ray`)
+- ❌ Edit-event screen + Cypress E2E (owned by Ethan)
+- ❌ React Router setup, layout shell, shared components, auth context
+- ❌ Drag-and-drop Kanban
 - ❌ Responsive design
-- ❌ Connected to backend API
 
 ---
 
 ## Database
 
 - ✅ In-memory repositories (Map-based, implements repository interfaces)
-- ✅ Seed data loaded on startup
-- ❌ MongoDB / Mongoose schemas
-- ❌ MongoDB repository implementations
-- ❌ Database connection setup
-- ❌ Indexes
-- ❌ Migration / seed scripts for MongoDB
+- ✅ Seed loaded on startup
+- ❌ MongoDB / Mongoose schemas, repos, connection setup (planned Sprint 8)
+- ❌ Indexes, migration / seed scripts for MongoDB
 
 ---
 
 ## Testing
 
-- ✅ 6 test suites, 21 tests — all passing
-- ✅ Unit: Task entity (5 tests)
-- ✅ Unit: CreateTaskUseCase (2 tests)
-- ✅ Unit: LoginUseCase (3 tests)
-- ✅ Unit: EventBus (1 test)
-- ✅ Integration: Auth routes (6 tests)
-- ✅ Integration: Task routes (4 tests)
-- ❌ E2E tests
-- ❌ Test coverage reporting configured
+- ✅ Main: 6 suites, 21 tests
+- ✅ This branch (`feat/reminder-module`): 7 suites, 28 tests (added 7 for
+  `CheckDueRemindersUseCase`)
+- ✅ R5 branch (`feat/task-filter-search`): 9 suites, 61 tests
+- ❌ Cypress E2E (owned by Ethan)
+- ❌ Coverage reporting in CI
 
 ---
 
 ## Infrastructure
 
-- ✅ TypeScript strict mode
-- ✅ ESLint + Prettier
-- ✅ Jest + ts-jest
-- ✅ GitHub Actions CI pipeline
-- ✅ Dockerfile
-- ✅ docker-compose.yml (API + MongoDB placeholder)
-- ✅ .env.example
-- ❌ Deployed to Azure Container Apps
-- ❌ Production environment configured
-- ❌ HTTPS / TLS setup
+- ✅ TypeScript strict, ESLint + Prettier, Jest + ts-jest
+- ✅ GitHub Actions: lint + typecheck + tests
+- ✅ Branch protection on `main`
+- ✅ Dockerfile + docker-compose.yml (API + MongoDB placeholder)
+- ✅ `.env.example`
+- ⚠️ GitHub default branch is still `feature/set-up-skeleton` — should be flipped
+  to `main` so PRs default correctly and the stale branch can be pruned
+- ❌ Deployment (Azure Container Apps / similar)
+- ❌ HTTPS / TLS
 
 ---
 
-## RTM Coverage
+## Sprint 7 plan (week of Mon 21 Apr)
 
-| Req | Description | Priority | Status |
-|-----|-------------|----------|--------|
-| R1 | Admin CRUD tasks | High | ✅ Done |
-| R2 | Admin assign tasks to members | High | ✅ Done |
-| R3 | Deadlines and reminders | Medium | 🚧 Partial — dueDate stored, no reminder logic |
-| R4 | Kanban status view (ToDo/InProgress/Done) | Medium | 🚧 Backend done, needs frontend |
-| R5 | Categorize/filter/search tasks | Medium | 🚧 Partial — filters done, no full-text search or tags |
-| R6 | File attachments | Low | ❌ Not started |
-| R7 | Role-based access control | High | ✅ Done |
-| R8 | Responsive design | Medium | ❌ Not started (no frontend yet) |
-| R13 | Page load under 3 seconds | High | ❌ N/A until frontend exists |
+| Owner  | Branch | Scope |
+|--------|--------|-------|
+| Thanh  | `feat/task-filter-search` | Land R5 PR |
+| Thanh  | `feat/reminder-module` | R3 reminder scaffold (this PR) |
+| Ruizhi | `feature/front-end-set-up-ray` | Login screen + UI work |
+| Ethan  | (TBC) | Code integration, edit-event screen, Cypress setup |
 
 ---
 
-## Known Issues
+## Known issues (carried)
 
-1. **LoginUseCase** imports `config` directly — should inject JWT secret via constructor (onion architecture violation)
-2. **Error handling** uses string matching (`err.message === 'UNAUTHORIZED'`) — should use custom error classes
-3. **Audit route** checks role inline instead of reusing `requireRole` middleware
-4. **`actorRole`** in ChangeTaskStatusUseCase is typed as `string` instead of `Role` enum
-5. **UpdateTaskUseCase** doesn't publish a domain event (other mutations do)
+1. `LoginUseCase` imports `config` directly — should inject JWT secret via constructor
+2. Error handling uses string matching (`err.message === 'UNAUTHORIZED'`) — should use typed errors
+3. Audit route checks role inline instead of reusing `requireRole`
+4. `actorRole` in `ChangeTaskStatusUseCase` typed as `string` instead of `Role`
+5. `UpdateTaskUseCase` doesn't publish a domain event (other mutations do)
+6. `ReminderScheduler` keeps the "already reminded" set in process memory only —
+   restarts will re-fire reminders for tasks still in window. Persist to repo
+   when MongoDB lands (Sprint 8).
 
-None of these are blocking — all are minor improvements for a future sprint.
+None blocking; tracked for a future cleanup sprint.

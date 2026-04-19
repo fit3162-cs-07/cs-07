@@ -170,3 +170,45 @@ sequenceDiagram
 
     Note over Admin,AL: ✅ Task assigned — audit trail recorded
 ```
+
+---
+
+## 4. Reminder Check (Background — node-cron)
+
+```mermaid
+---
+title: ⏰ ReminderScheduler — Background Due-Date Check
+---
+sequenceDiagram
+    participant Cron as ⏱️ node-cron (*/5 * * * *)
+    participant Sch as 🛎️ ReminderScheduler
+    participant UC as ⚙️ CheckDueRemindersUseCase
+    participant Repo as 🗄️ InMemoryTaskRepository
+    participant EB as 📡 EventBus
+    participant AL as 📝 AuditLogger
+
+    Note over Cron,AL: Runs every 5 minutes once the server is up
+
+    Cron->>+Sch: tick()
+    Sch->>+UC: execute({ lookaheadMs: 24h })
+
+    UC->>UC: now = clock()<br/>horizon = now + 24h
+    UC->>+Repo: findAll()
+    Repo-->>-UC: Task[]
+
+    UC->>UC: filter — dueDate in (now, horizon],<br/>status !== DONE,<br/>not in alreadyReminded set
+
+    loop For each due task
+        UC->>+EB: publish(TaskReminderDueEvent)
+        EB->>+AL: handle(TaskReminderDueEvent)
+        AL->>AL: Append audit entry
+        deactivate AL
+        deactivate EB
+        UC->>UC: alreadyReminded.add(task.id)
+    end
+
+    UC-->>-Sch: { remindedCount, remindedTaskIds }
+    Sch-->>-Cron: log if remindedCount > 0
+
+    Note over UC,AL: alreadyReminded is in-memory only — restart re-fires.<br/>Persist when MongoDB lands (Sprint 8).
+```

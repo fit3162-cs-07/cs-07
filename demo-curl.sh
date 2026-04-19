@@ -113,6 +113,20 @@ header "16. Audit log (Admin only)"
 curl -s -X GET "$BASE/audit" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
 
+# ---- 11a. R3 REMINDERS — create a soon-due task and surface audit entry ----
+# The ReminderScheduler runs every 5 min with a 24h lookahead. Any task whose
+# dueDate falls in (now, now+24h] and is not DONE will appear in the audit log
+# as a "TaskReminderDue" entry on the next tick.
+header "16a. R3: Create a task due in 1 hour to trigger a reminder"
+SOON_ISO=$(date -u -v+1H +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d "+1 hour" +%Y-%m-%dT%H:%M:%SZ)
+curl -s -X POST "$BASE/tasks" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" \
+  -d "{\"title\":\"Reminder demo task\",\"description\":\"Due within 1 hour — scheduler should fire on next tick\",\"priority\":\"HIGH\",\"dueDate\":\"$SOON_ISO\"}" | jq .
+
+label "Wait up to 5 min, then re-fetch the audit log to see TaskReminderDue entries:"
+echo "  curl -s $BASE/audit -H 'Authorization: Bearer \$ADMIN_TOKEN' | jq '.data[] | select(.eventType==\"TaskReminderDue\")'"
+
 # ---- 12. DELETE TASK ----
 header "17. Delete task"
 curl -s -o /dev/null -w "HTTP Status: %{http_code}\n" -X DELETE "$BASE/tasks/$TASK_ID" \
