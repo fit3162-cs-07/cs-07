@@ -1,139 +1,185 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-12
+**Last updated:** 2026-04-20
+**Sprint:** Sprint 7 (week beginning Mon 21 Apr 2026)
+
+---
+
+## Truth-in-state notes (read first)
+
+- **R5 (filter/search/pagination)** is complete on `feat/task-filter-search` and
+  awaiting PR review/merge — not yet on `main`.
+- **R3 (deadlines and reminders)** is complete on `feat/reminder-module` and
+  awaiting PR review/merge — not yet on `main`.
+- **Frontend MVP** is in progress on **this branch** (`feat/frontend-build`).
+  React 19 + Vite + Tailwind, full router + design system + 7 pages. Architecture
+  rules in `docs/FRONTEND_ARCHITECTURE.md`.
+- **`frontend/src/legacy/App.legacy.tsx`** — the original demo UI was relocated
+  here for reference; it is not mounted, excluded from tsc and eslint.
+- **Active feature branches in remote:**
+  - `feat/task-filter-search` — R5, awaiting merge (Thanh)
+  - `feat/reminder-module` — R3, awaiting merge (Thanh)
+  - `feat/frontend-build` — frontend MVP, this PR (Thanh)
+  - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
+    (login screen + UI work; **do not touch**)
+- **Stale remote branches removed last session**: `backend`, `frontend`,
+  `feature/database`. The branch `feature/set-up-skeleton` could not be deleted
+  because it is still set as the GitHub repository default branch — flagged for
+  the team to flip the default to `main` and prune.
+
+---
+
+## RTM Coverage (gap analysis)
+
+| Req | Description | Priority | Status | What's missing | Covering branch / PR |
+|-----|-------------|----------|--------|----------------|----------------------|
+| R1  | Admin CRUD tasks | High | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` (this PR) |
+| R2  | Admin assign tasks to members | High | ✅ Backend on main · ✅ Frontend (UUID input) | UI picker awaits a `/users` endpoint | `feat/frontend-build` |
+| R3  | Deadlines and reminders | Medium | 🚧 PR pending (backend) | Reminder delivery channel; in-process dedupe persistence | `feat/reminder-module` |
+| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | 🚧 PR pending (frontend) | Kanban board with drag-and-drop is built; needs R5 merge for richer filters | `feat/frontend-build` |
+| R5  | Categorize / filter / search | Medium | 🚧 PR pending (backend) · ✅ Frontend | Backend awaits review; frontend filter UI ships with R5 fields visible (no-ops until merge) | `feat/task-filter-search` + `feat/frontend-build` |
+| R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
+| R7  | Role-based access control | High | ✅ Backend on main · ✅ Frontend (route guard + UI gating) | — | `feat/frontend-build` |
+| R8  | Responsive design | Medium | 🚧 Partial | AppShell + grids are responsive (md/lg breakpoints); needs review on small screens | `feat/frontend-build` |
+| R13 | Page load under 3 s | High | 🚧 Initial bundle 290kB / 91kB gzipped | Code-splitting + image strategy when assets land | future sprint |
 
 ---
 
 ## Backend
 
-### Identity Module
-- ✅ User entity (id, email, name, passwordHash, role)
-- ✅ Role enum (ADMIN, MEMBER)
-- ✅ IUserRepository interface + InMemoryUserRepository
-- ✅ RegisterUseCase (Zod validation, bcrypt hashing)
-- ✅ LoginUseCase (credential verification, JWT issuance)
-- ✅ Auth routes: `POST /register`, `POST /login`
-- ✅ authMiddleware (JWT verification)
-- ✅ requireRole middleware (RBAC)
+### Identity Module — on main
+- ✅ User entity, Role enum (ADMIN, MEMBER)
+- ✅ `IUserRepository` + `InMemoryUserRepository`
+- ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance)
+- ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`
+- ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
 
-### Task Module
-- ✅ Task entity (title, description, status, priority, assigneeId, dueDate, createdBy, clubId)
-- ✅ TaskStatus enum (TODO, IN_PROGRESS, DONE)
-- ✅ TaskPriority enum (LOW, MEDIUM, HIGH)
-- ✅ ITaskRepository interface + InMemoryTaskRepository
-- ✅ CreateTaskUseCase + TaskCreatedEvent
-- ✅ UpdateTaskUseCase (no domain event — see Known Issues)
-- ✅ DeleteTaskUseCase + TaskDeletedEvent
-- ✅ AssignTaskUseCase + TaskAssignedEvent
-- ✅ ChangeTaskStatusUseCase + TaskStatusChangedEvent
-- ✅ GetTasksUseCase (filters: status, priority, assigneeId)
-- ✅ GetTaskByIdUseCase
-- ✅ Task routes: full CRUD + assign + status change
+### Task Module — partially on main
+- ✅ Task entity, `TaskStatus`, `TaskPriority`
+- ✅ `ITaskRepository` + `InMemoryTaskRepository`
+- ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks (basic filters)
+- ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`, `TaskDeleted`
+- ✅ Routes: full CRUD + `/assign` + `/status`
+- 🚧 (on `feat/task-filter-search`, awaiting merge) `Tag` value object, `TaskFilter`
+  value object, `GetTasksUseCase` with pagination + RBAC scoping, multi-tag /
+  text / date-range filters
+- 🚧 (on `feat/reminder-module`, awaiting merge) `TaskReminderDueEvent`,
+  `CheckDueRemindersUseCase`, `ReminderScheduler` (node-cron), audit-logger
+  registration of `TaskReminderDue`
 
-### Shared Infrastructure
-- ✅ Base Entity class (id, createdAt, updatedAt)
-- ✅ DomainEvent interface + EventBus (NodeEventBus via EventEmitter)
-- ✅ UseCase interface
-- ✅ AuditLogger (subscribes to events, stores audit trail)
-- ✅ Audit route: `GET /api/v1/audit` (admin only)
-- ✅ ApiResponse helpers (standard response envelope)
-- ✅ Error handler middleware
-- ✅ Request logger middleware
+### Shared Infrastructure — on main
+- ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
+- ✅ `UseCase` interface
+- ✅ `AuditLogger` subscribed to task events; `GET /api/v1/audit` (admin only)
+- ✅ Middleware: auth, requireRole, errorHandler, requestLogger
+- ✅ `ApiResponse` helpers; standard `{ success, data | error }` envelope
 - ✅ Config module (env vars)
 
-### Seed Data
-- ✅ 3 pre-seeded users (1 admin, 2 members)
-- ✅ 5 pre-seeded tasks (various statuses/priorities)
+### Seed Data — on main
+- ✅ 3 users (1 admin, 2 members) and 5 tasks across statuses/priorities
 
-### Club/Event Module
-- ❌ Club entity (id, name, description, members)
-- ❌ IClubRepository interface + implementation
-- ❌ Club CRUD use cases and routes
-- ❌ Link tasks to clubs (clubId field exists on Task but unused)
-
-### Notification Module
-- ❌ Notification entity
-- ❌ Reminder logic for approaching deadlines
-- ❌ Email or in-app notification delivery
-- ❌ Notification preferences
+### Not started
+- ❌ `/users` listing endpoint (frontend assignee picker depends on it)
+- ❌ Club entity / `IClubRepository` (Task already has unused `clubId` field)
+- ❌ Notification module (delivery channel / preferences)
+- ❌ R6 file attachments
 
 ---
 
-## Frontend
+## Frontend (this PR)
 
-- 🚧 Vite + React + TypeScript scaffold created (`frontend/`)
-- ❌ Login page
-- ❌ Kanban board UI
-- ❌ Task cards / detail view
-- ❌ Admin panel (create/edit/delete/assign tasks)
-- ❌ Responsive design
-- ❌ Connected to backend API
+### Foundation
+- ✅ Tailwind v3 with the locked palette (Tailwind theme overrides defaults)
+- ✅ Inter font + design tokens (`src/design/tokens.ts`)
+- ✅ Typed API service layer with JWT injection + envelope-aware error handling
+- ✅ `AuthContext` (sessionStorage) + `useAuth` + `ProtectedRoute`
+- ✅ React Router v6 with public + protected routes + 404
+- ✅ `AppShell` (top nav + sidebar)
+- ✅ UI primitives: `Button`, `Input`, `Textarea`, `Select`, `Field`, `Card`,
+  `Badge` (incl. `StatusBadge`/`PriorityBadge`), `Modal`, `Toast`, `Dropdown`,
+  `PageHeader`, `EmptyState`
+
+### Pages
+- ✅ `LoginPage` — seeded credentials, error surfacing, redirect-to-intended-route
+- ✅ `RegisterPage` — name/email/password/role with inline validation, auto-login
+- ✅ `DashboardPage` — welcome, three stats (total / due-this-week / in-progress),
+  recent tasks, audit feed for admins
+- ✅ `TasksPage` — filter sidebar + table view + pagination (page meta optional)
+- ✅ `TaskDetailPage` — full detail card, admin actions, status quick-action,
+  per-task audit feed for admins
+- ✅ `KanbanPage` — three columns with `@dnd-kit` drag-and-drop, RBAC-scoped
+  drag (admin can move any; member only own/assigned), filter bar, optimistic
+  status update with rollback on failure
+- ✅ `TaskFormModal` — reusable create/edit; status + assignee changes route
+  through their dedicated endpoints
+- ✅ `NotFoundPage`
+
+### Verified
+- ✅ `npm run build` (tsc + vite) clean — 290 kB / 91 kB gzipped initial bundle
+- ✅ `npm run lint` clean
+- ✅ `npm run dev` boots on :5173, serves `index.html` 200
+- ⚠️ Browser smoke-test against the running backend not yet performed in this
+  session — golden-path E2E pending
+
+### Outstanding (intentional, scoped for teammates)
+- `TODO(ruizhi)` — login polish + "Remember me"
+- `TODO(ethan)` — Cypress E2E for edit-event flow
+- `TODO(ethan)` — register-page validation polish (inline errors, password
+  strength, debounced uniqueness)
 
 ---
 
 ## Database
 
 - ✅ In-memory repositories (Map-based, implements repository interfaces)
-- ✅ Seed data loaded on startup
-- ❌ MongoDB / Mongoose schemas
-- ❌ MongoDB repository implementations
-- ❌ Database connection setup
-- ❌ Indexes
-- ❌ Migration / seed scripts for MongoDB
+- ✅ Seed loaded on startup
+- ❌ MongoDB / Mongoose schemas, repos, connection setup (planned Sprint 8)
 
 ---
 
 ## Testing
 
-- ✅ 6 test suites, 21 tests — all passing
-- ✅ Unit: Task entity (5 tests)
-- ✅ Unit: CreateTaskUseCase (2 tests)
-- ✅ Unit: LoginUseCase (3 tests)
-- ✅ Unit: EventBus (1 test)
-- ✅ Integration: Auth routes (6 tests)
-- ✅ Integration: Task routes (4 tests)
-- ❌ E2E tests
-- ❌ Test coverage reporting configured
+- ✅ Main: 6 suites, 21 tests
+- ✅ R3 branch (`feat/reminder-module`): 7 suites, 28 tests
+- ✅ R5 branch (`feat/task-filter-search`): 9 suites, 61 tests
+- ❌ Frontend unit tests (deferred — Vitest not yet wired)
+- ❌ Cypress E2E (owned by Ethan)
+- ❌ Coverage reporting in CI
 
 ---
 
 ## Infrastructure
 
-- ✅ TypeScript strict mode
-- ✅ ESLint + Prettier
-- ✅ Jest + ts-jest
-- ✅ GitHub Actions CI pipeline
-- ✅ Dockerfile
-- ✅ docker-compose.yml (API + MongoDB placeholder)
-- ✅ .env.example
-- ❌ Deployed to Azure Container Apps
-- ❌ Production environment configured
-- ❌ HTTPS / TLS setup
+- ✅ TypeScript strict, ESLint + Prettier, Jest + ts-jest (backend)
+- ✅ Vite + React 19 + Tailwind v3 (frontend)
+- ✅ GitHub Actions: lint + typecheck + tests
+- ✅ Branch protection on `main`
+- ✅ Dockerfile + docker-compose.yml (API + MongoDB placeholder)
+- ✅ `.env.example`
+- ⚠️ GitHub default branch is still `feature/set-up-skeleton` — should be flipped
+  to `main` so PRs default correctly and the stale branch can be pruned
+- ❌ Deployment (Azure Container Apps / similar)
+- ❌ HTTPS / TLS
 
 ---
 
-## RTM Coverage
+## Open PRs (Sprint 7)
 
-| Req | Description | Priority | Status |
-|-----|-------------|----------|--------|
-| R1 | Admin CRUD tasks | High | ✅ Done |
-| R2 | Admin assign tasks to members | High | ✅ Done |
-| R3 | Deadlines and reminders | Medium | 🚧 Partial — dueDate stored, no reminder logic |
-| R4 | Kanban status view (ToDo/InProgress/Done) | Medium | 🚧 Backend done, needs frontend |
-| R5 | Categorize/filter/search tasks | Medium | 🚧 Partial — filters done, no full-text search or tags |
-| R6 | File attachments | Low | ❌ Not started |
-| R7 | Role-based access control | High | ✅ Done |
-| R8 | Responsive design | Medium | ❌ Not started (no frontend yet) |
-| R13 | Page load under 3 seconds | High | ❌ N/A until frontend exists |
+- **#1** `feat/task-filter-search → main` — R5 (filter/search/pagination)
+- **#2** `feat/reminder-module → main` — R3 (cron + reminder events)
+- **#3** `feat/frontend-build → main` — full frontend MVP (this PR)
 
 ---
 
-## Known Issues
+## Known issues (carried)
 
-1. **LoginUseCase** imports `config` directly — should inject JWT secret via constructor (onion architecture violation)
-2. **Error handling** uses string matching (`err.message === 'UNAUTHORIZED'`) — should use custom error classes
-3. **Audit route** checks role inline instead of reusing `requireRole` middleware
-4. **`actorRole`** in ChangeTaskStatusUseCase is typed as `string` instead of `Role` enum
-5. **UpdateTaskUseCase** doesn't publish a domain event (other mutations do)
-
-None of these are blocking — all are minor improvements for a future sprint.
+1. `LoginUseCase` imports `config` directly — should inject JWT secret via constructor
+2. Error handling uses string matching (`err.message === 'UNAUTHORIZED'`) — should use typed errors
+3. Audit route checks role inline instead of reusing `requireRole`
+4. `actorRole` in `ChangeTaskStatusUseCase` typed as `string` instead of `Role`
+5. `UpdateTaskUseCase` doesn't publish a domain event (other mutations do)
+6. `ReminderScheduler` keeps the "already reminded" set in process memory only —
+   restarts will re-fire reminders for tasks still in window. Persist to repo
+   when MongoDB lands (Sprint 8).
+7. Frontend assignee picker is a free-text UUID field — depends on a `/users`
+   listing endpoint that the backend does not yet expose.

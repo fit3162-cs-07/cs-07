@@ -1,227 +1,29 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #f0f2f5;
-  color: #1a1a2e;
-}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-button {
-  cursor: pointer;
-  border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
-  font-size: 14px;
-  font-weight: 500;
-  transition: opacity 0.2s;
-}
-button:hover { opacity: 0.85; }
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
 
-input, select, textarea {
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
-  padding: 8px 12px;
-  font-size: 14px;
-  width: 100%;
-  outline: none;
-}
-input:focus, select:focus, textarea:focus {
-  border-color: #4f46e5;
-  box-shadow: 0 0 0 2px rgba(79,70,229,0.15);
+  body {
+    @apply bg-page text-ink font-sans text-base antialiased;
+  }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    border-radius: 6px;
+  }
 }
 
-/* ---------- Navbar ---------- */
-.navbar {
-  background: #1a1a2e;
-  color: #fff;
-  padding: 12px 24px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.navbar h1 { font-size: 18px; font-weight: 600; }
-.navbar-right { display: flex; align-items: center; gap: 12px; font-size: 14px; }
-.navbar button {
-  background: rgba(255,255,255,0.15);
-  color: #fff;
-  font-size: 13px;
-}
-
-/* ---------- Login ---------- */
-.login-page {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-.login-card {
-  background: #fff;
-  padding: 40px;
-  border-radius: 12px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
-  width: 380px;
-}
-.login-card h2 { margin-bottom: 8px; }
-.login-card p { color: #6b7280; font-size: 14px; margin-bottom: 24px; }
-.login-card .field { margin-bottom: 16px; }
-.login-card label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #374151; }
-.login-card .btn-primary {
-  width: 100%;
-  background: #4f46e5;
-  color: #fff;
-  padding: 10px;
-  font-size: 15px;
-  margin-top: 8px;
-}
-.login-card .error { color: #dc2626; font-size: 13px; margin-top: 8px; }
-.login-card .seed-info {
-  margin-top: 20px;
-  padding: 12px;
-  background: #f9fafb;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #6b7280;
-  line-height: 1.6;
-}
-
-/* ---------- Board ---------- */
-.board-container { padding: 24px; }
-.board-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-.board-header h2 { font-size: 22px; }
-.btn-create {
-  background: #4f46e5;
-  color: #fff;
-  padding: 10px 20px;
-  font-size: 14px;
-}
-
-.kanban {
-  display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 16px;
-  min-height: 500px;
-}
-
-.kanban-col {
-  background: #e5e7eb;
-  border-radius: 10px;
-  padding: 12px;
-}
-.kanban-col-header {
-  font-size: 13px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.kanban-col-header .count {
-  background: rgba(0,0,0,0.12);
-  border-radius: 10px;
-  padding: 2px 8px;
-  font-size: 12px;
-}
-
-.col-todo .kanban-col-header { color: #b45309; }
-.col-inprogress .kanban-col-header { color: #2563eb; }
-.col-done .kanban-col-header { color: #16a34a; }
-
-/* ---------- Task Card ---------- */
-.task-card {
-  background: #fff;
-  border-radius: 8px;
-  padding: 14px;
-  margin-bottom: 10px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
-  cursor: pointer;
-  transition: box-shadow 0.15s;
-}
-.task-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.12); }
-.task-card-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
-.task-card-desc { font-size: 12px; color: #6b7280; margin-bottom: 8px; line-height: 1.4; }
-.task-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
-
-.badge {
-  font-size: 11px;
-  font-weight: 600;
-  padding: 2px 8px;
-  border-radius: 10px;
-}
-.badge-high { background: #fef2f2; color: #dc2626; }
-.badge-medium { background: #fffbeb; color: #d97706; }
-.badge-low { background: #f0fdf4; color: #16a34a; }
-.badge-assignee { background: #eff6ff; color: #2563eb; }
-.badge-due { background: #f5f3ff; color: #7c3aed; }
-
-/* ---------- Modal ---------- */
-.modal-backdrop {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 100;
-}
-.modal {
-  background: #fff;
-  border-radius: 12px;
-  padding: 28px;
-  width: 460px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-}
-.modal h3 { margin-bottom: 20px; font-size: 18px; }
-.modal .field { margin-bottom: 14px; }
-.modal label { display: block; font-size: 13px; font-weight: 500; margin-bottom: 4px; color: #374151; }
-.modal-actions {
-  display: flex;
-  gap: 10px;
-  justify-content: flex-end;
-  margin-top: 20px;
-}
-.btn-cancel { background: #e5e7eb; color: #374151; }
-.btn-save { background: #4f46e5; color: #fff; }
-.btn-delete { background: #dc2626; color: #fff; }
-.btn-status { background: #e5e7eb; color: #374151; font-size: 12px; padding: 6px 10px; }
-.btn-status.active { background: #4f46e5; color: #fff; }
-
-/* ---------- Filters ---------- */
-.filters {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-  align-items: center;
-}
-.filters select, .filters input {
-  width: auto;
-  min-width: 140px;
-}
-.filters label { font-size: 13px; font-weight: 500; margin-right: 4px; }
-
-/* ---------- Toast ---------- */
-.toast {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  background: #1a1a2e;
-  color: #fff;
-  padding: 12px 20px;
-  border-radius: 8px;
-  font-size: 14px;
-  z-index: 200;
-  animation: slideIn 0.3s ease;
-}
-@keyframes slideIn {
-  from { transform: translateY(20px); opacity: 0; }
-  to { transform: translateY(0); opacity: 1; }
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
 }
