@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30 (rev 3)
+**Last updated:** 2026-04-30 (rev 4)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -50,15 +50,16 @@ lib/
 
 components/
   ProtectedRoute.tsx — redirects unauthenticated users to /login (preserves intended path)
+  ErrorBoundary.tsx  — class boundary; mounted per-route in AppShell, resets on route change
   layout/
-    AppShell.tsx     — TopNav + Sidebar + <Outlet/>
+    AppShell.tsx     — TopNav + Sidebar + ErrorBoundary + <Outlet/>
     TopNav.tsx       — logo + user menu
     Sidebar.tsx      — Dashboard / Tasks / Kanban
   dashboard/
     UpcomingReminders.tsx — R3 surfacing widget for the dashboard
   ui/
     Button, Input, Textarea, Select, Field, Card, Badge,
-    Modal, Toast, Dropdown, PageHeader, EmptyState
+    Modal, Toast, Dropdown, PageHeader, EmptyState, Skeleton (+ SkeletonText)
 
 features/
   tasks/
@@ -133,7 +134,11 @@ the table above. Same goes for spacing (4/8/12/16/24/32/48 only) and font sizes.
 - Page-level data lives in local `useState` and is fetched in `useEffect` using
   the `api/*` helpers. Don't reach into `client.ts` directly from a page.
 - Show `loading` and empty states explicitly. Use `EmptyState` for "nothing
-  here yet" affordances.
+  here yet" affordances and `Skeleton` / `SkeletonText` for loading
+  placeholders that mirror the eventual layout.
+- Render-time exceptions are caught by the `ErrorBoundary` mounted around
+  the routed `<Outlet/>` in `AppShell`. The boundary is keyed on
+  `location.pathname`, so navigating away clears a previous failure.
 
 ### API calls
 

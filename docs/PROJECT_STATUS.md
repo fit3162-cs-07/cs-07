@@ -14,6 +14,7 @@
 | #3  | `feat/frontend-build` | Frontend MVP — design system, router, AuthContext, 7 pages, drag-and-drop Kanban | 2026-04-30 |
 | #5  | `feature/users-endpoint` | `/users` listing + assignee dropdown UX (replaces orphaned PR #4) | 2026-04-30 |
 | #6  | `feature/dashboard-reminder-widget` | R3 frontend — `UpcomingReminders` card on the dashboard | 2026-04-30 |
+| #7  | `feature/account-page` | Self-service account page + `/users/me`, `/users/me/password` endpoints | 2026-04-30 |
 | #8  | `feature/frontend-test-harness` | Vitest + jsdom + Testing Library wired in `frontend/`; CI split into backend / frontend jobs | 2026-04-30 |
 
 `main` now contains the complete vertical slice (backend modules + frontend
@@ -31,7 +32,7 @@ frontend test harness. Smoke-tested locally before each merge.
   single-file demo UI — kept for reference, not mounted, excluded from tsc
   and eslint.
 - **Active feature branches in remote:**
-  - `feature/account-page` — PR #7, this PR
+  - `feature/loading-and-empty-states` — PR #9, this PR
   - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
     (login screen + UI work; **do not touch**)
   - `feature/createEvent` — Ethan's; **do not touch**
@@ -110,7 +111,7 @@ frontend test harness. Smoke-tested locally before each merge.
 
 ---
 
-## Frontend — on main (+ PR #6, PR #7)
+## Frontend — on main (+ PR #9)
 
 ### Foundation
 - ✅ Tailwind v3 with the locked palette (Tailwind theme overrides defaults)
@@ -123,22 +124,24 @@ frontend test harness. Smoke-tested locally before each merge.
 - ✅ `AppShell` (top nav + sidebar)
 - ✅ UI primitives: `Button`, `Input`, `Textarea`, `Select`, `Field`, `Card`,
   `Badge` (incl. `StatusBadge`/`PriorityBadge`), `Modal`, `Toast`, `Dropdown`,
-  `PageHeader`, `EmptyState`
+  `PageHeader`, `EmptyState`. PR #9 adds `Skeleton` / `SkeletonText` and a
+  reusable `ErrorBoundary` (mounted per-route in `AppShell`).
 - ✅ `useUsers` hook + `UsersContext` — single source of truth for user
   display names across pages
 
 ### Pages
 - ✅ `LoginPage`, `RegisterPage`, `DashboardPage`, `TasksPage`,
-  `TaskDetailPage`, `KanbanPage`, `NotFoundPage`
+  `TaskDetailPage`, `KanbanPage`, `AccountPage`, `NotFoundPage`
 - ✅ `TaskFormModal` (reusable create/edit) with assignee dropdown
 - ✅ `UpcomingReminders` card on `DashboardPage` — surfaces tasks due in the
   next 24 hours plus anything overdue from the last 30 days
-- 🚧 (PR #7) `AccountPage` at `/account` — read-only email/role, change-name
-  form, change-password form. Dropdown in `TopNav` gains an "Account
-  settings" link above "Sign out".
+- 🚧 (PR #9) Skeletons replace text-only "Loading…" states across
+  `DashboardPage`, `TasksPage`, `TaskDetailPage`, `KanbanPage`, and
+  `UpcomingReminders`. `ErrorBoundary` wraps the routed `<Outlet/>` and
+  resets when the path changes, so a render-time exception on one page no
+  longer takes down the shell.
 
 ### Outstanding (planned this sprint)
-- Loading skeletons + ErrorBoundary (Task C)
 - Mobile drawer + breakpoint polish (Task D — closes R8)
 - Auth pages polish: validation, password strength, "Remember me",
   forgot-password stub (Task E)
@@ -164,15 +167,12 @@ frontend test harness. Smoke-tested locally before each merge.
 
 ## Testing
 
-- ✅ Backend on main: 12 suites, 76 tests — repo-root `tests/` (Jest +
+- ✅ Backend on main: 15 suites, 90 tests — repo-root `tests/` (Jest +
   Supertest)
-- ✅ Frontend on main: Vitest harness (jsdom + Testing Library + jest-dom +
-  user-event). Tests live in `frontend/tests/`. `UpcomingReminders` component
-  tests merged with PR #6.
-- 🚧 (PR #7) Backend: `UpdateProfileUseCase`, `ChangePasswordUseCase` unit
-  tests + `tests/integration/account.test.ts` (15 new backend tests).
-- 🚧 (PR #7) Frontend: `AccountPage` profile-form and password-form component
-  tests inline (validation, submission, success/error UX).
+- ✅ Frontend on main: 5 suites, 22 tests — Vitest (jsdom + Testing Library +
+  jest-dom + user-event) under `frontend/tests/`
+- 🚧 (PR #9) Frontend: `Skeleton` (+ `SkeletonText`) and `ErrorBoundary`
+  component tests inline (10 new frontend tests).
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -194,16 +194,15 @@ frontend test harness. Smoke-tested locally before each merge.
 
 ## Open PRs (Sprint 7)
 
-- **#7** `feature/account-page → main` — Self-service account page +
-  `/users/me`, `/users/me/password` endpoints
+- **#9** `feature/loading-and-empty-states → main` — Skeleton primitives +
+  `ErrorBoundary` wired into pages and the `AppShell` outlet
 
 ### Outstanding queue (this contributor)
-1. Loading skeletons + ErrorBoundary (`feature/loading-and-empty-states`)
-2. Responsive polish (`feature/responsive-polish`)
-3. Auth pages polish + "Remember me" wrappers (`feature/auth-pages-polish`)
-4. Admin user management — backend (`feature/admin-users-backend`)
-5. Admin user management — frontend (`feature/admin-users-frontend`)
-6. Notifications module + bell (`feature/notifications`)
+1. Responsive polish (`feature/responsive-polish`)
+2. Auth pages polish + "Remember me" wrappers (`feature/auth-pages-polish`)
+3. Admin user management — backend (`feature/admin-users-backend`)
+4. Admin user management — frontend (`feature/admin-users-frontend`)
+5. Notifications module + bell (`feature/notifications`)
 
 ---
 

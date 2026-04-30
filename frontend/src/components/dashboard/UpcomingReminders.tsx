@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Card, CardSubtitle, CardTitle } from '../ui/Card';
 import { Badge } from '../ui/Badge';
+import { Skeleton } from '../ui/Skeleton';
 import * as taskApi from '../../api/tasks';
 import { useToast } from '../../hooks/useToast';
 import { useUsers } from '../../hooks/useUsers';
@@ -53,7 +54,7 @@ export function UpcomingReminders() {
       <CardSubtitle>Tasks due in the next 24 hours, plus anything overdue from the last 30 days.</CardSubtitle>
       <div className="mt-4 flex flex-col divide-y divide-border">
         {loading ? (
-          <p className="text-sm text-muted py-4">Loading…</p>
+          <RemindersSkeleton />
         ) : actionable.length === 0 ? (
           <p className="text-sm text-muted py-4">Nothing due in the next 24 hours.</p>
         ) : (
@@ -68,6 +69,22 @@ export function UpcomingReminders() {
         )}
       </div>
     </Card>
+  );
+}
+
+function RemindersSkeleton() {
+  return (
+    <div className="flex flex-col" data-testid="reminders-skeleton">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="py-3 flex items-center justify-between gap-3">
+          <div className="flex-1 flex flex-col gap-2">
+            <Skeleton width="55%" height={16} />
+            <Skeleton width="35%" height={12} />
+          </div>
+          <Skeleton width={64} height={20} />
+        </div>
+      ))}
+    </div>
   );
 }
 

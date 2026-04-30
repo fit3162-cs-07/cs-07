@@ -7,6 +7,7 @@ import { Select } from '../components/ui/Select';
 import { Field } from '../components/ui/Field';
 import { StatusBadge, PriorityBadge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/Skeleton';
 import { TaskFormModal } from '../features/tasks/TaskFormModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -68,7 +69,7 @@ export function TaskDetailPage() {
     );
   }
   if (loading || !task) {
-    return <p className="text-base text-muted">Loading…</p>;
+    return <TaskDetailSkeleton />;
   }
 
   const canChangeStatus = isAdmin || (user?.id !== undefined && (task.assigneeId === user.id || task.createdBy === user.id));
@@ -205,6 +206,38 @@ export function TaskDetailPage() {
         }}
       />
     </>
+  );
+}
+
+function TaskDetailSkeleton() {
+  return (
+    <div data-testid="task-detail-skeleton" className="flex flex-col gap-6">
+      <div className="flex flex-col gap-2">
+        <Skeleton width="60%" height={28} />
+        <Skeleton width="80%" height={16} />
+      </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card>
+            <Skeleton width="40%" height={20} />
+            <Skeleton width="70%" height={12} className="mt-2" />
+            <div className="grid grid-cols-2 gap-4 mt-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="flex flex-col gap-2">
+                  <Skeleton width="40%" height={12} />
+                  <Skeleton width="80%" height={16} />
+                </div>
+              ))}
+            </div>
+          </Card>
+        </div>
+        <Card>
+          <Skeleton width="60%" height={20} />
+          <Skeleton width="80%" height={12} className="mt-2" />
+          <Skeleton width="100%" height={36} className="mt-4" />
+        </Card>
+      </div>
+    </div>
   );
 }
 

@@ -5,6 +5,7 @@ import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge, PriorityBadge } from '../components/ui/Badge';
 import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/Skeleton';
 import { TaskFilters } from '../features/tasks/TaskFilters';
 import { TaskFormModal } from '../features/tasks/TaskFormModal';
 import { useAuth } from '../hooks/useAuth';
@@ -73,9 +74,7 @@ export function TasksPage() {
 
         <div className="flex flex-col gap-4">
           {loading ? (
-            <Card>
-              <p className="text-sm text-muted">Loading tasks…</p>
-            </Card>
+            <TaskTableSkeleton />
           ) : tasks.length === 0 ? (
             <EmptyState
               title="No tasks match"
@@ -155,5 +154,38 @@ export function TasksPage() {
         }}
       />
     </>
+  );
+}
+
+function TaskTableSkeleton() {
+  return (
+    <Card padded={false} data-testid="tasks-skeleton">
+      <div className="overflow-x-auto">
+        <table className="w-full text-base">
+          <thead className="bg-page text-sm text-muted">
+            <tr className="text-left">
+              <th className="px-4 py-3 font-medium">Title</th>
+              <th className="px-4 py-3 font-medium">Status</th>
+              <th className="px-4 py-3 font-medium">Priority</th>
+              <th className="px-4 py-3 font-medium">Assignee</th>
+              <th className="px-4 py-3 font-medium">Due date</th>
+              <th className="px-4 py-3 font-medium">Tags</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <tr key={i} className="border-t border-border">
+                <td className="px-4 py-3"><Skeleton width="80%" height={16} /></td>
+                <td className="px-4 py-3"><Skeleton width={64} height={20} /></td>
+                <td className="px-4 py-3"><Skeleton width={56} height={20} /></td>
+                <td className="px-4 py-3"><Skeleton width="70%" height={16} /></td>
+                <td className="px-4 py-3"><Skeleton width={72} height={16} /></td>
+                <td className="px-4 py-3"><Skeleton width={48} height={16} /></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </Card>
   );
 }
