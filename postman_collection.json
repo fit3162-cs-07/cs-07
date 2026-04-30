@@ -176,7 +176,55 @@
           }
         },
         {
-          "name": "2d. Get All Tasks (filter by priority)",
+          "name": "2d. Get All Tasks (filter by tag)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tasks?tag=urgent",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [{ "key": "tag", "value": "urgent" }]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "2e. Search tasks by keyword",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tasks?search=venue",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [{ "key": "search", "value": "venue" }]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "2f. Paginated tasks (page 1, limit 2)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/tasks?page=1&limit=2",
+              "host": ["{{baseUrl}}"],
+              "path": ["tasks"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "2" }
+              ]
+            },
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{adminToken}}" }
+            ]
+          }
+        },
+        {
+          "name": "2g. Filter by priority",
           "request": {
             "method": "GET",
             "url": {
@@ -191,7 +239,7 @@
           }
         },
         {
-          "name": "2e. Get Task by ID",
+          "name": "2h. Get Task by ID",
           "request": {
             "method": "GET",
             "url": "{{baseUrl}}/tasks/{{taskId}}",
@@ -201,7 +249,7 @@
           }
         },
         {
-          "name": "2f. Assign Task to Member",
+          "name": "2i. Assign Task to Member",
           "request": {
             "method": "PATCH",
             "url": "{{baseUrl}}/tasks/{{taskId}}/assign",
@@ -216,7 +264,7 @@
           }
         },
         {
-          "name": "2g. Change Status → IN_PROGRESS",
+          "name": "2j. Change Status → IN_PROGRESS",
           "request": {
             "method": "PATCH",
             "url": "{{baseUrl}}/tasks/{{taskId}}/status",
@@ -231,7 +279,7 @@
           }
         },
         {
-          "name": "2h. Change Status → DONE",
+          "name": "2k. Change Status → DONE",
           "request": {
             "method": "PATCH",
             "url": "{{baseUrl}}/tasks/{{taskId}}/status",
@@ -246,7 +294,7 @@
           }
         },
         {
-          "name": "2i. Update Task",
+          "name": "2l. Update Task",
           "request": {
             "method": "PUT",
             "url": "{{baseUrl}}/tasks/{{taskId}}",
@@ -261,7 +309,7 @@
           }
         },
         {
-          "name": "2j. Delete Task",
+          "name": "2m. Delete Task",
           "request": {
             "method": "DELETE",
             "url": "{{baseUrl}}/tasks/{{taskId}}",

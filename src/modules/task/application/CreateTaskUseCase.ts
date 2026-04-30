@@ -19,6 +19,7 @@ export class CreateTaskUseCase implements UseCase<CreateTaskDTO & { createdBy: s
       dueDate: input.dueDate,
       assigneeId: input.assigneeId,
       createdBy: input.createdBy,
+      tags: input.tags,
     });
 
     await this.taskRepo.save(task);

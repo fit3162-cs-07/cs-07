@@ -1,14 +1,13 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-19
+**Last updated:** 2026-04-30
 **Sprint:** Sprint 7 (week beginning Mon 21 Apr 2026)
 
 ---
 
 ## Truth-in-state notes (read first)
 
-- **R5 (filter/search/pagination)** is complete on `feat/task-filter-search` and
-  awaiting PR review/merge — not yet on `main`.
+- **R5 (filter/search/pagination)** is **merged on `main`** (PR #1, 2026-04-30).
 - **R3 (deadlines and reminders)** is in progress on **this branch**
   (`feat/reminder-module`): `TaskReminderDueEvent`, `CheckDueRemindersUseCase`,
   `node-cron`-driven `ReminderScheduler`, and unit tests are in place. PR open.
@@ -17,8 +16,8 @@
   **not** Ruizhi's work — it predates her sprint. Decision on whether to extend
   or replace it sits with Ruizhi when her PR lands.
 - **Active feature branches in remote:**
-  - `feat/task-filter-search` — R5, awaiting merge (Thanh)
   - `feat/reminder-module` — R3, this PR (Thanh)
+  - `feat/frontend-build` — full frontend MVP, PR open (Thanh)
   - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch (login
     screen + UI work; **do not touch**)
 - **Stale remote branches removed this sprint** (all were at-or-behind `main`
@@ -37,7 +36,7 @@
 | R2  | Admin assign tasks to members | High | ✅ On main | — | merged |
 | R3  | Deadlines and reminders | Medium | 🚧 PR pending | Reminder delivery channel (email / push); persistence of "reminded" set across restarts | `feat/reminder-module` (this PR) |
 | R4  | Kanban status view (ToDo / InProgress / Done) | Medium | 🚧 Backend complete; frontend pending | None on backend — `PATCH /tasks/:id/status` plus `GET /tasks?status=...` already cover column-move and column-load. Frontend Kanban rendering owned by Ruizhi/Ethan. | frontend track |
-| R5  | Categorize / filter / search | Medium | 🚧 PR pending | Code complete; awaiting review of `feat/task-filter-search` | `feat/task-filter-search` |
+| R5  | Categorize / filter / search | Medium | ✅ On main | — | merged (PR #1) |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
 | R7  | Role-based access control | High | ✅ On main | — | merged |
 | R8  | Responsive design | Medium | ❌ Frontend concern | Layout, breakpoints, touch targets | `feature/front-end-set-up-ray` |
@@ -57,12 +56,11 @@
 ### Task Module — partially on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
 - ✅ `ITaskRepository` + `InMemoryTaskRepository`
-- ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks (basic filters)
+- ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks
 - ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`, `TaskDeleted`
 - ✅ Routes: full CRUD + `/assign` + `/status`
-- 🚧 (on `feat/task-filter-search`, awaiting merge) `Tag` value object, `TaskFilter`
-  value object, `GetTasksUseCase` with pagination + RBAC scoping, multi-tag /
-  text / date-range filters
+- ✅ `Tag` value object, `TaskFilter` value object, `GetTasksUseCase` with
+  pagination + RBAC scoping, multi-tag / text / date-range filters (R5, merged)
 - 🚧 (on `feat/reminder-module`, this PR) `TaskReminderDueEvent`,
   `CheckDueRemindersUseCase`, `ReminderScheduler` (node-cron), audit-logger
   registration of `TaskReminderDue`
@@ -110,10 +108,9 @@
 
 ## Testing
 
-- ✅ Main: 6 suites, 21 tests
-- ✅ This branch (`feat/reminder-module`): 7 suites, 28 tests (added 7 for
+- ✅ Main: 9 suites, 61 tests (post-R5 merge)
+- ✅ This branch (`feat/reminder-module`): 10 suites, 68 tests (added 7 for
   `CheckDueRemindersUseCase`)
-- ✅ R5 branch (`feat/task-filter-search`): 9 suites, 61 tests
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -137,8 +134,8 @@
 
 | Owner  | Branch | Scope |
 |--------|--------|-------|
-| Thanh  | `feat/task-filter-search` | Land R5 PR |
 | Thanh  | `feat/reminder-module` | R3 reminder scaffold (this PR) |
+| Thanh  | `feat/frontend-build` | Frontend MVP (router + pages + design system) |
 | Ruizhi | `feature/front-end-set-up-ray` | Login screen + UI work |
 | Ethan  | (TBC) | Code integration, edit-event screen, Cypress setup |
 
