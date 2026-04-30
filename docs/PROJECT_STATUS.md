@@ -1,24 +1,22 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-20
+**Last updated:** 2026-04-30
 **Sprint:** Sprint 7 (week beginning Mon 21 Apr 2026)
 
 ---
 
 ## Truth-in-state notes (read first)
 
-- **R5 (filter/search/pagination)** is complete on `feat/task-filter-search` and
-  awaiting PR review/merge — not yet on `main`.
-- **R3 (deadlines and reminders)** is complete on `feat/reminder-module` and
-  awaiting PR review/merge — not yet on `main`.
+- **R5 (filter/search/pagination)** is **merged on `main`** (PR #1, 2026-04-30).
+- **R3 (deadlines and reminders)** is **merged on `main`** (PR #2, 2026-04-30):
+  `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `node-cron`-driven
+  `ReminderScheduler`, audit-logger registration of `TaskReminderDue`.
 - **Frontend MVP** is in progress on **this branch** (`feat/frontend-build`).
   React 19 + Vite + Tailwind, full router + design system + 7 pages. Architecture
   rules in `docs/FRONTEND_ARCHITECTURE.md`.
 - **`frontend/src/legacy/App.legacy.tsx`** — the original demo UI was relocated
   here for reference; it is not mounted, excluded from tsc and eslint.
 - **Active feature branches in remote:**
-  - `feat/task-filter-search` — R5, awaiting merge (Thanh)
-  - `feat/reminder-module` — R3, awaiting merge (Thanh)
   - `feat/frontend-build` — frontend MVP, this PR (Thanh)
   - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
     (login screen + UI work; **do not touch**)
@@ -35,9 +33,9 @@
 |-----|-------------|----------|--------|----------------|----------------------|
 | R1  | Admin CRUD tasks | High | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` (this PR) |
 | R2  | Admin assign tasks to members | High | ✅ Backend on main · ✅ Frontend (UUID input) | UI picker awaits a `/users` endpoint | `feat/frontend-build` |
-| R3  | Deadlines and reminders | Medium | 🚧 PR pending (backend) | Reminder delivery channel; in-process dedupe persistence | `feat/reminder-module` |
-| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | 🚧 PR pending (frontend) | Kanban board with drag-and-drop is built; needs R5 merge for richer filters | `feat/frontend-build` |
-| R5  | Categorize / filter / search | Medium | 🚧 PR pending (backend) · ✅ Frontend | Backend awaits review; frontend filter UI ships with R5 fields visible (no-ops until merge) | `feat/task-filter-search` + `feat/frontend-build` |
+| R3  | Deadlines and reminders | Medium | ✅ On main | Reminder delivery channel (email / push); persistence of "reminded" set across restarts | merged (PR #2) |
+| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` |
+| R5  | Categorize / filter / search | Medium | ✅ Backend on main · ✅ Frontend on this branch | — | merged (PR #1) + `feat/frontend-build` |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
 | R7  | Role-based access control | High | ✅ Backend on main · ✅ Frontend (route guard + UI gating) | — | `feat/frontend-build` |
 | R8  | Responsive design | Medium | 🚧 Partial | AppShell + grids are responsive (md/lg breakpoints); needs review on small screens | `feat/frontend-build` |
@@ -54,18 +52,17 @@
 - ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`
 - ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
 
-### Task Module — partially on main
+### Task Module — on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
 - ✅ `ITaskRepository` + `InMemoryTaskRepository`
-- ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks (basic filters)
-- ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`, `TaskDeleted`
+- ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks
+- ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`,
+  `TaskDeleted`, `TaskReminderDue`
 - ✅ Routes: full CRUD + `/assign` + `/status`
-- 🚧 (on `feat/task-filter-search`, awaiting merge) `Tag` value object, `TaskFilter`
-  value object, `GetTasksUseCase` with pagination + RBAC scoping, multi-tag /
-  text / date-range filters
-- 🚧 (on `feat/reminder-module`, awaiting merge) `TaskReminderDueEvent`,
-  `CheckDueRemindersUseCase`, `ReminderScheduler` (node-cron), audit-logger
-  registration of `TaskReminderDue`
+- ✅ `Tag` value object, `TaskFilter` value object, `GetTasksUseCase` with
+  pagination + RBAC scoping, multi-tag / text / date-range filters (R5, merged)
+- ✅ `CheckDueRemindersUseCase` + `ReminderScheduler` (node-cron) + audit-logger
+  registration of `TaskReminderDue` (R3, merged)
 
 ### Shared Infrastructure — on main
 - ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
@@ -134,14 +131,13 @@
 - ✅ In-memory repositories (Map-based, implements repository interfaces)
 - ✅ Seed loaded on startup
 - ❌ MongoDB / Mongoose schemas, repos, connection setup (planned Sprint 8)
+- ❌ Indexes, migration / seed scripts for MongoDB
 
 ---
 
 ## Testing
 
-- ✅ Main: 6 suites, 21 tests
-- ✅ R3 branch (`feat/reminder-module`): 7 suites, 28 tests
-- ✅ R5 branch (`feat/task-filter-search`): 9 suites, 61 tests
+- ✅ Main: 10 suites, 68 tests (post-R3 + R5 merge)
 - ❌ Frontend unit tests (deferred — Vitest not yet wired)
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
@@ -165,8 +161,8 @@
 
 ## Open PRs (Sprint 7)
 
-- **#1** `feat/task-filter-search → main` — R5 (filter/search/pagination)
-- **#2** `feat/reminder-module → main` — R3 (cron + reminder events)
+- ~~**#1** `feat/task-filter-search → main` — R5 (filter/search/pagination)~~ ✅ merged
+- ~~**#2** `feat/reminder-module → main` — R3 (cron + reminder events)~~ ✅ merged
 - **#3** `feat/frontend-build → main` — full frontend MVP (this PR)
 
 ---
@@ -183,3 +179,5 @@
    when MongoDB lands (Sprint 8).
 7. Frontend assignee picker is a free-text UUID field — depends on a `/users`
    listing endpoint that the backend does not yet expose.
+
+None blocking; tracked for a future cleanup sprint.

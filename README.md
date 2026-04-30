@@ -144,7 +144,7 @@ curl -s -X POST http://localhost:3000/api/v1/tasks \
 
 | Method | Path | Description | Access |
 |--------|------|-------------|--------|
-| GET | `/api/v1/tasks` | List tasks (filter: `?status=`, `?priority=`, `?assigneeId=`) | Any authenticated |
+| GET | `/api/v1/tasks` | List tasks (filter: `?status=`, `?priority=`, `?assigneeId=`, `?tag=`, `?search=`, `?dueBefore=`, `?dueAfter=`, `?page=`, `?limit=`) | Any authenticated (RBAC-scoped) |
 | GET | `/api/v1/tasks/:id` | Get single task | Any authenticated |
 | POST | `/api/v1/tasks` | Create task | Admin only |
 | PUT | `/api/v1/tasks/:id` | Update task | Admin only |
