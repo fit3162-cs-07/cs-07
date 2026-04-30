@@ -140,6 +140,35 @@ curl -s -X GET "$BASE/users" \
 header "15c. List users with no token (expect 401)"
 curl -s -X GET "$BASE/users" | jq .
 
+# ---- 11b. ACCOUNT — self-service profile and password ----
+header "15d. Get my profile (GET /users/me)"
+curl -s -X GET "$BASE/users/me" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" | jq .
+
+header "15e. Update my display name (PATCH /users/me)"
+curl -s -X PATCH "$BASE/users/me" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" \
+  -d '{"name":"Member One (renamed)"}' | jq .
+
+header "15f. Change my password (POST /users/me/password)"
+curl -s -X POST "$BASE/users/me/password" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" \
+  -d '{"currentPassword":"member123","newPassword":"member123new"}' | jq .
+
+header "15g. Wrong current password (expect 401 INVALID_CURRENT_PASSWORD)"
+curl -s -X POST "$BASE/users/me/password" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" \
+  -d '{"currentPassword":"wrong","newPassword":"anotherpass"}' | jq .
+
+header "15h. Restore original member password"
+curl -s -X POST "$BASE/users/me/password" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" \
+  -d '{"currentPassword":"member123new","newPassword":"member123"}' | jq .
+
 # ---- 12. AUDIT LOG ----
 header "16. Audit log (Admin only)"
 curl -s -X GET "$BASE/audit" \

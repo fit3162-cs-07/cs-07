@@ -13,26 +13,34 @@
 | #2  | `feat/reminder-module` | R3 backend — `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `ReminderScheduler` | 2026-04-30 |
 | #3  | `feat/frontend-build` | Frontend MVP — design system, router, AuthContext, 7 pages, drag-and-drop Kanban | 2026-04-30 |
 | #5  | `feature/users-endpoint` | `/users` listing + assignee dropdown UX (replaces orphaned PR #4) | 2026-04-30 |
+| #6  | `feature/dashboard-reminder-widget` | R3 frontend — `UpcomingReminders` card on the dashboard | 2026-04-30 |
+| #8  | `feature/frontend-test-harness` | Vitest + jsdom + Testing Library wired in `frontend/`; CI split into backend / frontend jobs | 2026-04-30 |
 
 `main` now contains the complete vertical slice (backend modules + frontend
-pages, including assignee dropdown). Smoke-tested locally before each merge.
+pages, including assignee dropdown and the reminder widget) and a working
+frontend test harness. Smoke-tested locally before each merge.
 
 ---
 
 ## Truth-in-state notes (read first)
 
 - Backend modules R1, R2, R3, R4, R5, R7 all live on `main`.
-- Frontend pages for R1, R2, R4, R5, R7 all live on `main`.
+- Frontend pages for R1, R2, R4, R5, R7 all live on `main`, plus the assignee
+  dropdown wired through `useUsers`.
 - `frontend/src/legacy/App.legacy.tsx` is a relocated copy of the original
   single-file demo UI — kept for reference, not mounted, excluded from tsc
   and eslint.
 - **Active feature branches in remote:**
-  - `feature/dashboard-reminder-widget` — R3 frontend surfacing (this PR)
-  - `feature/front-end-set-up-ray` — Ruizhi's branch (do not touch)
-  - `feature/createEvent` — Ethan's branch (do not touch)
-- **Branch convention:** spell out `feature/` (not `feat/`). All four merged
-  PRs used the short form before the convention update; from PR #5 onward we
-  use the long form.
+  - `feature/account-page` — PR #7, this PR
+  - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
+    (login screen + UI work; **do not touch**)
+  - `feature/createEvent` — Ethan's; **do not touch**
+- **Branch convention:** spell out `feature/` (not `feat/`). The first four
+  merged PRs used the short form before the convention update; from PR #5
+  onward we use the long form.
+- **Stale remote branches removed**: `backend`, `frontend`, `feature/database`,
+  `feature/set-up-skeleton`, `feat/users-endpoint`. GitHub default branch is
+  now `main`.
 
 ---
 
@@ -42,26 +50,32 @@ pages, including assignee dropdown). Smoke-tested locally before each merge.
 |-----|-------------|----------|--------|----------------|----------------------|
 | R1  | Admin CRUD tasks | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R2  | Admin assign tasks to members | High | ✅ On main (backend + frontend) | — | merged (PR #3, #5) |
-| R3  | Deadlines and reminders | Medium | 🚧 Backend on main; dashboard widget in flight (this PR) | Reminder delivery channel (email/push); persistence of "reminded" set across restarts | merged (PR #2); widget in `feature/dashboard-reminder-widget` |
+| R3  | Deadlines and reminders | Medium | ✅ On main (backend + frontend) | Reminder delivery channel (email/push); persistence of "reminded" set across restarts | merged (PR #2, #6) |
 | R4  | Kanban status view (ToDo / InProgress / Done) | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R5  | Categorize / filter / search | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
 | R7  | Role-based access control | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R8  | Responsive design | Medium | 🚧 Partial | Tailwind theme + responsive grids in place; explicit mobile drawer + breakpoint testing pending | follow-up branch `feature/responsive-polish` |
-| R13 | Page load under 3 s | High | ✅ On main | Initial bundle ~293 kB / 91 kB gzipped — well under 3 s on a normal connection | merged (PR #3, #5) |
+| R13 | Page load under 3 s | High | ✅ On main | Initial bundle ~295 kB / 92 kB gzipped — well under 3 s on a normal connection | merged (PR #3, #5) |
 
 ---
 
 ## Backend
 
-### Identity Module — on main
+### Identity Module — on main (+ PR #7)
 - ✅ User entity, Role enum (ADMIN, MEMBER)
 - ✅ `IUserRepository` + `InMemoryUserRepository` (with `findAll()`)
 - ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance)
-- ✅ `GetUsersUseCase` + `GET /api/v1/users` — RBAC-scoped listing
+- ✅ `GetUsersUseCase` + `GET /api/v1/users` — RBAC-scoped listing for the
+  assignee dropdown
 - ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`,
   `GET /api/v1/users`
 - ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
+- 🚧 (PR #7) `UpdateProfileUseCase` + `ChangePasswordUseCase` →
+  `GET /api/v1/users/me`, `PATCH /api/v1/users/me`,
+  `POST /api/v1/users/me/password`. Publishes `UserProfileUpdated` and
+  `UserPasswordChanged` domain events. Register min password length bumped
+  6 → 8 to match the change-password rule (project standard going forward).
 
 ### Task Module — on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
@@ -78,7 +92,8 @@ pages, including assignee dropdown). Smoke-tested locally before each merge.
 ### Shared Infrastructure — on main
 - ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
 - ✅ `UseCase` interface
-- ✅ `AuditLogger` subscribed to task events; `GET /api/v1/audit` (admin only)
+- ✅ `AuditLogger` subscribed to task events; `GET /api/v1/audit` (admin only).
+  PR #7 also subscribes `UserProfileUpdated` and `UserPasswordChanged`.
 - ✅ Middleware: auth, requireRole, errorHandler, requestLogger
 - ✅ `ApiResponse` helpers; standard `{ success, data | error }` envelope
 - ✅ Config module (env vars)
@@ -95,40 +110,46 @@ pages, including assignee dropdown). Smoke-tested locally before each merge.
 
 ---
 
-## Frontend — on main
+## Frontend — on main (+ PR #6, PR #7)
 
 ### Foundation
 - ✅ Tailwind v3 with the locked palette (Tailwind theme overrides defaults)
 - ✅ Inter font + design tokens (`src/design/tokens.ts`)
 - ✅ Typed API service layer with JWT injection + envelope-aware error handling
-- ✅ `AuthContext` (sessionStorage) + `useAuth` + `ProtectedRoute`
+- ✅ `AuthContext` (sessionStorage) + `useAuth` + `ProtectedRoute`. PR #7 adds
+  `updateUser(user)` so profile changes flow back into the TopNav.
 - ✅ `UsersContext` + `useUsers` (single-fetch session cache)
 - ✅ React Router v6 with public + protected routes + 404
 - ✅ `AppShell` (top nav + sidebar)
 - ✅ UI primitives: `Button`, `Input`, `Textarea`, `Select`, `Field`, `Card`,
   `Badge` (incl. `StatusBadge`/`PriorityBadge`), `Modal`, `Toast`, `Dropdown`,
   `PageHeader`, `EmptyState`
+- ✅ `useUsers` hook + `UsersContext` — single source of truth for user
+  display names across pages
 
 ### Pages
 - ✅ `LoginPage`, `RegisterPage`, `DashboardPage`, `TasksPage`,
   `TaskDetailPage`, `KanbanPage`, `NotFoundPage`
-- ✅ `TaskFormModal` (reusable create/edit)
-- ✅ Assignee dropdown across modal, filters, table, kanban, detail
-
-### In progress (this PR)
-- 🚧 `UpcomingReminders` dashboard widget — surfaces tasks due in the next
-  24 hours plus anything overdue from the last 30 days, with overdue badge
-  and click-through to detail. Uses the existing `dueBefore`/`dueAfter`
-  query params (no new API surface).
+- ✅ `TaskFormModal` (reusable create/edit) with assignee dropdown
+- ✅ `UpcomingReminders` card on `DashboardPage` — surfaces tasks due in the
+  next 24 hours plus anything overdue from the last 30 days
+- 🚧 (PR #7) `AccountPage` at `/account` — read-only email/role, change-name
+  form, change-password form. Dropdown in `TopNav` gains an "Account
+  settings" link above "Sign out".
 
 ### Outstanding (planned this sprint)
-- Account / profile page (Task B)
 - Loading skeletons + ErrorBoundary (Task C)
 - Mobile drawer + breakpoint polish (Task D — closes R8)
 - Auth pages polish: validation, password strength, "Remember me",
   forgot-password stub (Task E)
 - Admin user management page + RBAC backend tightening (Tasks F1 + F2)
 - Notifications module + TopNav bell (Task G)
+
+### Outstanding (intentional, scoped for teammates)
+- `TODO(ruizhi)` — login polish + "Remember me"
+- `TODO(ethan)` — Cypress E2E for edit-event flow
+- `TODO(ethan)` — register-page validation polish (inline errors, password
+  strength, debounced uniqueness)
 
 ---
 
@@ -143,11 +164,15 @@ pages, including assignee dropdown). Smoke-tested locally before each merge.
 
 ## Testing
 
-- ✅ Backend: 12 suites, 76 tests — repo-root `tests/` (Jest + Supertest)
-- ✅ Frontend: Vitest harness wired on main (jsdom + Testing Library +
-  jest-dom matchers + user-event). Tests live in `frontend/tests/`.
-- 🚧 (this PR) `UpcomingReminders` component tests inline — renders task
-  list, overdue badge logic, empty state, click navigates
+- ✅ Backend on main: 12 suites, 76 tests — repo-root `tests/` (Jest +
+  Supertest)
+- ✅ Frontend on main: Vitest harness (jsdom + Testing Library + jest-dom +
+  user-event). Tests live in `frontend/tests/`. `UpcomingReminders` component
+  tests merged with PR #6.
+- 🚧 (PR #7) Backend: `UpdateProfileUseCase`, `ChangePasswordUseCase` unit
+  tests + `tests/integration/account.test.ts` (15 new backend tests).
+- 🚧 (PR #7) Frontend: `AccountPage` profile-form and password-form component
+  tests inline (validation, submission, success/error UX).
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -169,8 +194,16 @@ pages, including assignee dropdown). Smoke-tested locally before each merge.
 
 ## Open PRs (Sprint 7)
 
-- **#6** `feature/dashboard-reminder-widget → main` — R3 surfacing on the
-  dashboard
+- **#7** `feature/account-page → main` — Self-service account page +
+  `/users/me`, `/users/me/password` endpoints
+
+### Outstanding queue (this contributor)
+1. Loading skeletons + ErrorBoundary (`feature/loading-and-empty-states`)
+2. Responsive polish (`feature/responsive-polish`)
+3. Auth pages polish + "Remember me" wrappers (`feature/auth-pages-polish`)
+4. Admin user management — backend (`feature/admin-users-backend`)
+5. Admin user management — frontend (`feature/admin-users-frontend`)
+6. Notifications module + bell (`feature/notifications`)
 
 ---
 

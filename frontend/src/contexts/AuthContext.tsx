@@ -19,6 +19,7 @@ export interface AuthContextValue {
   login(email: string, password: string): Promise<void>;
   register(input: authApi.RegisterInput): Promise<void>;
   logout(): void;
+  updateUser(user: User): void;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -67,6 +68,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStored(null);
   }, []);
 
+  const updateUser = useCallback((user: User) => {
+    setStored(prev => {
+      if (!prev) return prev;
+      const next = { ...prev, user };
+      writeStoredAuth(next);
+      return next;
+    });
+  }, []);
+
   const value = useMemo<AuthContextValue>(
     () => ({
       user: stored?.user ?? null,
@@ -76,8 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       login,
       register,
       logout,
+      updateUser,
     }),
-    [stored, login, register, logout],
+    [stored, login, register, logout, updateUser],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

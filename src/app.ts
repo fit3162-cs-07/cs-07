@@ -28,6 +28,8 @@ export function createApp(userRepo: IUserRepository, taskRepo: ITaskRepository) 
     'TaskStatusChanged',
     'TaskDeleted',
     'TaskReminderDue',
+    'UserProfileUpdated',
+    'UserPasswordChanged',
   ]);
 
   // Store audit logger on app for route access
@@ -37,7 +39,7 @@ export function createApp(userRepo: IUserRepository, taskRepo: ITaskRepository) 
   app.use('/api/v1/auth', createIdentityRouter(userRepo));
 
   // Protected routes
-  app.use('/api/v1/users', authMiddleware, createUserRouter(userRepo));
+  app.use('/api/v1/users', authMiddleware, createUserRouter(userRepo, eventBus));
   app.use('/api/v1/tasks', authMiddleware, createTaskRouter(taskRepo, eventBus));
 
   // Audit route (admin only)

@@ -10,6 +10,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { TasksPage } from './pages/TasksPage';
 import { TaskDetailPage } from './pages/TaskDetailPage';
 import { KanbanPage } from './pages/KanbanPage';
+import { AccountPage } from './pages/AccountPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
@@ -29,6 +30,7 @@ export default function App() {
                   <Route path="/tasks" element={<TasksPage />} />
                   <Route path="/tasks/:id" element={<TaskDetailPage />} />
                   <Route path="/kanban" element={<KanbanPage />} />
+                  <Route path="/account" element={<AccountPage />} />
                 </Route>
               </Route>
 

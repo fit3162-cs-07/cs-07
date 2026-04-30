@@ -28,6 +28,10 @@ export function TopNav() {
           }
           items={[
             {
+              label: 'Account settings',
+              onClick: () => navigate('/account'),
+            },
+            {
               label: 'Sign out',
               destructive: true,
               onClick: () => {
