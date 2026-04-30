@@ -1,8 +1,11 @@
+import bcrypt from 'bcrypt';
 import request from 'supertest';
 import { createApp } from '../../src/app';
 import { InMemoryUserRepository } from '../../src/modules/identity/infrastructure/InMemoryUserRepository';
 import { InMemoryTaskRepository } from '../../src/modules/task/infrastructure/InMemoryTaskRepository';
 import { InMemoryNotificationRepository } from '../../src/modules/notification/infrastructure/InMemoryNotificationRepository';
+import { User } from '../../src/modules/identity/domain/User';
+import { Role } from '../../src/modules/identity/domain/Role';
 
 const userRepo = new InMemoryUserRepository();
 const taskRepo = new InMemoryTaskRepository();
@@ -16,12 +19,15 @@ let otherMemberId = '';
 let otherMemberToken = '';
 
 beforeAll(async () => {
-  await request(app).post('/api/v1/auth/register').send({
+  // Seed an admin directly — public /register is locked to MEMBER (PR #12).
+  const adminHash = await bcrypt.hash('password123', 10);
+  const admin = new User({
     email: 'notif-admin@test.com',
     name: 'Notif Admin',
-    password: 'password123',
-    role: 'ADMIN',
+    passwordHash: adminHash,
+    role: Role.ADMIN,
   });
+  await userRepo.save(admin);
   const adminLogin = await request(app).post('/api/v1/auth/login').send({
     email: 'notif-admin@test.com',
     password: 'password123',
