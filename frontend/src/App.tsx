@@ -3,50 +3,167 @@ import * as api from './api';
 
 // ─── Toast ───────────────────────────────────────────────
 function Toast({ message, onDone }: { message: string; onDone: () => void }) {
-  useEffect(() => { const t = setTimeout(onDone, 2500); return () => clearTimeout(t); }, [onDone]);
+  useEffect(() => {
+    const t = setTimeout(onDone, 2500);
+    return () => clearTimeout(t);
+  }, [onDone]);
+
   return <div className="toast">{message}</div>;
 }
 
 // ─── Login Page ──────────────────────────────────────────
 function LoginPage({ onLogin }: { onLogin: (user: api.User) => void }) {
-  const [email, setEmail] = useState('admin@monash.edu');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    const savedEmail = localStorage.getItem('rememberedEmail');
+    if (savedEmail) {
+      setEmail(savedEmail);
+      setRememberMe(true);
+    }
+  }, []);
+
+  const fillDemo = (type: 'admin' | 'member1' | 'member2') => {
+    if (type === 'admin') {
+      setEmail('admin@monash.edu');
+      setPassword('admin123');
+    } else if (type === 'member1') {
+      setEmail('member1@monash.edu');
+      setPassword('member123');
+    } else {
+      setEmail('member2@monash.edu');
+      setPassword('member123');
+    }
+    setError('');
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
+    if (!email.trim() || !password.trim()) {
+      setError('Please enter both email and password.');
+      return;
+    }
+
+    setLoading(true);
     try {
       const { user, token } = await api.login(email, password);
       api.setToken(token);
+
+      if (rememberMe) {
+        localStorage.setItem('rememberedEmail', email);
+      } else {
+        localStorage.removeItem('rememberedEmail');
+      }
+
       onLogin(user);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Login failed');
+    } finally {
+      setLoading(false);
     }
+  };
+
+  const handleGoogleClick = () => {
+    setError('Google sign-in is not implemented in this project yet.');
   };
 
   return (
     <div className="login-page">
-      <form className="login-card" onSubmit={handleSubmit}>
-        <h2>Monash Club Tasks</h2>
-        <p>Sign in to manage your club tasks</p>
-        <div className="field">
-          <label>Email</label>
-          <input type="email" value={email} onChange={e => setEmail(e.target.value)} />
+      <header className="login-topbar">
+        <div className="topbar-left">
+          <button type="button" className="icon-button" aria-label="Menu">
+            ☰
+          </button>
+
+          <div className="brand">
+            <span className="brand-mark">✳</span>
+            <span className="brand-text">MonashClub</span>
+          </div>
         </div>
-        <div className="field">
-          <label>Password</label>
-          <input type="password" value={password} onChange={e => setPassword(e.target.value)} />
+
+        <div className="topbar-right">
+          <span className="topbar-icon">⌕</span>
+          <span className="topbar-icon">⊞</span>
+          <span className="profile-avatar" />
         </div>
-        <button type="submit" className="btn-primary">Sign In</button>
-        {error && <div className="error">{error}</div>}
-        <div className="seed-info">
-          <strong>Demo accounts:</strong><br />
-          admin@monash.edu / admin123 (Admin)<br />
-          member1@monash.edu / member123 (Member)<br />
-          member2@monash.edu / member123 (Member)
-        </div>
-      </form>
+      </header>
+
+      <main className="login-content">
+        <form className="login-panel" onSubmit={handleSubmit}>
+          <h2>Log In</h2>
+          <p>Use your Monash Email to sign in</p>
+
+          <input
+            className="login-input"
+            type="email"
+            placeholder="Enter your Monash Email"
+            value={email}
+            onChange={e => setEmail(e.target.value)}
+          />
+
+          <input
+            className="login-input"
+            type="password"
+            placeholder="Enter your Password"
+            value={password}
+            onChange={e => setPassword(e.target.value)}
+          />
+
+          <button type="submit" className="login-submit-btn" disabled={loading}>
+            {loading ? 'Signing in...' : 'Login with Monash Email'}
+          </button>
+
+          {error && <div className="login-error">{error}</div>}
+
+          <div className="login-divider">
+            <span>or continue with</span>
+          </div>
+
+          <button
+            type="button"
+            className="google-login-btn"
+            onClick={handleGoogleClick}
+          >
+            <span className="google-mark">G</span>
+            <span>Google</span>
+          </button>
+
+          <label className="remember-row">
+            <input
+              type="checkbox"
+              checked={rememberMe}
+              onChange={e => setRememberMe(e.target.checked)}
+            />
+            <span>Remember me</span>
+          </label>
+
+          <div className="demo-box">
+            <div className="demo-box-title">Demo Accounts</div>
+            <div className="demo-actions">
+              <button type="button" onClick={() => fillDemo('admin')}>
+                Admin
+              </button>
+              <button type="button" onClick={() => fillDemo('member1')}>
+                Member 1
+              </button>
+              <button type="button" onClick={() => fillDemo('member2')}>
+                Member 2
+              </button>
+            </div>
+            <div className="demo-text">
+              admin@monash.edu / admin123 <br />
+              member1@monash.edu / member123 <br />
+              member2@monash.edu / member123
+            </div>
+          </div>
+        </form>
+      </main>
     </div>
   );
 }
@@ -88,9 +205,15 @@ function TaskModal({
   const isEdit = !!task;
   const [title, setTitle] = useState(task?.title || '');
   const [description, setDescription] = useState(task?.description || '');
-  const [priority, setPriority] = useState(task?.priority || 'MEDIUM');
-  const [status, setStatus] = useState(task?.status || 'TODO');
-  const [dueDate, setDueDate] = useState(task?.dueDate ? task.dueDate.slice(0, 10) : '');
+  const [priority, setPriority] = useState<api.Task['priority']>(
+    task?.priority || 'MEDIUM'
+  );
+  const [status, setStatus] = useState<api.Task['status']>(
+    task?.status || 'TODO'
+  );
+  const [dueDate, setDueDate] = useState(
+    task?.dueDate ? task.dueDate.slice(0, 10) : ''
+  );
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
@@ -101,10 +224,20 @@ function TaskModal({
         if (task.status !== status) {
           await api.changeStatus(task.id, status);
         }
-        await api.updateTask(task.id, { title, description, priority: priority as api.Task['priority'], dueDate: dueDate ? new Date(dueDate).toISOString() : undefined });
+        await api.updateTask(task.id, {
+          title,
+          description,
+          priority,
+          dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        });
         toast('Task updated');
       } else {
-        await api.createTask({ title, description, priority: priority as api.Task['priority'], dueDate: dueDate ? new Date(dueDate).toISOString() : undefined });
+        await api.createTask({
+          title,
+          description,
+          priority,
+          dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
+        });
         toast('Task created');
       }
       onSaved();
@@ -140,7 +273,10 @@ function TaskModal({
         </div>
         <div className="field">
           <label>Priority</label>
-          <select value={priority} onChange={e => setPriority(e.target.value)}>
+          <select
+            value={priority}
+            onChange={e => setPriority(e.target.value as api.Task['priority'])}
+          >
             <option value="LOW">Low</option>
             <option value="MEDIUM">Medium</option>
             <option value="HIGH">High</option>
@@ -191,7 +327,9 @@ function Board({ user, onLogout }: { user: api.User; onLogout: () => void }) {
     }
   }, [filterPriority]);
 
-  useEffect(() => { loadTasks(); }, [loadTasks]);
+  useEffect(() => {
+    void loadTasks();
+  }, [loadTasks]);
 
   const toast = (msg: string) => setToastMsg(msg);
 
@@ -250,8 +388,14 @@ function Board({ user, onLogout }: { user: api.User; onLogout: () => void }) {
           task={modal.task || null}
           isAdmin={isAdmin}
           onClose={() => setModal(null)}
-          onSaved={() => { setModal(null); loadTasks(); }}
-          onDeleted={() => { setModal(null); loadTasks(); }}
+          onSaved={() => {
+            setModal(null);
+            void loadTasks();
+          }}
+          onDeleted={() => {
+            setModal(null);
+            void loadTasks();
+          }}
           toast={toast}
         />
       )}
