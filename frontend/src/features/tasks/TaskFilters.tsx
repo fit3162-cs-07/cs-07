@@ -117,13 +117,17 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
 
   return (
     <Card>
-      <h3 className="text-base font-semibold text-ink mb-4">Filters</h3>
-      <div className="flex flex-col gap-4">
-        {fields}
-        <Button variant="secondary" onClick={onClear} className="w-full">
-          Clear filters
-        </Button>
-      </div>
+      <details open data-testid="filters-toggle">
+        <summary className="text-base font-semibold text-ink cursor-pointer select-none">
+          Filters
+        </summary>
+        <div className="flex flex-col gap-4 mt-4">
+          {fields}
+          <Button variant="secondary" onClick={onClear} className="w-full">
+            Clear filters
+          </Button>
+        </div>
+      </details>
     </Card>
   );
 }

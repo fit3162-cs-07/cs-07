@@ -32,7 +32,9 @@ frontend test harness. Smoke-tested locally before each merge.
   single-file demo UI — kept for reference, not mounted, excluded from tsc
   and eslint.
 - **Active feature branches in remote:**
-  - `feature/loading-and-empty-states` — PR #9, this PR
+  - `feature/loading-and-empty-states` — PR #9 (Skeleton + ErrorBoundary)
+  - `feature/responsive-polish` — PR #10, this PR (mobile drawer +
+    PageHeader stacking + collapsible filters)
   - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
     (login screen + UI work; **do not touch**)
   - `feature/createEvent` — Ethan's; **do not touch**
@@ -56,7 +58,7 @@ frontend test harness. Smoke-tested locally before each merge.
 | R5  | Categorize / filter / search | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
 | R7  | Role-based access control | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
-| R8  | Responsive design | Medium | 🚧 Partial | Tailwind theme + responsive grids in place; explicit mobile drawer + breakpoint testing pending | follow-up branch `feature/responsive-polish` |
+| R8  | Responsive design | Medium | 🚧 Mobile drawer landed in PR #10; smoke-testing on real devices pending | Manual QA on iPhone-class viewport | in flight (PR #10) |
 | R13 | Page load under 3 s | High | ✅ On main | Initial bundle ~295 kB / 92 kB gzipped — well under 3 s on a normal connection | merged (PR #3, #5) |
 
 ---
@@ -142,7 +144,6 @@ frontend test harness. Smoke-tested locally before each merge.
   longer takes down the shell.
 
 ### Outstanding (planned this sprint)
-- Mobile drawer + breakpoint polish (Task D — closes R8)
 - Auth pages polish: validation, password strength, "Remember me",
   forgot-password stub (Task E)
 - Admin user management page + RBAC backend tightening (Tasks F1 + F2)
@@ -173,6 +174,9 @@ frontend test harness. Smoke-tested locally before each merge.
   jest-dom + user-event) under `frontend/tests/`
 - 🚧 (PR #9) Frontend: `Skeleton` (+ `SkeletonText`) and `ErrorBoundary`
   component tests inline (10 new frontend tests).
+- 🚧 (PR #10) Frontend: `Sidebar`, `TopNav`, and `PageHeader` component
+  tests inline (13 new frontend tests covering the mobile drawer, ESC /
+  backdrop close, and responsive header markup).
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -196,13 +200,15 @@ frontend test harness. Smoke-tested locally before each merge.
 
 - **#9** `feature/loading-and-empty-states → main` — Skeleton primitives +
   `ErrorBoundary` wired into pages and the `AppShell` outlet
+- **#10** `feature/responsive-polish → main` — Mobile drawer with
+  hamburger toggle + ESC/backdrop close, responsive `PageHeader`,
+  collapsible filters on `TasksPage`
 
 ### Outstanding queue (this contributor)
-1. Responsive polish (`feature/responsive-polish`)
-2. Auth pages polish + "Remember me" wrappers (`feature/auth-pages-polish`)
-3. Admin user management — backend (`feature/admin-users-backend`)
-4. Admin user management — frontend (`feature/admin-users-frontend`)
-5. Notifications module + bell (`feature/notifications`)
+1. Auth pages polish + "Remember me" wrappers (`feature/auth-pages-polish`)
+2. Admin user management — backend (`feature/admin-users-backend`)
+3. Admin user management — frontend (`feature/admin-users-frontend`)
+4. Notifications module + bell (`feature/notifications`)
 
 ---
 

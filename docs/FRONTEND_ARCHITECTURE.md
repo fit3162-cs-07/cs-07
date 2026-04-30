@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30 (rev 4)
+**Last updated:** 2026-04-30 (rev 5)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -52,9 +52,11 @@ components/
   ProtectedRoute.tsx — redirects unauthenticated users to /login (preserves intended path)
   ErrorBoundary.tsx  — class boundary; mounted per-route in AppShell, resets on route change
   layout/
-    AppShell.tsx     — TopNav + Sidebar + ErrorBoundary + <Outlet/>
-    TopNav.tsx       — logo + user menu
-    Sidebar.tsx      — Dashboard / Tasks / Kanban
+    AppShell.tsx     — TopNav + Sidebar + ErrorBoundary + <Outlet/>; owns
+                       mobile drawer open/close state
+    TopNav.tsx       — logo + hamburger (mobile) + user menu
+    Sidebar.tsx      — Dashboard / Tasks / Kanban; renders both the desktop
+                       aside and the mobile slide-out drawer
   dashboard/
     UpcomingReminders.tsx — R3 surfacing widget for the dashboard
   ui/
