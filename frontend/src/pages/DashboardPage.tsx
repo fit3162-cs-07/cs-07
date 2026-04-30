@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardSubtitle, CardTitle } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
+import { UpcomingReminders } from '../components/dashboard/UpcomingReminders';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import * as taskApi from '../api/tasks';
@@ -70,6 +71,10 @@ export function DashboardPage() {
         <StatCard label="Total tasks" value={loading ? '…' : stats.total} to="/tasks" />
         <StatCard label="Due this week" value={loading ? '…' : stats.dueThisWeek} to="/tasks" />
         <StatCard label="In progress" value={loading ? '…' : stats.inProgress} to="/kanban" />
+      </div>
+
+      <div className="mb-6">
+        <UpcomingReminders />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

@@ -54,6 +54,8 @@ components/
     AppShell.tsx     — TopNav + Sidebar + <Outlet/>
     TopNav.tsx       — logo + user menu
     Sidebar.tsx      — Dashboard / Tasks / Kanban
+  dashboard/
+    UpcomingReminders.tsx — R3 surfacing widget for the dashboard
   ui/
     Button, Input, Textarea, Select, Field, Card, Badge,
     Modal, Toast, Dropdown, PageHeader, EmptyState
