@@ -56,6 +56,7 @@
           "assigneeId": { "type": "string", "format": "uuid", "nullable": true },
           "dueDate": { "type": "string", "format": "date-time", "nullable": true },
           "createdBy": { "type": "string", "format": "uuid" },
+          "tags": { "type": "array", "items": { "type": "string" }, "description": "Tag labels (max 10, 1-30 chars each, lowercase)" },
           "clubId": { "type": "string", "nullable": true },
           "createdAt": { "type": "string", "format": "date-time" },
           "updatedAt": { "type": "string", "format": "date-time" }
@@ -124,10 +125,16 @@
         "parameters": [
           { "name": "status", "in": "query", "schema": { "type": "string", "enum": ["TODO", "IN_PROGRESS", "DONE"] } },
           { "name": "priority", "in": "query", "schema": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] } },
-          { "name": "assigneeId", "in": "query", "schema": { "type": "string", "format": "uuid" } }
+          { "name": "assigneeId", "in": "query", "schema": { "type": "string", "format": "uuid" } },
+          { "name": "tag", "in": "query", "description": "Filter by tag (repeat for multiple: ?tag=a&tag=b)", "schema": { "type": "array", "items": { "type": "string" } }, "style": "form", "explode": true },
+          { "name": "search", "in": "query", "description": "Case-insensitive text search on title and description", "schema": { "type": "string", "maxLength": 200 } },
+          { "name": "dueBefore", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "dueAfter", "in": "query", "schema": { "type": "string", "format": "date-time" } },
+          { "name": "page", "in": "query", "description": "Page number (default 1)", "schema": { "type": "integer", "minimum": 1, "default": 1 } },
+          { "name": "limit", "in": "query", "description": "Items per page (default 20, max 100)", "schema": { "type": "integer", "minimum": 1, "maximum": 100, "default": 20 } }
         ],
         "responses": {
-          "200": { "description": "List of tasks", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": { "type": "boolean" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } } } } } } },
+          "200": { "description": "Paginated list of tasks", "content": { "application/json": { "schema": { "type": "object", "properties": { "success": { "type": "boolean" }, "data": { "type": "array", "items": { "$ref": "#/components/schemas/Task" } }, "meta": { "type": "object", "properties": { "total": { "type": "integer" }, "page": { "type": "integer" }, "limit": { "type": "integer" }, "totalPages": { "type": "integer" } } } } } } } },
           "401": { "description": "Unauthorized" }
         }
       },
@@ -147,7 +154,8 @@
                   "description": { "type": "string", "example": "Find and reserve a venue" },
                   "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"], "default": "MEDIUM" },
                   "dueDate": { "type": "string", "format": "date-time" },
-                  "assigneeId": { "type": "string", "format": "uuid" }
+                  "assigneeId": { "type": "string", "format": "uuid" },
+                  "tags": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 30 }, "maxItems": 10, "example": ["events", "urgent"] }
                 }
               }
             }
@@ -185,7 +193,8 @@
                   "description": { "type": "string" },
                   "priority": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH"] },
                   "status": { "type": "string", "enum": ["TODO", "IN_PROGRESS", "DONE"] },
-                  "dueDate": { "type": "string", "format": "date-time" }
+                  "dueDate": { "type": "string", "format": "date-time" },
+                  "tags": { "type": "array", "items": { "type": "string", "minLength": 1, "maxLength": 30 }, "maxItems": 10 }
                 }
               }
             }
