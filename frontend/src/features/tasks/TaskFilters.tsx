@@ -3,6 +3,7 @@ import { Field } from '../../components/ui/Field';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
+import { useUsers } from '../../hooks/useUsers';
 import type { TaskFilterInput, TaskPriority, TaskStatus } from '../../api/types';
 
 export interface TaskFiltersProps {
@@ -13,6 +14,8 @@ export interface TaskFiltersProps {
 }
 
 export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: TaskFiltersProps) {
+  const { users, loading: usersLoading } = useUsers();
+
   const set = <K extends keyof TaskFilterInput>(key: K, v: TaskFilterInput[K]) =>
     onChange({ ...value, [key]: v });
 
@@ -49,12 +52,19 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
           <option value="LOW">Low</option>
         </Select>
       </Field>
-      <Field label="Assignee user ID">
-        <Input
-          placeholder="UUID"
+      <Field label="Assignee" hint={usersLoading ? 'Loading users…' : undefined}>
+        <Select
           value={value.assigneeId ?? ''}
           onChange={e => set('assigneeId', e.target.value || undefined)}
-        />
+          disabled={usersLoading}
+        >
+          <option value="">Anyone</option>
+          {users.map(u => (
+            <option key={u.id} value={u.id}>
+              {u.name}
+            </option>
+          ))}
+        </Select>
       </Field>
       <Field label="Tags" hint="Comma-separated (R5)">
         <Input

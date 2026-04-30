@@ -5,25 +5,33 @@
 
 ---
 
+## Recent merges
+
+| PR  | Branch | Scope | Merged |
+|-----|--------|-------|--------|
+| #1  | `feat/task-filter-search` | R5 — filter / search / pagination + `Tag` and `TaskFilter` value objects | 2026-04-30 |
+| #2  | `feat/reminder-module` | R3 — `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `node-cron` `ReminderScheduler` | 2026-04-30 |
+| #3  | `feat/frontend-build` | Frontend MVP — design system, router, AuthContext, 7 pages, drag-and-drop Kanban | 2026-04-30 |
+
+`main` now contains the complete vertical slice (backend modules + frontend
+pages). Smoke-tested locally before each merge.
+
+---
+
 ## Truth-in-state notes (read first)
 
-- **R5 (filter/search/pagination)** is **merged on `main`** (PR #1, 2026-04-30).
-- **R3 (deadlines and reminders)** is **merged on `main`** (PR #2, 2026-04-30):
-  `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `node-cron`-driven
-  `ReminderScheduler`, audit-logger registration of `TaskReminderDue`.
-- **Frontend MVP** is in progress on **this branch** (`feat/frontend-build`).
-  React 19 + Vite + Tailwind, full router + design system + 7 pages. Architecture
-  rules in `docs/FRONTEND_ARCHITECTURE.md`.
-- **`frontend/src/legacy/App.legacy.tsx`** — the original demo UI was relocated
-  here for reference; it is not mounted, excluded from tsc and eslint.
+- Backend modules R1, R2, R3, R4, R5, R7 all live on `main`.
+- Frontend pages for R1, R2, R4, R5, R7 all live on `main`.
+- `frontend/src/legacy/App.legacy.tsx` is a relocated copy of the original
+  single-file demo UI — kept for reference, not mounted, excluded from tsc
+  and eslint.
 - **Active feature branches in remote:**
-  - `feat/frontend-build` — frontend MVP, this PR (Thanh)
+  - `feat/users-endpoint` — `/users` listing + assignee dropdown UX (this PR)
   - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
     (login screen + UI work; **do not touch**)
-- **Stale remote branches removed last session**: `backend`, `frontend`,
-  `feature/database`. The branch `feature/set-up-skeleton` could not be deleted
-  because it is still set as the GitHub repository default branch — flagged for
-  the team to flip the default to `main` and prune.
+  - `feature/createEvent` — appears to be Ethan's; **do not touch**
+- **Stale remote branches removed**: `backend`, `frontend`, `feature/database`,
+  `feature/set-up-skeleton`. GitHub default branch is now `main`.
 
 ---
 
@@ -31,15 +39,15 @@
 
 | Req | Description | Priority | Status | What's missing | Covering branch / PR |
 |-----|-------------|----------|--------|----------------|----------------------|
-| R1  | Admin CRUD tasks | High | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` (this PR) |
-| R2  | Admin assign tasks to members | High | ✅ Backend on main · ✅ Frontend (UUID input) | UI picker awaits a `/users` endpoint | `feat/frontend-build` |
-| R3  | Deadlines and reminders | Medium | ✅ On main | Reminder delivery channel (email / push); persistence of "reminded" set across restarts | merged (PR #2) |
-| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` |
-| R5  | Categorize / filter / search | Medium | ✅ Backend on main · ✅ Frontend on this branch | — | merged (PR #1) + `feat/frontend-build` |
+| R1  | Admin CRUD tasks | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
+| R2  | Admin assign tasks to members | High | ✅ On main (backend + frontend) | Assignee picker still takes a UUID — dropdown UX coming via PR #4 | merged (PR #3); UX in `feat/users-endpoint` |
+| R3  | Deadlines and reminders | Medium | ✅ Backend on main | Dashboard widget that surfaces upcoming reminders to the user; reminder delivery channel (email/push); persistence of "reminded" set across restarts | merged (PR #2) |
+| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
+| R5  | Categorize / filter / search | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
-| R7  | Role-based access control | High | ✅ Backend on main · ✅ Frontend (route guard + UI gating) | — | `feat/frontend-build` |
-| R8  | Responsive design | Medium | 🚧 Partial | AppShell + grids are responsive (md/lg breakpoints); needs review on small screens | `feat/frontend-build` |
-| R13 | Page load under 3 s | High | 🚧 Initial bundle 290kB / 91kB gzipped | Code-splitting + image strategy when assets land | future sprint |
+| R7  | Role-based access control | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
+| R8  | Responsive design | Medium | 🚧 Partial | Tailwind theme + responsive grids in place; explicit mobile testing not yet done | follow-up |
+| R13 | Page load under 3 s | High | ✅ On main | Initial bundle 290 kB / 91 kB gzipped — well under 3 s on a normal connection | merged (PR #3) |
 
 ---
 
@@ -47,10 +55,12 @@
 
 ### Identity Module — on main
 - ✅ User entity, Role enum (ADMIN, MEMBER)
-- ✅ `IUserRepository` + `InMemoryUserRepository`
+- ✅ `IUserRepository` + `InMemoryUserRepository` (with `findAll()`)
 - ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance)
 - ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`
 - ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
+- 🚧 (this PR) `GetUsersUseCase` + `GET /api/v1/users` — RBAC-scoped listing
+  for the assignee dropdown
 
 ### Task Module — on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
@@ -60,9 +70,9 @@
   `TaskDeleted`, `TaskReminderDue`
 - ✅ Routes: full CRUD + `/assign` + `/status`
 - ✅ `Tag` value object, `TaskFilter` value object, `GetTasksUseCase` with
-  pagination + RBAC scoping, multi-tag / text / date-range filters (R5, merged)
+  pagination + RBAC scoping, multi-tag / text / date-range filters
 - ✅ `CheckDueRemindersUseCase` + `ReminderScheduler` (node-cron) + audit-logger
-  registration of `TaskReminderDue` (R3, merged)
+  registration of `TaskReminderDue`
 
 ### Shared Infrastructure — on main
 - ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
@@ -76,14 +86,13 @@
 - ✅ 3 users (1 admin, 2 members) and 5 tasks across statuses/priorities
 
 ### Not started
-- ❌ `/users` listing endpoint (frontend assignee picker depends on it)
+- ❌ Reminder delivery channel / notification preferences
 - ❌ Club entity / `IClubRepository` (Task already has unused `clubId` field)
-- ❌ Notification module (delivery channel / preferences)
 - ❌ R6 file attachments
 
 ---
 
-## Frontend (this PR)
+## Frontend — on main
 
 ### Foundation
 - ✅ Tailwind v3 with the locked palette (Tailwind theme overrides defaults)
@@ -97,32 +106,21 @@
   `PageHeader`, `EmptyState`
 
 ### Pages
-- ✅ `LoginPage` — seeded credentials, error surfacing, redirect-to-intended-route
-- ✅ `RegisterPage` — name/email/password/role with inline validation, auto-login
-- ✅ `DashboardPage` — welcome, three stats (total / due-this-week / in-progress),
-  recent tasks, audit feed for admins
-- ✅ `TasksPage` — filter sidebar + table view + pagination (page meta optional)
-- ✅ `TaskDetailPage` — full detail card, admin actions, status quick-action,
-  per-task audit feed for admins
-- ✅ `KanbanPage` — three columns with `@dnd-kit` drag-and-drop, RBAC-scoped
-  drag (admin can move any; member only own/assigned), filter bar, optimistic
-  status update with rollback on failure
-- ✅ `TaskFormModal` — reusable create/edit; status + assignee changes route
-  through their dedicated endpoints
-- ✅ `NotFoundPage`
+- ✅ `LoginPage`, `RegisterPage`, `DashboardPage`, `TasksPage`,
+  `TaskDetailPage`, `KanbanPage`, `NotFoundPage`
+- ✅ `TaskFormModal` (reusable create/edit)
 
-### Verified
-- ✅ `npm run build` (tsc + vite) clean — 290 kB / 91 kB gzipped initial bundle
-- ✅ `npm run lint` clean
-- ✅ `npm run dev` boots on :5173, serves `index.html` 200
-- ⚠️ Browser smoke-test against the running backend not yet performed in this
-  session — golden-path E2E pending
+### In progress (this PR)
+- 🚧 `useUsers` hook + assignee dropdown — replaces UUID free-text inputs in
+  `TaskFormModal` and `TasksPage` filter sidebar; resolves IDs to display
+  names in the task table and Kanban cards
 
 ### Outstanding (intentional, scoped for teammates)
 - `TODO(ruizhi)` — login polish + "Remember me"
 - `TODO(ethan)` — Cypress E2E for edit-event flow
 - `TODO(ethan)` — register-page validation polish (inline errors, password
   strength, debounced uniqueness)
+- Reminder dashboard widget (R3 frontend surfacing) — follow-up
 
 ---
 
@@ -137,7 +135,8 @@
 
 ## Testing
 
-- ✅ Main: 10 suites, 68 tests (post-R3 + R5 merge)
+- ✅ Backend: 10 suites, 68 tests (post-R3 + R5 merge)
+- 🚧 (this PR) Add unit + integration tests for `GetUsersUseCase`
 - ❌ Frontend unit tests (deferred — Vitest not yet wired)
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
@@ -152,8 +151,7 @@
 - ✅ Branch protection on `main`
 - ✅ Dockerfile + docker-compose.yml (API + MongoDB placeholder)
 - ✅ `.env.example`
-- ⚠️ GitHub default branch is still `feature/set-up-skeleton` — should be flipped
-  to `main` so PRs default correctly and the stale branch can be pruned
+- ✅ GitHub default branch is now `main`; stale skeleton branch deleted
 - ❌ Deployment (Azure Container Apps / similar)
 - ❌ HTTPS / TLS
 
@@ -161,9 +159,7 @@
 
 ## Open PRs (Sprint 7)
 
-- ~~**#1** `feat/task-filter-search → main` — R5 (filter/search/pagination)~~ ✅ merged
-- ~~**#2** `feat/reminder-module → main` — R3 (cron + reminder events)~~ ✅ merged
-- **#3** `feat/frontend-build → main` — full frontend MVP (this PR)
+- **#4** `feat/users-endpoint → main` — `/users` listing + assignee dropdown UX
 
 ---
 
@@ -177,7 +173,5 @@
 6. `ReminderScheduler` keeps the "already reminded" set in process memory only —
    restarts will re-fire reminders for tasks still in window. Persist to repo
    when MongoDB lands (Sprint 8).
-7. Frontend assignee picker is a free-text UUID field — depends on a `/users`
-   listing endpoint that the backend does not yet expose.
 
 None blocking; tracked for a future cleanup sprint.

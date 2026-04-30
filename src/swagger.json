@@ -269,6 +269,42 @@
         }
       }
     },
+    "/users": {
+      "get": {
+        "tags": ["Users"],
+        "summary": "List users (RBAC-scoped)",
+        "description": "Admins receive every user; members receive only their own record. Used by the frontend to populate the assignee dropdown.",
+        "security": [{ "bearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "User summaries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "data": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": { "type": "string", "format": "uuid" },
+                          "name": { "type": "string" },
+                          "email": { "type": "string", "format": "email" },
+                          "role": { "type": "string", "enum": ["ADMIN", "MEMBER"] }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized" }
+        }
+      }
+    },
     "/audit": {
       "get": {
         "tags": ["Audit"],
