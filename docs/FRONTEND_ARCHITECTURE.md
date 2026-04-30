@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30 (rev 2)
+**Last updated:** 2026-04-30 (rev 3)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -26,7 +26,7 @@ api/              — fetch wrapper, typed endpoint helpers, DTO types
   client.ts       —   request(), apiClient, ApiError, JWT injection
   auth.ts         —   login, register, refresh
   tasks.ts        —   list/get/create/update/delete/assign/changeStatus
-  users.ts        —   list users (RBAC-scoped server side)
+  users.ts        —   list users (RBAC-scoped) + getMe / updateProfile / changePassword
   audit.ts        —   audit log (admin only, gracefully empty otherwise)
   types.ts        —   User, UserSummary, Task, AuditEntry, TaskFilterInput, …
   index.ts        —   barrel re-exports
@@ -68,7 +68,7 @@ features/
 
 pages/
   LoginPage, RegisterPage, DashboardPage,
-  TasksPage, TaskDetailPage, KanbanPage, NotFoundPage
+  TasksPage, TaskDetailPage, KanbanPage, AccountPage, NotFoundPage
 
 legacy/
   App.legacy.tsx + api.legacy.ts — original single-file demo, NOT mounted,
@@ -146,7 +146,9 @@ the table above. Same goes for spacing (4/8/12/16/24/32/48 only) and font sizes.
 
 ### Auth + RBAC
 
-- `useAuth()` returns `{ user, isAuthenticated, isAdmin, login, register, logout }`.
+- `useAuth()` returns `{ user, isAuthenticated, isAdmin, login, register, logout, updateUser }`.
+  `updateUser(user)` is called by `AccountPage` after a successful profile
+  edit so the TopNav reflects the new name without a re-login.
 - Protect a route with `<ProtectedRoute requireAdmin />` (the admin variant
   redirects members to `/dashboard`).
 - For inline UI gating, branch on `isAdmin` or compare `user.id` against
