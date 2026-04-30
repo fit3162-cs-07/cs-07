@@ -135,9 +135,11 @@ pages). Smoke-tested locally before each merge.
 
 ## Testing
 
-- ✅ Backend: 10 suites, 68 tests (post-R3 + R5 merge)
+- ✅ Backend: 10 suites, 68 tests (post-R3 + R5 merge) — repo-root `tests/`
+- ✅ Frontend: Vitest harness wired (jsdom + Testing Library + jest-dom matchers
+  + user-event). Smoke test on `Button` only — component coverage backfill
+  follows in the next PR. Tests live in `frontend/tests/`.
 - 🚧 (this PR) Add unit + integration tests for `GetUsersUseCase`
-- ❌ Frontend unit tests (deferred — Vitest not yet wired)
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 

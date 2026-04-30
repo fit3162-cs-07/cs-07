@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30
+**Last updated:** 2026-04-30 (rev 2)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -195,6 +195,43 @@ cache so individual cards never refetch.
   list — no per-component fetch.
 - When a member logs in, the dropdown collapses to just themselves. This
   matches the backend RBAC scoping and keeps the UX honest.
+
+---
+
+## Testing
+
+Frontend tests run on **Vitest** with **jsdom** + **@testing-library/react** and
+**@testing-library/jest-dom** matchers. They live in `frontend/tests/`, kept
+separate from the backend Jest suite at the repo root (`tests/`).
+
+Layout:
+
+```
+frontend/
+  tests/
+    setup.ts          — global test setup; imports jest-dom matchers + cleanup
+    components/       — UI primitive + feature component tests
+  vitest.config.ts    — jsdom env, globals enabled, includes tests/**/*.test.tsx
+  tsconfig.test.json  — extends app config; adds vitest/globals + jest-dom types
+```
+
+Scripts (from `frontend/`):
+
+- `npm test` — interactive watch mode
+- `npm run test:run` — single run (used by CI)
+- `npm run test:coverage` — single run with v8 coverage report
+
+Conventions:
+
+- One test file per component, mirroring its `src/` path under `tests/`.
+- Use `userEvent` (not `fireEvent`) for interactions.
+- Use semantic queries (`getByRole`, `getByLabelText`) over `getByTestId`.
+- Mock the `api/*` modules with `vi.mock()` — never hit `fetch` from a test.
+- Wrap in routing/context providers locally per test; no shared render helper
+  until duplication actually hurts.
+
+CI runs the frontend job in parallel with the backend job: install →
+`npm run lint` → `npm run test:run` → `npm run build`.
 
 ---
 
