@@ -10,11 +10,12 @@
 | PR  | Branch | Scope | Merged |
 |-----|--------|-------|--------|
 | #1  | `feat/task-filter-search` | R5 — filter / search / pagination + `Tag` and `TaskFilter` value objects | 2026-04-30 |
-| #2  | `feat/reminder-module` | R3 — `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `node-cron` `ReminderScheduler` | 2026-04-30 |
+| #2  | `feat/reminder-module` | R3 backend — `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `ReminderScheduler` | 2026-04-30 |
 | #3  | `feat/frontend-build` | Frontend MVP — design system, router, AuthContext, 7 pages, drag-and-drop Kanban | 2026-04-30 |
+| #5  | `feature/users-endpoint` | `/users` listing + assignee dropdown UX (replaces orphaned PR #4) | 2026-04-30 |
 
 `main` now contains the complete vertical slice (backend modules + frontend
-pages). Smoke-tested locally before each merge.
+pages, including assignee dropdown). Smoke-tested locally before each merge.
 
 ---
 
@@ -26,12 +27,12 @@ pages). Smoke-tested locally before each merge.
   single-file demo UI — kept for reference, not mounted, excluded from tsc
   and eslint.
 - **Active feature branches in remote:**
-  - `feat/users-endpoint` — `/users` listing + assignee dropdown UX (this PR)
-  - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
-    (login screen + UI work; **do not touch**)
-  - `feature/createEvent` — appears to be Ethan's; **do not touch**
-- **Stale remote branches removed**: `backend`, `frontend`, `feature/database`,
-  `feature/set-up-skeleton`. GitHub default branch is now `main`.
+  - `feature/dashboard-reminder-widget` — R3 frontend surfacing (this PR)
+  - `feature/front-end-set-up-ray` — Ruizhi's branch (do not touch)
+  - `feature/createEvent` — Ethan's branch (do not touch)
+- **Branch convention:** spell out `feature/` (not `feat/`). All four merged
+  PRs used the short form before the convention update; from PR #5 onward we
+  use the long form.
 
 ---
 
@@ -40,14 +41,14 @@ pages). Smoke-tested locally before each merge.
 | Req | Description | Priority | Status | What's missing | Covering branch / PR |
 |-----|-------------|----------|--------|----------------|----------------------|
 | R1  | Admin CRUD tasks | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
-| R2  | Admin assign tasks to members | High | ✅ On main (backend + frontend) | Assignee picker still takes a UUID — dropdown UX coming via PR #4 | merged (PR #3); UX in `feat/users-endpoint` |
-| R3  | Deadlines and reminders | Medium | ✅ Backend on main | Dashboard widget that surfaces upcoming reminders to the user; reminder delivery channel (email/push); persistence of "reminded" set across restarts | merged (PR #2) |
+| R2  | Admin assign tasks to members | High | ✅ On main (backend + frontend) | — | merged (PR #3, #5) |
+| R3  | Deadlines and reminders | Medium | 🚧 Backend on main; dashboard widget in flight (this PR) | Reminder delivery channel (email/push); persistence of "reminded" set across restarts | merged (PR #2); widget in `feature/dashboard-reminder-widget` |
 | R4  | Kanban status view (ToDo / InProgress / Done) | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R5  | Categorize / filter / search | Medium | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
 | R7  | Role-based access control | High | ✅ On main (backend + frontend) | — | merged (PR #1, #3) |
-| R8  | Responsive design | Medium | 🚧 Partial | Tailwind theme + responsive grids in place; explicit mobile testing not yet done | follow-up |
-| R13 | Page load under 3 s | High | ✅ On main | Initial bundle 290 kB / 91 kB gzipped — well under 3 s on a normal connection | merged (PR #3) |
+| R8  | Responsive design | Medium | 🚧 Partial | Tailwind theme + responsive grids in place; explicit mobile drawer + breakpoint testing pending | follow-up branch `feature/responsive-polish` |
+| R13 | Page load under 3 s | High | ✅ On main | Initial bundle ~293 kB / 91 kB gzipped — well under 3 s on a normal connection | merged (PR #3, #5) |
 
 ---
 
@@ -57,10 +58,10 @@ pages). Smoke-tested locally before each merge.
 - ✅ User entity, Role enum (ADMIN, MEMBER)
 - ✅ `IUserRepository` + `InMemoryUserRepository` (with `findAll()`)
 - ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance)
-- ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`
+- ✅ `GetUsersUseCase` + `GET /api/v1/users` — RBAC-scoped listing
+- ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`,
+  `GET /api/v1/users`
 - ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
-- 🚧 (this PR) `GetUsersUseCase` + `GET /api/v1/users` — RBAC-scoped listing
-  for the assignee dropdown
 
 ### Task Module — on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
@@ -89,6 +90,8 @@ pages). Smoke-tested locally before each merge.
 - ❌ Reminder delivery channel / notification preferences
 - ❌ Club entity / `IClubRepository` (Task already has unused `clubId` field)
 - ❌ R6 file attachments
+- ❌ `notification/` module (planned next sprint — distinct from audit, listens
+  to the same domain events)
 
 ---
 
@@ -99,6 +102,7 @@ pages). Smoke-tested locally before each merge.
 - ✅ Inter font + design tokens (`src/design/tokens.ts`)
 - ✅ Typed API service layer with JWT injection + envelope-aware error handling
 - ✅ `AuthContext` (sessionStorage) + `useAuth` + `ProtectedRoute`
+- ✅ `UsersContext` + `useUsers` (single-fetch session cache)
 - ✅ React Router v6 with public + protected routes + 404
 - ✅ `AppShell` (top nav + sidebar)
 - ✅ UI primitives: `Button`, `Input`, `Textarea`, `Select`, `Field`, `Card`,
@@ -109,18 +113,22 @@ pages). Smoke-tested locally before each merge.
 - ✅ `LoginPage`, `RegisterPage`, `DashboardPage`, `TasksPage`,
   `TaskDetailPage`, `KanbanPage`, `NotFoundPage`
 - ✅ `TaskFormModal` (reusable create/edit)
+- ✅ Assignee dropdown across modal, filters, table, kanban, detail
 
 ### In progress (this PR)
-- 🚧 `useUsers` hook + assignee dropdown — replaces UUID free-text inputs in
-  `TaskFormModal` and `TasksPage` filter sidebar; resolves IDs to display
-  names in the task table and Kanban cards
+- 🚧 `UpcomingReminders` dashboard widget — surfaces tasks due in the next
+  24 hours plus anything overdue from the last 30 days, with overdue badge
+  and click-through to detail. Uses the existing `dueBefore`/`dueAfter`
+  query params (no new API surface).
 
-### Outstanding (intentional, scoped for teammates)
-- `TODO(ruizhi)` — login polish + "Remember me"
-- `TODO(ethan)` — Cypress E2E for edit-event flow
-- `TODO(ethan)` — register-page validation polish (inline errors, password
-  strength, debounced uniqueness)
-- Reminder dashboard widget (R3 frontend surfacing) — follow-up
+### Outstanding (planned this sprint)
+- Account / profile page (Task B)
+- Loading skeletons + ErrorBoundary (Task C)
+- Mobile drawer + breakpoint polish (Task D — closes R8)
+- Auth pages polish: validation, password strength, "Remember me",
+  forgot-password stub (Task E)
+- Admin user management page + RBAC backend tightening (Tasks F1 + F2)
+- Notifications module + TopNav bell (Task G)
 
 ---
 
@@ -135,11 +143,11 @@ pages). Smoke-tested locally before each merge.
 
 ## Testing
 
-- ✅ Backend: 10 suites, 68 tests (post-R3 + R5 merge) — repo-root `tests/`
-- ✅ Frontend: Vitest harness wired (jsdom + Testing Library + jest-dom matchers
-  + user-event). Smoke test on `Button` only — component coverage backfill
-  follows in the next PR. Tests live in `frontend/tests/`.
-- 🚧 (this PR) Add unit + integration tests for `GetUsersUseCase`
+- ✅ Backend: 12 suites, 76 tests — repo-root `tests/` (Jest + Supertest)
+- ✅ Frontend: Vitest harness wired on main (jsdom + Testing Library +
+  jest-dom matchers + user-event). Tests live in `frontend/tests/`.
+- 🚧 (this PR) `UpcomingReminders` component tests inline — renders task
+  list, overdue badge logic, empty state, click navigates
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -153,7 +161,7 @@ pages). Smoke-tested locally before each merge.
 - ✅ Branch protection on `main`
 - ✅ Dockerfile + docker-compose.yml (API + MongoDB placeholder)
 - ✅ `.env.example`
-- ✅ GitHub default branch is now `main`; stale skeleton branch deleted
+- ✅ GitHub default branch is `main`; stale skeleton branch deleted
 - ❌ Deployment (Azure Container Apps / similar)
 - ❌ HTTPS / TLS
 
@@ -161,7 +169,8 @@ pages). Smoke-tested locally before each merge.
 
 ## Open PRs (Sprint 7)
 
-- **#4** `feat/users-endpoint → main` — `/users` listing + assignee dropdown UX
+- **#6** `feature/dashboard-reminder-widget → main` — R3 surfacing on the
+  dashboard
 
 ---
 
