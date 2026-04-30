@@ -3,11 +3,15 @@ import { IUserRepository } from '../domain/IUserRepository';
 import { GetUsersUseCase } from '../application/GetUsersUseCase';
 import { UpdateProfileUseCase } from '../application/UpdateProfileUseCase';
 import { ChangePasswordUseCase } from '../application/ChangePasswordUseCase';
+import { UpdateUserUseCase } from '../application/UpdateUserUseCase';
+import { SetUserActiveUseCase } from '../application/SetUserActiveUseCase';
 import { UpdateProfileSchema } from '../application/dtos/UpdateProfileDTO';
 import { ChangePasswordSchema } from '../application/dtos/ChangePasswordDTO';
+import { UpdateUserSchema } from '../application/dtos/UpdateUserDTO';
 import { Role } from '../domain/Role';
 import { sendSuccess, sendError } from '../../../shared/infrastructure/http/ApiResponse';
 import { AuthRequest } from '../../../shared/infrastructure/middleware/authMiddleware';
+import { requireRole } from '../../../shared/infrastructure/middleware/requireRole';
 import { IEventBus } from '../../../shared/application/EventBus';
 
 export function createUserRouter(userRepo: IUserRepository, eventBus: IEventBus): Router {
@@ -15,6 +19,8 @@ export function createUserRouter(userRepo: IUserRepository, eventBus: IEventBus)
   const getUsers = new GetUsersUseCase(userRepo);
   const updateProfile = new UpdateProfileUseCase(userRepo, eventBus);
   const changePassword = new ChangePasswordUseCase(userRepo, eventBus);
+  const updateUser = new UpdateUserUseCase(userRepo, eventBus);
+  const setUserActive = new SetUserActiveUseCase(userRepo, eventBus);
 
   router.get('/', async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {
@@ -43,7 +49,13 @@ export function createUserRouter(userRepo: IUserRepository, eventBus: IEventBus)
         sendError(res, 404, 'USER_NOT_FOUND', 'User not found');
         return;
       }
-      sendSuccess(res, { id: user.id, email: user.email, name: user.name, role: user.role });
+      sendSuccess(res, {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+      });
     } catch (err) {
       next(err);
     }
@@ -57,7 +69,13 @@ export function createUserRouter(userRepo: IUserRepository, eventBus: IEventBus)
       }
       const dto = UpdateProfileSchema.parse(req.body);
       const user = await updateProfile.execute({ ...dto, userId: req.auth.userId });
-      sendSuccess(res, { id: user.id, email: user.email, name: user.name, role: user.role });
+      sendSuccess(res, {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+      });
     } catch (err) {
       if (err instanceof Error && err.message === 'USER_NOT_FOUND') {
         sendError(res, 404, 'USER_NOT_FOUND', 'User not found');
@@ -88,6 +106,95 @@ export function createUserRouter(userRepo: IUserRepository, eventBus: IEventBus)
       next(err);
     }
   });
+
+  // Admin user management
+  router.patch(
+    '/:id',
+    requireRole(Role.ADMIN),
+    async (req: AuthRequest, res: Response, next: NextFunction) => {
+      try {
+        if (!req.auth) {
+          next(new Error('UNAUTHORIZED'));
+          return;
+        }
+        const dto = UpdateUserSchema.parse(req.body);
+        const user = await updateUser.execute({
+          ...dto,
+          targetUserId: req.params.id,
+          actorId: req.auth.userId,
+        });
+        sendSuccess(res, {
+          id: user.id,
+          email: user.email,
+          name: user.name,
+          role: user.role,
+          isActive: user.isActive,
+        });
+      } catch (err) {
+        if (err instanceof Error && err.message === 'USER_NOT_FOUND') {
+          sendError(res, 404, 'USER_NOT_FOUND', 'User not found');
+          return;
+        }
+        if (err instanceof Error && err.message === 'CANNOT_CHANGE_OWN_ROLE') {
+          sendError(res, 400, 'CANNOT_CHANGE_OWN_ROLE', 'You cannot change your own role');
+          return;
+        }
+        next(err);
+      }
+    },
+  );
+
+  router.post(
+    '/:id/deactivate',
+    requireRole(Role.ADMIN),
+    async (req: AuthRequest, res: Response, next: NextFunction) => {
+      await setActiveHandler(req, res, next, false);
+    },
+  );
+
+  router.post(
+    '/:id/activate',
+    requireRole(Role.ADMIN),
+    async (req: AuthRequest, res: Response, next: NextFunction) => {
+      await setActiveHandler(req, res, next, true);
+    },
+  );
+
+  async function setActiveHandler(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction,
+    isActive: boolean,
+  ): Promise<void> {
+    try {
+      if (!req.auth) {
+        next(new Error('UNAUTHORIZED'));
+        return;
+      }
+      const user = await setUserActive.execute({
+        targetUserId: req.params.id,
+        actorId: req.auth.userId,
+        isActive,
+      });
+      sendSuccess(res, {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        isActive: user.isActive,
+      });
+    } catch (err) {
+      if (err instanceof Error && err.message === 'USER_NOT_FOUND') {
+        sendError(res, 404, 'USER_NOT_FOUND', 'User not found');
+        return;
+      }
+      if (err instanceof Error && err.message === 'CANNOT_DEACTIVATE_SELF') {
+        sendError(res, 400, 'CANNOT_DEACTIVATE_SELF', 'You cannot deactivate your own account');
+        return;
+      }
+      next(err);
+    }
+  }
 
   return router;
 }

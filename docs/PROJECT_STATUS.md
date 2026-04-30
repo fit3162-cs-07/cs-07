@@ -68,11 +68,16 @@ frontend test harness. Smoke-tested locally before each merge.
 ## Backend
 
 ### Identity Module — on main (+ PR #7)
-- ✅ User entity, Role enum (ADMIN, MEMBER)
+- ✅ User entity, Role enum (ADMIN, MEMBER). PR #12 adds `isActive: boolean`
+  (defaults true).
 - ✅ `IUserRepository` + `InMemoryUserRepository` (with `findAll()`)
-- ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance)
+- ✅ `RegisterUseCase` (Zod, bcrypt) and `LoginUseCase` (JWT issuance).
+  PR #12 locks self-registration to `MEMBER` (any incoming `role` field is
+  silently dropped) and makes `LoginUseCase` reject deactivated users with
+  `ACCOUNT_DEACTIVATED` (HTTP 403). Admins are now created exclusively via
+  the seed or by an existing admin via `PATCH /api/v1/users/:id`.
 - ✅ `GetUsersUseCase` + `GET /api/v1/users` — RBAC-scoped listing for the
-  assignee dropdown
+  assignee dropdown. PR #12 widens `UserSummaryDTO` with `isActive`.
 - ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`,
   `GET /api/v1/users`
 - ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
@@ -81,6 +86,12 @@ frontend test harness. Smoke-tested locally before each merge.
   `POST /api/v1/users/me/password`. Publishes `UserProfileUpdated` and
   `UserPasswordChanged` domain events. Register min password length bumped
   6 → 8 to match the change-password rule (project standard going forward).
+- 🚧 (PR #12) `UpdateUserUseCase` (admin-only, name + role) →
+  `PATCH /api/v1/users/:id`. `SetUserActiveUseCase` (admin-only) →
+  `POST /api/v1/users/:id/deactivate` and `/activate`. Publishes
+  `UserRoleChanged` and `UserStatusChanged` domain events. Admins cannot
+  change their own role or deactivate themselves (would be unrecoverable
+  without DB access).
 
 ### Task Module — on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
@@ -98,7 +109,8 @@ frontend test harness. Smoke-tested locally before each merge.
 - ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
 - ✅ `UseCase` interface
 - ✅ `AuditLogger` subscribed to task events; `GET /api/v1/audit` (admin only).
-  PR #7 also subscribes `UserProfileUpdated` and `UserPasswordChanged`.
+  PR #7 also subscribes `UserProfileUpdated` and `UserPasswordChanged`. PR #12
+  adds `UserRoleChanged` and `UserStatusChanged`.
 - ✅ Middleware: auth, requireRole, errorHandler, requestLogger
 - ✅ `ApiResponse` helpers; standard `{ success, data | error }` envelope
 - ✅ Config module (env vars)
@@ -178,8 +190,8 @@ frontend test harness. Smoke-tested locally before each merge.
 
 - ✅ Backend on main: 15 suites, 90 tests — repo-root `tests/` (Jest +
   Supertest)
-- ✅ Frontend on main: 5 suites, 22 tests — Vitest (jsdom + Testing Library +
-  jest-dom + user-event) under `frontend/tests/`
+- ✅ Frontend on main: Vitest (jsdom + Testing Library + jest-dom +
+  user-event) under `frontend/tests/`
 - 🚧 (PR #9) Frontend: `Skeleton` (+ `SkeletonText`) and `ErrorBoundary`
   component tests inline (10 new frontend tests).
 - 🚧 (PR #10) Frontend: `Sidebar`, `TopNav`, and `PageHeader` component
@@ -191,6 +203,10 @@ frontend test harness. Smoke-tested locally before each merge.
   and the `role="alert"` failure path). Test setup grew an in-memory
   `localStorage` / `sessionStorage` shim because vitest's jsdom env
   supplies a placeholder object whose Storage methods are missing.
+- 🚧 (PR #12) Backend: `UpdateUserUseCase` + `SetUserActiveUseCase` unit
+  tests plus integration coverage of `PATCH /users/:id`,
+  `/users/:id/(de)activate`, and the deactivated-login path. Brings the
+  backend suite to **17 suites / 112 tests**.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 

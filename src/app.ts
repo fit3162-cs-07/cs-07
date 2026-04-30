@@ -30,6 +30,8 @@ export function createApp(userRepo: IUserRepository, taskRepo: ITaskRepository) 
     'TaskReminderDue',
     'UserProfileUpdated',
     'UserPasswordChanged',
+    'UserRoleChanged',
+    'UserStatusChanged',
   ]);
 
   // Store audit logger on app for route access

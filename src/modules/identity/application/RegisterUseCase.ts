@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { User } from '../domain/User';
 import { IUserRepository } from '../domain/IUserRepository';
 import { RegisterDTO } from './dtos/RegisterDTO';
+import { Role } from '../domain/Role';
 import { UseCase } from '../../../shared/application/UseCase';
 
 interface RegisterOutput {
@@ -14,8 +15,7 @@ export class RegisterUseCase implements UseCase<RegisterDTO, RegisterOutput> {
   async execute(dto: RegisterDTO): Promise<RegisterOutput> {
     const existing = await this.userRepo.findByEmail(dto.email);
     if (existing) {
-      const err = new Error('EMAIL_TAKEN');
-      throw err;
+      throw new Error('EMAIL_TAKEN');
     }
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
@@ -23,7 +23,7 @@ export class RegisterUseCase implements UseCase<RegisterDTO, RegisterOutput> {
       email: dto.email,
       name: dto.name,
       passwordHash,
-      role: dto.role,
+      role: Role.MEMBER,
     });
 
     await this.userRepo.save(user);
