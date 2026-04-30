@@ -4,6 +4,10 @@ import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { TopNav } from '../../../src/components/layout/TopNav';
 import { AuthContext, type AuthContextValue } from '../../../src/contexts/AuthContext';
+import {
+  NotificationsContext,
+  type NotificationsContextValue,
+} from '../../../src/contexts/NotificationsContext';
 
 function renderTopNav(onMenuToggle = vi.fn()) {
   const authValue: AuthContextValue = {
@@ -16,10 +20,21 @@ function renderTopNav(onMenuToggle = vi.fn()) {
     logout: vi.fn(),
     updateUser: vi.fn(),
   };
+  const notifValue: NotificationsContextValue = {
+    notifications: [],
+    unreadCount: 0,
+    loading: false,
+    error: null,
+    refresh: vi.fn(async () => undefined),
+    markRead: vi.fn(async () => undefined),
+    markAllRead: vi.fn(async () => undefined),
+  };
   render(
     <MemoryRouter>
       <AuthContext.Provider value={authValue}>
-        <TopNav onMenuToggle={onMenuToggle} />
+        <NotificationsContext.Provider value={notifValue}>
+          <TopNav onMenuToggle={onMenuToggle} />
+        </NotificationsContext.Provider>
       </AuthContext.Provider>
     </MemoryRouter>,
   );

@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30 (rev 7)
+**Last updated:** 2026-04-30 (rev 8)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -29,6 +29,7 @@ api/              — fetch wrapper, typed endpoint helpers, DTO types
   users.ts        —   list users (RBAC-scoped) + getMe / updateProfile / changePassword
                       + adminUpdateUser / adminDeactivateUser / adminActivateUser
   audit.ts        —   audit log (admin only, gracefully empty otherwise)
+  notifications.ts —  list / unread-count / mark-read / mark-all-read
   types.ts        —   User, UserSummary, Task, AuditEntry, TaskFilterInput, …
   index.ts        —   barrel re-exports
 
@@ -37,11 +38,16 @@ contexts/
                       to localStorage (Remember me) or sessionStorage
   UsersContext.tsx —  UsersProvider — fetches /users once per session, exposes
                       `{ users, loading, error, refresh, lookup, displayName }`
+  NotificationsContext.tsx —  NotificationsProvider — fetches the latest 20
+                      notifications + unread-count on mount and every 30 s,
+                      exposes `{ notifications, unreadCount, loading, error,
+                      refresh, markRead, markAllRead }`
 
 hooks/
   useAuth.ts      —   wraps AuthContext (throws if used outside Provider)
   useUsers.ts     —   wraps UsersContext (throws if used outside Provider)
   useToast.ts     —   wraps ToastContext
+  useNotifications.ts — wraps NotificationsContext (throws if used outside Provider)
 
 design/
   tokens.ts       —   typed exports of palette, spacing, type, radius, shadows
@@ -61,12 +67,18 @@ components/
   layout/
     AppShell.tsx     — TopNav + Sidebar + ErrorBoundary + <Outlet/>; owns
                        mobile drawer open/close state
-    TopNav.tsx       — logo + hamburger (mobile) + user menu
+    TopNav.tsx       — logo + hamburger (mobile) + NotificationsBell +
+                       user menu
     Sidebar.tsx      — Dashboard / Tasks / Kanban (+ User Management for
                        admins); renders both the desktop aside and the
                        mobile slide-out drawer
   dashboard/
     UpcomingReminders.tsx — R3 surfacing widget for the dashboard
+  notifications/
+    NotificationsBell.tsx — bell button + popover panel; badge capped at 99+,
+                            row click marks-read + navigates to `n.link`,
+                            "Mark all read" only when at least one unread,
+                            click-outside + Escape dismissal
   ui/
     Button, Input, Textarea, Select, Field, Card, Badge,
     Modal, Toast, Dropdown, PageHeader, EmptyState, Skeleton (+ SkeletonText)
@@ -225,6 +237,25 @@ cache so individual cards never refetch.
   list — no per-component fetch.
 - When a member logs in, the dropdown collapses to just themselves. This
   matches the backend RBAC scoping and keeps the UX honest.
+
+## Notifications
+
+The notifications surface is owned by `NotificationsProvider` (mounted inside
+`UsersProvider` and outside `ToastProvider` in `App.tsx`).
+
+- On mount and on every successful `isAuthenticated` flip, the provider calls
+  `Promise.all([listNotifications({ limit: 20 }), getUnreadCount()])` and
+  caches both results.
+- A `setInterval` refreshes the same pair every 30 s. The interval is cleared
+  on unmount or when `isAuthenticated` flips false.
+- `markRead(id)` and `markAllRead()` apply the change locally first
+  (optimistic) then fire the API call — the badge never lags behind the
+  click.
+- `NotificationsBell` reads from the hook and triggers `refresh()` on
+  popover-open so the panel always reflects the freshest server state. The
+  panel is a `role="dialog"` with `aria-label="Notifications"`. The bell
+  button's `aria-label` is `"Notifications"` or
+  `"Notifications, N unread"` depending on count.
 
 ---
 
