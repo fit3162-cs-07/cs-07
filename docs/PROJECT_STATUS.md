@@ -1,6 +1,6 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-30
+**Last updated:** 2026-04-30 (rev — adds notification module, PR #14)
 **Sprint:** Sprint 7 (week beginning Mon 21 Apr 2026)
 
 ---
@@ -119,11 +119,25 @@ frontend test harness. Smoke-tested locally before each merge.
 - ✅ 3 users (1 admin, 2 members) and 5 tasks across statuses/priorities
 
 ### Not started
-- ❌ Reminder delivery channel / notification preferences
+- ❌ Reminder delivery channel (email/push) / notification preferences
 - ❌ Club entity / `IClubRepository` (Task already has unused `clubId` field)
 - ❌ R6 file attachments
-- ❌ `notification/` module (planned next sprint — distinct from audit, listens
-  to the same domain events)
+
+### Notification Module — 🚧 PR #14
+- ✅ `Notification` entity, `NotificationType` enum (TASK_ASSIGNED,
+  TASK_REMINDER_DUE, TASK_STATUS_CHANGED)
+- ✅ `INotificationRepository` + `InMemoryNotificationRepository`
+  (`findByUser` with `unreadOnly` + `limit`; newest-first ordering;
+  `countUnread`; `markAllRead` returns count)
+- ✅ Use cases: Create, List, MarkRead (with `FORBIDDEN` for cross-user),
+  MarkAllRead, GetUnreadCount
+- ✅ `NotificationCreatedEvent` → audit-logger registered
+- ✅ `NotificationEventSubscriber` listens to `TaskCreated` + `TaskAssigned` +
+  `TaskReminderDue` + `TaskStatusChanged`. Skips self-notifications when
+  `event.actor === assigneeId`.
+- ✅ Routes: `GET /api/v1/notifications` (with `unreadOnly`, `limit` query
+  params, capped 1–100), `GET /unread-count`, `POST /:id/read`,
+  `POST /read-all`. All gated by `authMiddleware`.
 
 ---
 
@@ -175,7 +189,16 @@ frontend test harness. Smoke-tested locally before each merge.
   is disabled on your own row.
 
 ### Outstanding (planned this sprint)
-- Notifications module + TopNav bell (Task G)
+- (none — Tasks C / D / E / F1 / F2 / G all merged or in flight)
+
+### Notifications frontend — 🚧 PR #14
+- ✅ `api/notifications.ts` typed helpers
+- ✅ `NotificationsContext` + `NotificationsProvider` — polls every 30 s,
+  optimistic local updates on read
+- ✅ `useNotifications()` hook
+- ✅ `NotificationsBell` in `TopNav` — badge capped at "99+", popover with
+  empty/loading states, "Mark all read" only when unread > 0, click-outside
+  + Escape dismissal, row click marks read and navigates to `n.link`
 
 ### Outstanding (intentional, scoped for teammates)
 - `TODO(ethan)` — Cypress E2E for edit-event flow
@@ -217,6 +240,15 @@ frontend test harness. Smoke-tested locally before each merge.
   select disabled on self, deactivate confirm flow, reactivate flow,
   empty + error states) and 2 extra `Sidebar` tests for the admin-only
   link visibility.
+- 🚧 (PR #14) Backend: 9 new tests across the notification module
+  (`CreateNotificationUseCase`, `MarkNotificationReadUseCase`,
+  `InMemoryNotificationRepository`) + 8 integration tests at
+  `tests/integration/notifications.test.ts`. Backend now: **19 suites,
+  129 tests passing.**
+- 🚧 (PR #14) Frontend: 10 `NotificationsBell` component tests
+  (badge thresholds, panel toggle + refresh, empty/loading state, mark read
+  on row click, no-op when already read, mark-all-read visibility, Escape
+  closes panel).
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -238,28 +270,14 @@ frontend test harness. Smoke-tested locally before each merge.
 
 ## Open PRs (Sprint 7)
 
-- **#9** `feature/loading-and-empty-states → main` — Skeleton primitives +
-  `ErrorBoundary` wired into pages and the `AppShell` outlet
-- **#10** `feature/responsive-polish → main` — Mobile drawer with
-  hamburger toggle + ESC/backdrop close, responsive `PageHeader`,
-  collapsible filters on `TasksPage`
-- **#11** `feature/auth-pages-polish → main` — `tokenStorage` abstraction
-  with `localStorage` (Remember me) vs `sessionStorage` backends, login
-  Remember-me + show/hide + Forgot-password toast, register inline
-  validation + password strength meter
-- **#12** `feature/admin-users-backend → main` — `isActive` flag on
-  `User`, admin-only `PATCH /users/:id` + `POST /users/:id/{de,}activate`,
-  `UserRoleChanged` and `UserStatusChanged` domain events,
-  `LoginUseCase` rejects deactivated accounts with `ACCOUNT_DEACTIVATED`,
-  self-registration locked to `MEMBER`, audit-logger picks up the new
-  events
-- **#13** `feature/admin-users-frontend → main` — `AdminUsersPage` at
-  `/admin/users` with edit / deactivate / activate flows, admin-only
-  Sidebar link, register form drops the role select to match the new
-  backend rule
+- **#14** `feature/notifications → main` — Notification module (backend
+  domain + use cases + repo + event subscriber + 4 endpoints) and frontend
+  (`NotificationsContext`, `useNotifications`, `NotificationsBell` mounted
+  in `TopNav`, 30 s polling)
 
 ### Outstanding queue (this contributor)
-1. Notifications module + bell (`feature/notifications`)
+- (sprint queue clear; next planned: MongoDB persistence + reminder delivery
+  channel for Sprint 8)
 
 ---
 

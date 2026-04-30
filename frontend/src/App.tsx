@@ -1,6 +1,7 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { UsersProvider } from './contexts/UsersContext';
+import { NotificationsProvider } from './contexts/NotificationsContext';
 import { ToastProvider } from './components/ui/Toast';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { AppShell } from './components/layout/AppShell';
@@ -19,6 +20,7 @@ export default function App() {
     <BrowserRouter>
       <AuthProvider>
         <UsersProvider>
+          <NotificationsProvider>
           <ToastProvider>
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
@@ -44,6 +46,7 @@ export default function App() {
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </ToastProvider>
+          </NotificationsProvider>
         </UsersProvider>
       </AuthProvider>
     </BrowserRouter>
