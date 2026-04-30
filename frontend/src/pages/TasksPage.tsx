@@ -9,6 +9,7 @@ import { TaskFilters } from '../features/tasks/TaskFilters';
 import { TaskFormModal } from '../features/tasks/TaskFormModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { useUsers } from '../hooks/useUsers';
 import * as taskApi from '../api/tasks';
 import type { PaginationMeta, Task, TaskFilterInput } from '../api/types';
 import { formatDate } from '../lib/format';
@@ -18,6 +19,7 @@ const PAGE_SIZE = 20;
 export function TasksPage() {
   const { isAdmin } = useAuth();
   const { show } = useToast();
+  const { displayName } = useUsers();
 
   const [filter, setFilter] = useState<TaskFilterInput>({ page: 1, limit: PAGE_SIZE });
   const [tasks, setTasks] = useState<Task[]>([]);
@@ -89,6 +91,7 @@ export function TasksPage() {
                       <th className="px-4 py-3 font-medium">Title</th>
                       <th className="px-4 py-3 font-medium">Status</th>
                       <th className="px-4 py-3 font-medium">Priority</th>
+                      <th className="px-4 py-3 font-medium">Assignee</th>
                       <th className="px-4 py-3 font-medium">Due date</th>
                       <th className="px-4 py-3 font-medium">Tags</th>
                     </tr>
@@ -103,6 +106,7 @@ export function TasksPage() {
                         </td>
                         <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
                         <td className="px-4 py-3"><PriorityBadge priority={t.priority} /></td>
+                        <td className="px-4 py-3 text-muted">{displayName(t.assigneeId)}</td>
                         <td className="px-4 py-3 text-muted">{formatDate(t.dueDate)}</td>
                         <td className="px-4 py-3 text-muted text-sm">
                           {t.tags && t.tags.length > 0 ? t.tags.join(', ') : '—'}

@@ -3,6 +3,7 @@ import { Card } from '../../components/ui/Card';
 import { PriorityBadge } from '../../components/ui/Badge';
 import { relativeDeadline } from '../../lib/format';
 import { cn } from '../../lib/cn';
+import { useUsers } from '../../hooks/useUsers';
 import type { Task } from '../../api/types';
 
 export interface TaskCardProps {
@@ -12,6 +13,8 @@ export interface TaskCardProps {
 }
 
 export function TaskCard({ task, variant = 'list', className }: TaskCardProps) {
+  const { displayName } = useUsers();
+
   if (variant === 'compact') {
     return (
       <div className={cn('bg-surface border border-border rounded-md p-3 shadow-sm', className)}>
@@ -38,7 +41,7 @@ export function TaskCard({ task, variant = 'list', className }: TaskCardProps) {
         )}
         <div className="flex items-center gap-3 text-sm text-muted">
           {task.dueDate && <span>{relativeDeadline(task.dueDate)}</span>}
-          {task.assigneeId && <span>· Assigned</span>}
+          {task.assigneeId && <span>· {displayName(task.assigneeId)}</span>}
           {task.tags && task.tags.length > 0 && <span>· {task.tags.length} tags</span>}
         </div>
       </Link>

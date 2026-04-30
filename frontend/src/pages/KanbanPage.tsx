@@ -17,6 +17,7 @@ import { TaskFilters } from '../features/tasks/TaskFilters';
 import { TaskFormModal } from '../features/tasks/TaskFormModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { useUsers } from '../hooks/useUsers';
 import { ApiError } from '../api/client';
 import * as taskApi from '../api/tasks';
 import type { Task, TaskFilterInput, TaskStatus } from '../api/types';
@@ -32,6 +33,7 @@ const COLUMNS: { key: TaskStatus; label: string }[] = [
 export function KanbanPage() {
   const { user, isAdmin } = useAuth();
   const { show } = useToast();
+  const { displayName } = useUsers();
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   const [filter, setFilter] = useState<TaskFilterInput>({});
@@ -118,6 +120,7 @@ export function KanbanPage() {
               label={col.label}
               tasks={grouped[col.key]}
               canDrag={canDrag}
+              displayName={displayName}
             />
           ))}
         </div>
@@ -141,11 +144,13 @@ function KanbanColumn({
   label,
   tasks,
   canDrag,
+  displayName,
 }: {
   status: TaskStatus;
   label: string;
   tasks: Task[];
   canDrag(task: Task): boolean;
+  displayName(id: string | undefined | null): string;
 }) {
   const { setNodeRef, isOver } = useDroppable({ id: status });
   return (
@@ -165,14 +170,27 @@ function KanbanColumn({
           <p className="text-sm text-muted px-1 py-2">No tasks</p>
         )}
         {tasks.map(task => (
-          <DraggableTaskCard key={task.id} task={task} draggable={canDrag(task)} />
+          <DraggableTaskCard
+            key={task.id}
+            task={task}
+            draggable={canDrag(task)}
+            assigneeName={displayName(task.assigneeId)}
+          />
         ))}
       </div>
     </div>
   );
 }
 
-function DraggableTaskCard({ task, draggable }: { task: Task; draggable: boolean }) {
+function DraggableTaskCard({
+  task,
+  draggable,
+  assigneeName,
+}: {
+  task: Task;
+  draggable: boolean;
+  assigneeName: string;
+}) {
   const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
     id: task.id,
     disabled: !draggable,
@@ -192,6 +210,7 @@ function DraggableTaskCard({ task, draggable }: { task: Task; draggable: boolean
           <PriorityBadge priority={task.priority} />
           {task.dueDate && <span className="text-sm text-muted">{relativeDeadline(task.dueDate)}</span>}
         </div>
+        <div className="text-sm text-muted mt-2">{assigneeName}</div>
       </div>
       <Link to={`/tasks/${task.id}`} className="text-sm text-primary mt-2 inline-block hover:underline">
         Open →

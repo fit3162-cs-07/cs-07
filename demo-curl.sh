@@ -128,7 +128,19 @@ header "15. RBAC: Member CAN view tasks (expect 200)"
 curl -s -X GET "$BASE/tasks" \
   -H "Authorization: Bearer $MEMBER_TOKEN" | jq .
 
-# ---- 11. AUDIT LOG ----
+# ---- 11. USERS LISTING (RBAC-scoped) ----
+header "15a. List users as Admin (expect every seeded user)"
+curl -s -X GET "$BASE/users" \
+  -H "Authorization: Bearer $ADMIN_TOKEN" | jq .
+
+header "15b. List users as Member (expect only own record)"
+curl -s -X GET "$BASE/users" \
+  -H "Authorization: Bearer $MEMBER_TOKEN" | jq .
+
+header "15c. List users with no token (expect 401)"
+curl -s -X GET "$BASE/users" | jq .
+
+# ---- 12. AUDIT LOG ----
 header "16. Audit log (Admin only)"
 curl -s -X GET "$BASE/audit" \
   -H "Authorization: Bearer $ADMIN_TOKEN" | jq .

@@ -9,6 +9,13 @@ export interface User {
   role: Role;
 }
 
+export interface UserSummary {
+  id: string;
+  name: string;
+  email: string;
+  role: Role;
+}
+
 export interface Task {
   id: string;
   title: string;

@@ -10,6 +10,7 @@ import { EmptyState } from '../components/ui/EmptyState';
 import { TaskFormModal } from '../features/tasks/TaskFormModal';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
+import { useUsers } from '../hooks/useUsers';
 import { ApiError } from '../api/client';
 import * as taskApi from '../api/tasks';
 import * as auditApi from '../api/audit';
@@ -21,6 +22,7 @@ export function TaskDetailPage() {
   const navigate = useNavigate();
   const { user, isAdmin } = useAuth();
   const { show } = useToast();
+  const { displayName } = useUsers();
   const [task, setTask] = useState<Task | null>(null);
   const [audit, setAudit] = useState<AuditEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -132,7 +134,7 @@ export function TaskDetailPage() {
                 <PriorityBadge priority={task.priority} />
               </DetailRow>
               <DetailRow label="Assignee">
-                <span className="text-ink">{task.assigneeId ?? 'Unassigned'}</span>
+                <span className="text-ink">{displayName(task.assigneeId)}</span>
               </DetailRow>
               <DetailRow label="Due date">
                 <span className="text-ink">{formatDate(task.dueDate)}</span>

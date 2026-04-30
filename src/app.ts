@@ -7,6 +7,7 @@ import { authMiddleware } from './shared/infrastructure/middleware/authMiddlewar
 import { AuditLogger } from './shared/infrastructure/audit/AuditLogger';
 import { eventBus } from './shared/application/EventBus';
 import { createIdentityRouter } from './modules/identity/infrastructure/identityRoutes';
+import { createUserRouter } from './modules/identity/infrastructure/userRoutes';
 import { createTaskRouter } from './modules/task/infrastructure/taskRoutes';
 import { IUserRepository } from './modules/identity/domain/IUserRepository';
 import { ITaskRepository } from './modules/task/domain/ITaskRepository';
@@ -36,6 +37,7 @@ export function createApp(userRepo: IUserRepository, taskRepo: ITaskRepository) 
   app.use('/api/v1/auth', createIdentityRouter(userRepo));
 
   // Protected routes
+  app.use('/api/v1/users', authMiddleware, createUserRouter(userRepo));
   app.use('/api/v1/tasks', authMiddleware, createTaskRouter(taskRepo, eventBus));
 
   // Audit route (admin only)

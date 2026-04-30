@@ -7,6 +7,7 @@ import { Select } from '../../components/ui/Select';
 import { Field } from '../../components/ui/Field';
 import { useToast } from '../../hooks/useToast';
 import { useAuth } from '../../hooks/useAuth';
+import { useUsers } from '../../hooks/useUsers';
 import { ApiError } from '../../api/client';
 import * as taskApi from '../../api/tasks';
 import type { Task, TaskPriority, TaskStatus } from '../../api/types';
@@ -55,6 +56,7 @@ function toIsoDate(yyyymmdd: string): string | undefined {
 export function TaskFormModal({ open, task, onClose, onSaved }: TaskFormModalProps) {
   const { isAdmin } = useAuth();
   const { show } = useToast();
+  const { users, loading: usersLoading } = useUsers();
   const isEdit = task !== null;
 
   const [form, setForm] = useState<FormState>(() => fromTask(task));
@@ -76,12 +78,6 @@ export function TaskFormModal({ open, task, onClose, onSaved }: TaskFormModalPro
     const next: Partial<Record<keyof FormState, string>> = {};
     if (!form.title.trim()) next.title = 'Title is required';
     if (form.title.length > 200) next.title = 'Title must be at most 200 characters';
-    if (
-      form.assigneeId &&
-      !/^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(form.assigneeId)
-    ) {
-      next.assigneeId = 'Must be a valid user UUID';
-    }
     setErrors(next);
     return Object.keys(next).length === 0;
   };
@@ -192,18 +188,23 @@ export function TaskFormModal({ open, task, onClose, onSaved }: TaskFormModalPro
 
         {isAdmin && (
           <Field
-            label="Assignee user ID"
-            hint="Paste a user UUID. A user-picker arrives once the backend exposes /users."
-            error={errors.assigneeId}
+            label="Assignee"
+            hint={usersLoading ? 'Loading users…' : undefined}
             htmlFor="task-assignee"
           >
-            <Input
+            <Select
               id="task-assignee"
               value={form.assigneeId}
               onChange={e => update('assigneeId', e.target.value)}
-              invalid={!!errors.assigneeId}
-              placeholder="00000000-0000-0000-0000-000000000000"
-            />
+              disabled={usersLoading}
+            >
+              <option value="">Unassigned</option>
+              {users.map(u => (
+                <option key={u.id} value={u.id}>
+                  {u.name} ({u.role.toLowerCase()})
+                </option>
+              ))}
+            </Select>
           </Field>
         )}
 

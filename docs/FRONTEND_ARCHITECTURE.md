@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-20
+**Last updated:** 2026-04-30
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -26,15 +26,19 @@ api/              — fetch wrapper, typed endpoint helpers, DTO types
   client.ts       —   request(), apiClient, ApiError, JWT injection
   auth.ts         —   login, register, refresh
   tasks.ts        —   list/get/create/update/delete/assign/changeStatus
+  users.ts        —   list users (RBAC-scoped server side)
   audit.ts        —   audit log (admin only, gracefully empty otherwise)
-  types.ts        —   User, Task, AuditEntry, TaskFilterInput, …
+  types.ts        —   User, UserSummary, Task, AuditEntry, TaskFilterInput, …
   index.ts        —   barrel re-exports
 
 contexts/
   AuthContext.tsx —   AuthProvider, AuthContext, persists session in sessionStorage
+  UsersContext.tsx —  UsersProvider — fetches /users once per session, exposes
+                      `{ users, loading, error, refresh, lookup, displayName }`
 
 hooks/
   useAuth.ts      —   wraps AuthContext (throws if used outside Provider)
+  useUsers.ts     —   wraps UsersContext (throws if used outside Provider)
   useToast.ts     —   wraps ToastContext
 
 design/
@@ -164,17 +168,33 @@ the table above. Same goes for spacing (4/8/12/16/24/32/48 only) and font sizes.
 
 ## Backend coupling (current state)
 
-- The frontend targets the API as it exists on `main`. R5
-  (filter/search/pagination) and R3 (reminder events) are open as separate PRs.
-- Filter UI ships with R5 fields visible (search, tags, date range, paginate).
-  On `main` those query params are dropped server-side; everything still works
-  but extra filters are no-ops until R5 lands.
-- Tasks DTOs accept `tags`; `main`'s Zod schema strips them silently. After R5
-  they will persist.
-- `assigneeId` requires a UUID. Until the backend exposes a `/users` listing,
-  the assignee picker is a free-text UUID field with a hint.
+- The frontend targets the API as it exists on `main` — R5 (filter/search/
+  pagination), R3 (reminder events), and the `/users` listing are all merged.
+- Tasks DTOs accept `tags`; the Zod schema persists them.
+- The assignee picker is a `<Select>` populated from `useUsers()`. Members see
+  themselves only (single-option dropdown); admins see every user. No more
+  free-text UUID input.
 - `GET /api/v1/audit` is admin-only. The `audit.ts` helper swallows 401/403 and
   returns `[]` so the dashboard degrades gracefully for members.
+
+## Users + assignee dropdown
+
+The frontend resolves assignee IDs into human names through a session-scoped
+cache so individual cards never refetch.
+
+- `UsersProvider` wraps the route tree (between `AuthProvider` and
+  `ToastProvider` in `App.tsx`). On mount, and whenever `isAuthenticated`
+  flips true, it calls `GET /api/v1/users` once and stores the array.
+- `useUsers()` exposes:
+  - `users` — full array as returned by the API (RBAC-scoped server side)
+  - `loading`, `error`, `refresh()`
+  - `lookup(id)` — `UserSummary | undefined`
+  - `displayName(id, fallback = 'Unassigned')` — string for cards/tables
+- The hook is consumed by `TaskFormModal`, `TaskFilters`, `TaskCard`,
+  `TasksPage`, `TaskDetailPage`, and `KanbanPage`. Each renders the cached
+  list — no per-component fetch.
+- When a member logs in, the dropdown collapses to just themselves. This
+  matches the backend RBAC scoping and keeps the UX honest.
 
 ---
 
