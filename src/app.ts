@@ -21,7 +21,13 @@ export function createApp(userRepo: IUserRepository, taskRepo: ITaskRepository) 
 
   // Set up audit logging
   const auditLogger = new AuditLogger(eventBus);
-  auditLogger.register(['TaskCreated', 'TaskAssigned', 'TaskStatusChanged', 'TaskDeleted']);
+  auditLogger.register([
+    'TaskCreated',
+    'TaskAssigned',
+    'TaskStatusChanged',
+    'TaskDeleted',
+    'TaskReminderDue',
+  ]);
 
   // Store audit logger on app for route access
   app.locals.auditLogger = auditLogger;
