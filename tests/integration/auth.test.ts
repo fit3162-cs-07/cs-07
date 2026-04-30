@@ -46,6 +46,18 @@ describe('POST /api/v1/auth/register', () => {
 
     expect(res.status).toBe(400);
   });
+
+  it('always creates a MEMBER even when the request asks for ADMIN', async () => {
+    const res = await request(app).post('/api/v1/auth/register').send({
+      email: 'role-spoof@test.com',
+      name: 'Spoofy',
+      password: 'password123',
+      role: 'ADMIN',
+    });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.user.role).toBe('MEMBER');
+  });
 });
 
 describe('POST /api/v1/auth/login', () => {

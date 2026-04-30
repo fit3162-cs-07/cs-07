@@ -24,6 +24,10 @@ export class LoginUseCase implements UseCase<LoginDTO, LoginOutput> {
       throw new Error('INVALID_CREDENTIALS');
     }
 
+    if (!user.isActive) {
+      throw new Error('ACCOUNT_DEACTIVATED');
+    }
+
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       config.jwt.secret,

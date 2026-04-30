@@ -5,4 +5,5 @@ export interface UserSummaryDTO {
   name: string;
   email: string;
   role: Role;
+  isActive: boolean;
 }

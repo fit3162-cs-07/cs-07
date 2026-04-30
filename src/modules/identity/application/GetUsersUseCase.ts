@@ -1,5 +1,6 @@
 import { IUserRepository } from '../domain/IUserRepository';
 import { Role } from '../domain/Role';
+import { User } from '../domain/User';
 import { UseCase } from '../../../shared/application/UseCase';
 import { UserSummaryDTO } from './dtos/UserSummaryDTO';
 
@@ -22,6 +23,12 @@ export class GetUsersUseCase implements UseCase<GetUsersInput, UserSummaryDTO[]>
   }
 }
 
-function toSummary(user: { id: string; name: string; email: string; role: Role }): UserSummaryDTO {
-  return { id: user.id, name: user.name, email: user.email, role: user.role };
+function toSummary(user: User): UserSummaryDTO {
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    isActive: user.isActive,
+  };
 }

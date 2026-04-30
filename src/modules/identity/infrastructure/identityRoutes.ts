@@ -35,6 +35,10 @@ export function createIdentityRouter(userRepo: IUserRepository): Router {
         sendError(res, 401, 'INVALID_CREDENTIALS', 'Invalid email or password');
         return;
       }
+      if (err instanceof Error && err.message === 'ACCOUNT_DEACTIVATED') {
+        sendError(res, 403, 'ACCOUNT_DEACTIVATED', 'Your account has been deactivated');
+        return;
+      }
       next(err);
     }
   });
