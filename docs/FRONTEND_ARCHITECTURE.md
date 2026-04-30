@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30 (rev 5)
+**Last updated:** 2026-04-30 (rev 6)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -32,7 +32,8 @@ api/              — fetch wrapper, typed endpoint helpers, DTO types
   index.ts        —   barrel re-exports
 
 contexts/
-  AuthContext.tsx —   AuthProvider, AuthContext, persists session in sessionStorage
+  AuthContext.tsx —   AuthProvider, AuthContext; uses tokenStorage to persist
+                      to localStorage (Remember me) or sessionStorage
   UsersContext.tsx —  UsersProvider — fetches /users once per session, exposes
                       `{ users, loading, error, refresh, lookup, displayName }`
 
@@ -45,8 +46,13 @@ design/
   tokens.ts       —   typed exports of palette, spacing, type, radius, shadows
 
 lib/
-  cn.ts           —   `clsx` wrapper used by every component
-  format.ts       —   formatDate, formatDateTime, daysUntil, relativeDeadline
+  cn.ts                —   `clsx` wrapper used by every component
+  format.ts            —   formatDate, formatDateTime, daysUntil, relativeDeadline
+  tokenStorage.ts      —   persistent (localStorage) + session-only (sessionStorage)
+                           backends, `readPreferredAuth()`, `clearAllAuth()`
+  passwordStrength.ts  —   `scorePassword(pw)` → `{ score, label }` for the
+                           registration meter (extracted so RegisterPage can stay
+                           component-only for fast refresh)
 
 components/
   ProtectedRoute.tsx — redirects unauthenticated users to /login (preserves intended path)
@@ -156,6 +162,13 @@ the table above. Same goes for spacing (4/8/12/16/24/32/48 only) and font sizes.
 - `useAuth()` returns `{ user, isAuthenticated, isAdmin, login, register, logout, updateUser }`.
   `updateUser(user)` is called by `AccountPage` after a successful profile
   edit so the TopNav reflects the new name without a re-login.
+- `login(email, password, remember?)` and `register(input, remember?)` accept
+  an optional `remember` flag. `remember=true` writes the session through
+  `persistentTokenStorage` (localStorage); `remember=false` (default) goes
+  through `sessionOnlyTokenStorage`. `clearAllAuth()` is invoked on every
+  persist + on logout so only one backend ever holds the token.
+- Boot order: `AuthProvider` calls `readPreferredAuth()`, which prefers
+  localStorage (last "Remember me" choice) and falls back to sessionStorage.
 - Protect a route with `<ProtectedRoute requireAdmin />` (the admin variant
   redirects members to `/dashboard`).
 - For inline UI gating, branch on `isAdmin` or compare `user.id` against
@@ -220,8 +233,13 @@ Layout:
 ```
 frontend/
   tests/
-    setup.ts          — global test setup; imports jest-dom matchers + cleanup
+    setup.ts          — global test setup; jest-dom matchers, cleanup, and an
+                        in-memory localStorage / sessionStorage shim (vitest's
+                        jsdom env supplies a placeholder object whose Storage
+                        methods are missing, so the shim is required)
     components/       — UI primitive + feature component tests
+    lib/              — pure-helper tests (e.g. tokenStorage)
+    pages/            — page-level tests with provider wrappers
   vitest.config.ts    — jsdom env, globals enabled, includes tests/**/*.test.tsx
   tsconfig.test.json  — extends app config; adds vitest/globals + jest-dom types
 ```
@@ -251,7 +269,4 @@ CI runs the frontend job in parallel with the backend job: install →
 Search the repo for these markers — they are intentionally small, well-scoped
 tickets to keep contribution paths open:
 
-- `TODO(ruizhi)` — login page polish (animations, "Remember me")
 - `TODO(ethan)` — Cypress E2E for the edit-event flow
-- `TODO(ethan)` — register-page validation polish (inline errors, password
-  strength, debounced uniqueness check)

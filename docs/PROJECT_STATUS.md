@@ -33,8 +33,10 @@ frontend test harness. Smoke-tested locally before each merge.
   and eslint.
 - **Active feature branches in remote:**
   - `feature/loading-and-empty-states` — PR #9 (Skeleton + ErrorBoundary)
-  - `feature/responsive-polish` — PR #10, this PR (mobile drawer +
+  - `feature/responsive-polish` — PR #10 (mobile drawer +
     PageHeader stacking + collapsible filters)
+  - `feature/auth-pages-polish` — PR #11, this PR (Remember me, password
+    show/hide, password strength meter, persistent / session token storage)
   - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
     (login screen + UI work; **do not touch**)
   - `feature/createEvent` — Ethan's; **do not touch**
@@ -119,8 +121,11 @@ frontend test harness. Smoke-tested locally before each merge.
 - ✅ Tailwind v3 with the locked palette (Tailwind theme overrides defaults)
 - ✅ Inter font + design tokens (`src/design/tokens.ts`)
 - ✅ Typed API service layer with JWT injection + envelope-aware error handling
-- ✅ `AuthContext` (sessionStorage) + `useAuth` + `ProtectedRoute`. PR #7 adds
-  `updateUser(user)` so profile changes flow back into the TopNav.
+- ✅ `AuthContext` + `useAuth` + `ProtectedRoute`. PR #7 adds
+  `updateUser(user)` so profile changes flow back into the TopNav. PR #11
+  swaps the inline `sessionStorage` reads for a `tokenStorage` abstraction
+  and adds a `remember?: boolean` flag to `login` / `register` — `true`
+  persists to `localStorage`, `false` keeps the session-only behaviour.
 - ✅ `UsersContext` + `useUsers` (single-fetch session cache)
 - ✅ React Router v6 with public + protected routes + 404
 - ✅ `AppShell` (top nav + sidebar)
@@ -142,18 +147,21 @@ frontend test harness. Smoke-tested locally before each merge.
   `UpcomingReminders`. `ErrorBoundary` wraps the routed `<Outlet/>` and
   resets when the path changes, so a render-time exception on one page no
   longer takes down the shell.
+- 🚧 (PR #11) `LoginPage` gains "Remember me", inline password show/hide,
+  and a "Forgot password?" stub (toast). `RegisterPage` adds inline
+  field-level validation, `scorePassword` (extracted to
+  `src/lib/passwordStrength.ts`) drives a three-segment strength meter,
+  plus the same show/hide + Remember-me controls. Both pages render
+  `role="alert"` on a failed submit. The role select on register stays for
+  now — it gets locked to `MEMBER` in Task F1 alongside the admin user
+  management endpoints.
 
 ### Outstanding (planned this sprint)
-- Auth pages polish: validation, password strength, "Remember me",
-  forgot-password stub (Task E)
 - Admin user management page + RBAC backend tightening (Tasks F1 + F2)
 - Notifications module + TopNav bell (Task G)
 
 ### Outstanding (intentional, scoped for teammates)
-- `TODO(ruizhi)` — login polish + "Remember me"
 - `TODO(ethan)` — Cypress E2E for edit-event flow
-- `TODO(ethan)` — register-page validation polish (inline errors, password
-  strength, debounced uniqueness)
 
 ---
 
@@ -177,6 +185,12 @@ frontend test harness. Smoke-tested locally before each merge.
 - 🚧 (PR #10) Frontend: `Sidebar`, `TopNav`, and `PageHeader` component
   tests inline (13 new frontend tests covering the mobile drawer, ESC /
   backdrop close, and responsive header markup).
+- 🚧 (PR #11) Frontend: `tokenStorage`, `LoginPage`, `RegisterPage` tests
+  inline (25 new frontend tests covering remember-me persistence,
+  password show/hide toggle, password-strength scoring, inline validation,
+  and the `role="alert"` failure path). Test setup grew an in-memory
+  `localStorage` / `sessionStorage` shim because vitest's jsdom env
+  supplies a placeholder object whose Storage methods are missing.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -203,12 +217,15 @@ frontend test harness. Smoke-tested locally before each merge.
 - **#10** `feature/responsive-polish → main` — Mobile drawer with
   hamburger toggle + ESC/backdrop close, responsive `PageHeader`,
   collapsible filters on `TasksPage`
+- **#11** `feature/auth-pages-polish → main` — `tokenStorage` abstraction
+  with `localStorage` (Remember me) vs `sessionStorage` backends, login
+  Remember-me + show/hide + Forgot-password toast, register inline
+  validation + password strength meter
 
 ### Outstanding queue (this contributor)
-1. Auth pages polish + "Remember me" wrappers (`feature/auth-pages-polish`)
-2. Admin user management — backend (`feature/admin-users-backend`)
-3. Admin user management — frontend (`feature/admin-users-frontend`)
-4. Notifications module + bell (`feature/notifications`)
+1. Admin user management — backend (`feature/admin-users-backend`)
+2. Admin user management — frontend (`feature/admin-users-frontend`)
+3. Notifications module + bell (`feature/notifications`)
 
 ---
 
