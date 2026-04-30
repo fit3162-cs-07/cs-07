@@ -13,6 +13,7 @@ import { PageHeader } from '../components/ui/PageHeader';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { PriorityBadge } from '../components/ui/Badge';
+import { Skeleton } from '../components/ui/Skeleton';
 import { TaskFilters } from '../features/tasks/TaskFilters';
 import { TaskFormModal } from '../features/tasks/TaskFormModal';
 import { useAuth } from '../hooks/useAuth';
@@ -111,20 +112,28 @@ export function KanbanPage() {
         />
       </div>
 
-      <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-testid="kanban-skeleton">
           {COLUMNS.map(col => (
-            <KanbanColumn
-              key={col.key}
-              status={col.key}
-              label={col.label}
-              tasks={grouped[col.key]}
-              canDrag={canDrag}
-              displayName={displayName}
-            />
+            <KanbanColumnSkeleton key={col.key} label={col.label} />
           ))}
         </div>
-      </DndContext>
+      ) : (
+        <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {COLUMNS.map(col => (
+              <KanbanColumn
+                key={col.key}
+                status={col.key}
+                label={col.label}
+                tasks={grouped[col.key]}
+                canDrag={canDrag}
+                displayName={displayName}
+              />
+            ))}
+          </div>
+        </DndContext>
+      )}
 
       <TaskFormModal
         open={createOpen}
@@ -136,6 +145,29 @@ export function KanbanPage() {
         }}
       />
     </>
+  );
+}
+
+function KanbanColumnSkeleton({ label }: { label: string }) {
+  return (
+    <div className="rounded-lg border border-border bg-page p-3 min-h-[400px]">
+      <div className="flex items-center justify-between mb-3 px-1">
+        <h3 className="text-sm font-semibold text-ink uppercase tracking-wide">{label}</h3>
+        <Skeleton width={16} height={12} />
+      </div>
+      <div className="flex flex-col gap-2">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <Card key={i} padded={false} className="p-3 flex flex-col gap-2">
+            <Skeleton width="80%" height={16} />
+            <div className="flex items-center justify-between">
+              <Skeleton width={56} height={20} />
+              <Skeleton width={64} height={12} />
+            </div>
+            <Skeleton width="50%" height={12} />
+          </Card>
+        ))}
+      </div>
+    </div>
   );
 }
 

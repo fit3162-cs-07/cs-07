@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card, CardSubtitle, CardTitle } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/Skeleton';
 import { UpcomingReminders } from '../components/dashboard/UpcomingReminders';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -68,9 +69,9 @@ export function DashboardPage() {
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total tasks" value={loading ? '…' : stats.total} to="/tasks" />
-        <StatCard label="Due this week" value={loading ? '…' : stats.dueThisWeek} to="/tasks" />
-        <StatCard label="In progress" value={loading ? '…' : stats.inProgress} to="/kanban" />
+        <StatCard label="Total tasks" value={stats.total} loading={loading} to="/tasks" />
+        <StatCard label="Due this week" value={stats.dueThisWeek} loading={loading} to="/tasks" />
+        <StatCard label="In progress" value={stats.inProgress} loading={loading} to="/kanban" />
       </div>
 
       <div className="mb-6">
@@ -83,7 +84,7 @@ export function DashboardPage() {
           <CardSubtitle>Latest five tasks by creation date.</CardSubtitle>
           <div className="mt-4 flex flex-col divide-y divide-border">
             {loading ? (
-              <p className="text-sm text-muted py-4">Loading…</p>
+              <RecentTasksSkeleton />
             ) : recentTasks.length === 0 ? (
               <EmptyState title="No tasks yet" description="Create your first task to get started." />
             ) : (
@@ -115,7 +116,7 @@ export function DashboardPage() {
             {!isAdmin ? (
               <p className="text-sm text-muted py-4">No activity available for your role.</p>
             ) : loading ? (
-              <p className="text-sm text-muted py-4">Loading…</p>
+              <ActivitySkeleton />
             ) : audit.length === 0 ? (
               <p className="text-sm text-muted py-4">No recorded events yet.</p>
             ) : (
@@ -136,14 +137,57 @@ export function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, to }: { label: string; value: number | string; to: string }) {
+function StatCard({
+  label,
+  value,
+  loading,
+  to,
+}: {
+  label: string;
+  value: number | string;
+  loading?: boolean;
+  to: string;
+}) {
   return (
     <Link to={to}>
       <Card className="hover:bg-primary-soft transition-colors">
         <div className="text-sm text-muted">{label}</div>
-        <div className="text-3xl font-semibold text-ink mt-2">{value}</div>
+        {loading ? (
+          <Skeleton className="mt-2" width={64} height={32} label={`Loading ${label}`} />
+        ) : (
+          <div className="text-3xl font-semibold text-ink mt-2">{value}</div>
+        )}
       </Card>
     </Link>
+  );
+}
+
+function RecentTasksSkeleton() {
+  return (
+    <div className="flex flex-col" data-testid="recent-tasks-skeleton">
+      {Array.from({ length: 3 }).map((_, i) => (
+        <div key={i} className="py-3 flex items-center justify-between gap-3">
+          <div className="flex-1 flex flex-col gap-2">
+            <Skeleton width="60%" height={16} />
+            <Skeleton width="40%" height={12} />
+          </div>
+          <Skeleton width={64} height={12} />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ActivitySkeleton() {
+  return (
+    <div className="flex flex-col" data-testid="activity-skeleton">
+      {Array.from({ length: 4 }).map((_, i) => (
+        <div key={i} className="py-3 flex flex-col gap-2">
+          <Skeleton width="70%" height={16} />
+          <Skeleton width="30%" height={12} />
+        </div>
+      ))}
+    </div>
   );
 }
 
