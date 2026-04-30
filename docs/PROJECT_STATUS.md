@@ -8,23 +8,22 @@
 ## Truth-in-state notes (read first)
 
 - **R5 (filter/search/pagination)** is **merged on `main`** (PR #1, 2026-04-30).
-- **R3 (deadlines and reminders)** is in progress on **this branch**
-  (`feat/reminder-module`): `TaskReminderDueEvent`, `CheckDueRemindersUseCase`,
-  `node-cron`-driven `ReminderScheduler`, and unit tests are in place. PR open.
-- **`frontend/src/App.tsx` currently contains a demo UI** (login form, Kanban
-  board, task cards, modal, toast) committed during the initial scaffold. It is
-  **not** Ruizhi's work — it predates her sprint. Decision on whether to extend
-  or replace it sits with Ruizhi when her PR lands.
+- **R3 (deadlines and reminders)** is **merged on `main`** (PR #2, 2026-04-30):
+  `TaskReminderDueEvent`, `CheckDueRemindersUseCase`, `node-cron`-driven
+  `ReminderScheduler`, audit-logger registration of `TaskReminderDue`.
+- **Frontend MVP** is in progress on **this branch** (`feat/frontend-build`).
+  React 19 + Vite + Tailwind, full router + design system + 7 pages. Architecture
+  rules in `docs/FRONTEND_ARCHITECTURE.md`.
+- **`frontend/src/legacy/App.legacy.tsx`** — the original demo UI was relocated
+  here for reference; it is not mounted, excluded from tsc and eslint.
 - **Active feature branches in remote:**
-  - `feat/reminder-module` — R3, this PR (Thanh)
-  - `feat/frontend-build` — full frontend MVP, PR open (Thanh)
-  - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch (login
-    screen + UI work; **do not touch**)
-- **Stale remote branches removed this sprint** (all were at-or-behind `main`
-  with no unique commits): `backend`, `frontend`, `feature/database`. The
-  branch `feature/set-up-skeleton` could not be deleted because it is still
-  set as the GitHub repository default branch — flagged for the team to flip
-  the default to `main` and prune.
+  - `feat/frontend-build` — frontend MVP, this PR (Thanh)
+  - `feature/front-end-set-up-ray` — Ruizhi's active frontend branch
+    (login screen + UI work; **do not touch**)
+- **Stale remote branches removed last session**: `backend`, `frontend`,
+  `feature/database`. The branch `feature/set-up-skeleton` could not be deleted
+  because it is still set as the GitHub repository default branch — flagged for
+  the team to flip the default to `main` and prune.
 
 ---
 
@@ -32,15 +31,15 @@
 
 | Req | Description | Priority | Status | What's missing | Covering branch / PR |
 |-----|-------------|----------|--------|----------------|----------------------|
-| R1  | Admin CRUD tasks | High | ✅ On main | — | merged |
-| R2  | Admin assign tasks to members | High | ✅ On main | — | merged |
-| R3  | Deadlines and reminders | Medium | 🚧 PR pending | Reminder delivery channel (email / push); persistence of "reminded" set across restarts | `feat/reminder-module` (this PR) |
-| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | 🚧 Backend complete; frontend pending | None on backend — `PATCH /tasks/:id/status` plus `GET /tasks?status=...` already cover column-move and column-load. Frontend Kanban rendering owned by Ruizhi/Ethan. | frontend track |
-| R5  | Categorize / filter / search | Medium | ✅ On main | — | merged (PR #1) |
+| R1  | Admin CRUD tasks | High | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` (this PR) |
+| R2  | Admin assign tasks to members | High | ✅ Backend on main · ✅ Frontend (UUID input) | UI picker awaits a `/users` endpoint | `feat/frontend-build` |
+| R3  | Deadlines and reminders | Medium | ✅ On main | Reminder delivery channel (email / push); persistence of "reminded" set across restarts | merged (PR #2) |
+| R4  | Kanban status view (ToDo / InProgress / Done) | Medium | ✅ Backend on main · ✅ Frontend on this branch | — | `feat/frontend-build` |
+| R5  | Categorize / filter / search | Medium | ✅ Backend on main · ✅ Frontend on this branch | — | merged (PR #1) + `feat/frontend-build` |
 | R6  | File attachments | Low | ❌ Not started | Upload/download/delete endpoints, storage adapter, MIME/size validation | unscheduled |
-| R7  | Role-based access control | High | ✅ On main | — | merged |
-| R8  | Responsive design | Medium | ❌ Frontend concern | Layout, breakpoints, touch targets | `feature/front-end-set-up-ray` |
-| R13 | Page load under 3 s | High | ❌ N/A until frontend ships | Lighthouse budget, code-splitting, image strategy | future sprint |
+| R7  | Role-based access control | High | ✅ Backend on main · ✅ Frontend (route guard + UI gating) | — | `feat/frontend-build` |
+| R8  | Responsive design | Medium | 🚧 Partial | AppShell + grids are responsive (md/lg breakpoints); needs review on small screens | `feat/frontend-build` |
+| R13 | Page load under 3 s | High | 🚧 Initial bundle 290kB / 91kB gzipped | Code-splitting + image strategy when assets land | future sprint |
 
 ---
 
@@ -53,17 +52,17 @@
 - ✅ Routes: `POST /api/v1/auth/register`, `POST /api/v1/auth/login`
 - ✅ `authMiddleware` (JWT verify) + `requireRole` (RBAC)
 
-### Task Module — partially on main
+### Task Module — on main
 - ✅ Task entity, `TaskStatus`, `TaskPriority`
 - ✅ `ITaskRepository` + `InMemoryTaskRepository`
 - ✅ Use cases: Create, Update, Delete, Assign, ChangeStatus, GetById, GetTasks
-- ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`, `TaskDeleted`
+- ✅ Domain events: `TaskCreated`, `TaskAssigned`, `TaskStatusChanged`,
+  `TaskDeleted`, `TaskReminderDue`
 - ✅ Routes: full CRUD + `/assign` + `/status`
 - ✅ `Tag` value object, `TaskFilter` value object, `GetTasksUseCase` with
   pagination + RBAC scoping, multi-tag / text / date-range filters (R5, merged)
-- 🚧 (on `feat/reminder-module`, this PR) `TaskReminderDueEvent`,
-  `CheckDueRemindersUseCase`, `ReminderScheduler` (node-cron), audit-logger
-  registration of `TaskReminderDue`
+- ✅ `CheckDueRemindersUseCase` + `ReminderScheduler` (node-cron) + audit-logger
+  registration of `TaskReminderDue` (R3, merged)
 
 ### Shared Infrastructure — on main
 - ✅ Base `Entity`, `DomainEvent`, `IEventBus` (`NodeEventBus` via EventEmitter)
@@ -77,23 +76,53 @@
 - ✅ 3 users (1 admin, 2 members) and 5 tasks across statuses/priorities
 
 ### Not started
+- ❌ `/users` listing endpoint (frontend assignee picker depends on it)
 - ❌ Club entity / `IClubRepository` (Task already has unused `clubId` field)
 - ❌ Notification module (delivery channel / preferences)
 - ❌ R6 file attachments
 
 ---
 
-## Frontend
+## Frontend (this PR)
 
-- 🚧 Vite + React + TypeScript scaffold in `frontend/`
-- 🚧 `frontend/src/App.tsx` contains a single-file demo UI (login form, Kanban,
-  task cards, modal, filter, toast) committed during initial scaffold —
-  **demo only, not the production frontend**
-- ❌ Production-grade login (owned by Ruizhi on `feature/front-end-set-up-ray`)
-- ❌ Edit-event screen + Cypress E2E (owned by Ethan)
-- ❌ React Router setup, layout shell, shared components, auth context
-- ❌ Drag-and-drop Kanban
-- ❌ Responsive design
+### Foundation
+- ✅ Tailwind v3 with the locked palette (Tailwind theme overrides defaults)
+- ✅ Inter font + design tokens (`src/design/tokens.ts`)
+- ✅ Typed API service layer with JWT injection + envelope-aware error handling
+- ✅ `AuthContext` (sessionStorage) + `useAuth` + `ProtectedRoute`
+- ✅ React Router v6 with public + protected routes + 404
+- ✅ `AppShell` (top nav + sidebar)
+- ✅ UI primitives: `Button`, `Input`, `Textarea`, `Select`, `Field`, `Card`,
+  `Badge` (incl. `StatusBadge`/`PriorityBadge`), `Modal`, `Toast`, `Dropdown`,
+  `PageHeader`, `EmptyState`
+
+### Pages
+- ✅ `LoginPage` — seeded credentials, error surfacing, redirect-to-intended-route
+- ✅ `RegisterPage` — name/email/password/role with inline validation, auto-login
+- ✅ `DashboardPage` — welcome, three stats (total / due-this-week / in-progress),
+  recent tasks, audit feed for admins
+- ✅ `TasksPage` — filter sidebar + table view + pagination (page meta optional)
+- ✅ `TaskDetailPage` — full detail card, admin actions, status quick-action,
+  per-task audit feed for admins
+- ✅ `KanbanPage` — three columns with `@dnd-kit` drag-and-drop, RBAC-scoped
+  drag (admin can move any; member only own/assigned), filter bar, optimistic
+  status update with rollback on failure
+- ✅ `TaskFormModal` — reusable create/edit; status + assignee changes route
+  through their dedicated endpoints
+- ✅ `NotFoundPage`
+
+### Verified
+- ✅ `npm run build` (tsc + vite) clean — 290 kB / 91 kB gzipped initial bundle
+- ✅ `npm run lint` clean
+- ✅ `npm run dev` boots on :5173, serves `index.html` 200
+- ⚠️ Browser smoke-test against the running backend not yet performed in this
+  session — golden-path E2E pending
+
+### Outstanding (intentional, scoped for teammates)
+- `TODO(ruizhi)` — login polish + "Remember me"
+- `TODO(ethan)` — Cypress E2E for edit-event flow
+- `TODO(ethan)` — register-page validation polish (inline errors, password
+  strength, debounced uniqueness)
 
 ---
 
@@ -108,9 +137,8 @@
 
 ## Testing
 
-- ✅ Main: 9 suites, 61 tests (post-R5 merge)
-- ✅ This branch (`feat/reminder-module`): 10 suites, 68 tests (added 7 for
-  `CheckDueRemindersUseCase`)
+- ✅ Main: 10 suites, 68 tests (post-R3 + R5 merge)
+- ❌ Frontend unit tests (deferred — Vitest not yet wired)
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -118,7 +146,8 @@
 
 ## Infrastructure
 
-- ✅ TypeScript strict, ESLint + Prettier, Jest + ts-jest
+- ✅ TypeScript strict, ESLint + Prettier, Jest + ts-jest (backend)
+- ✅ Vite + React 19 + Tailwind v3 (frontend)
 - ✅ GitHub Actions: lint + typecheck + tests
 - ✅ Branch protection on `main`
 - ✅ Dockerfile + docker-compose.yml (API + MongoDB placeholder)
@@ -130,14 +159,11 @@
 
 ---
 
-## Sprint 7 plan (week of Mon 21 Apr)
+## Open PRs (Sprint 7)
 
-| Owner  | Branch | Scope |
-|--------|--------|-------|
-| Thanh  | `feat/reminder-module` | R3 reminder scaffold (this PR) |
-| Thanh  | `feat/frontend-build` | Frontend MVP (router + pages + design system) |
-| Ruizhi | `feature/front-end-set-up-ray` | Login screen + UI work |
-| Ethan  | (TBC) | Code integration, edit-event screen, Cypress setup |
+- ~~**#1** `feat/task-filter-search → main` — R5 (filter/search/pagination)~~ ✅ merged
+- ~~**#2** `feat/reminder-module → main` — R3 (cron + reminder events)~~ ✅ merged
+- **#3** `feat/frontend-build → main` — full frontend MVP (this PR)
 
 ---
 
@@ -151,5 +177,7 @@
 6. `ReminderScheduler` keeps the "already reminded" set in process memory only —
    restarts will re-fire reminders for tasks still in window. Persist to repo
    when MongoDB lands (Sprint 8).
+7. Frontend assignee picker is a free-text UUID field — depends on a `/users`
+   listing endpoint that the backend does not yet expose.
 
 None blocking; tracked for a future cleanup sprint.

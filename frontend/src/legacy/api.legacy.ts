@@ -1,3 +1,7 @@
+// Legacy API client from the initial scaffold demo. Kept for reference only;
+// not imported by the production frontend. See src/api/* for the current
+// service layer.
+
 const BASE = 'http://localhost:3000/api/v1';
 
 let token = '';
