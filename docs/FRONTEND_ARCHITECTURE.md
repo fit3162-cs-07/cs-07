@@ -1,6 +1,6 @@
 # Frontend Architecture
 
-**Last updated:** 2026-04-30 (rev 6)
+**Last updated:** 2026-04-30 (rev 7)
 
 This document captures how the Monash Club Tasks frontend is organised, the
 design rules every contributor must follow, and the conventions for adding new
@@ -27,6 +27,7 @@ api/              — fetch wrapper, typed endpoint helpers, DTO types
   auth.ts         —   login, register, refresh
   tasks.ts        —   list/get/create/update/delete/assign/changeStatus
   users.ts        —   list users (RBAC-scoped) + getMe / updateProfile / changePassword
+                      + adminUpdateUser / adminDeactivateUser / adminActivateUser
   audit.ts        —   audit log (admin only, gracefully empty otherwise)
   types.ts        —   User, UserSummary, Task, AuditEntry, TaskFilterInput, …
   index.ts        —   barrel re-exports
@@ -61,8 +62,9 @@ components/
     AppShell.tsx     — TopNav + Sidebar + ErrorBoundary + <Outlet/>; owns
                        mobile drawer open/close state
     TopNav.tsx       — logo + hamburger (mobile) + user menu
-    Sidebar.tsx      — Dashboard / Tasks / Kanban; renders both the desktop
-                       aside and the mobile slide-out drawer
+    Sidebar.tsx      — Dashboard / Tasks / Kanban (+ User Management for
+                       admins); renders both the desktop aside and the
+                       mobile slide-out drawer
   dashboard/
     UpcomingReminders.tsx — R3 surfacing widget for the dashboard
   ui/
@@ -77,7 +79,8 @@ features/
 
 pages/
   LoginPage, RegisterPage, DashboardPage,
-  TasksPage, TaskDetailPage, KanbanPage, AccountPage, NotFoundPage
+  TasksPage, TaskDetailPage, KanbanPage, AccountPage,
+  AdminUsersPage (admin-only at /admin/users), NotFoundPage
 
 legacy/
   App.legacy.tsx + api.legacy.ts — original single-file demo, NOT mounted,
@@ -170,7 +173,10 @@ the table above. Same goes for spacing (4/8/12/16/24/32/48 only) and font sizes.
 - Boot order: `AuthProvider` calls `readPreferredAuth()`, which prefers
   localStorage (last "Remember me" choice) and falls back to sessionStorage.
 - Protect a route with `<ProtectedRoute requireAdmin />` (the admin variant
-  redirects members to `/dashboard`).
+  redirects members to `/dashboard`). `/admin/users` lives under such a
+  block and the Sidebar conditionally renders the matching link.
+- `register(input)` no longer accepts a `role` — self-registration always
+  produces a `MEMBER`. Admins promote users via `adminUpdateUser(id, { role })`.
 - For inline UI gating, branch on `isAdmin` or compare `user.id` against
   `task.assigneeId` / `task.createdBy` (e.g. status changes for members).
 

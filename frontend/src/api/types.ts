@@ -7,6 +7,7 @@ export interface User {
   email: string;
   name: string;
   role: Role;
+  isActive: boolean;
 }
 
 export interface UserSummary {
@@ -14,6 +15,7 @@ export interface UserSummary {
   name: string;
   email: string;
   role: Role;
+  isActive: boolean;
 }
 
 export interface Task {

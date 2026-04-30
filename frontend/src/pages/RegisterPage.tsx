@@ -3,13 +3,11 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Field } from '../components/ui/Field';
 import { Input } from '../components/ui/Input';
-import { Select } from '../components/ui/Select';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
 import { ApiError } from '../api/client';
 import { cn } from '../lib/cn';
 import { scorePassword, type PasswordStrength } from '../lib/passwordStrength';
-import type { Role } from '../api/types';
 
 interface FieldErrors {
   name?: string;
@@ -25,7 +23,6 @@ export function RegisterPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [role, setRole] = useState<Role>('MEMBER');
   const [remember, setRemember] = useState(false);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [topError, setTopError] = useState<string | null>(null);
@@ -49,7 +46,7 @@ export function RegisterPage() {
 
     setSubmitting(true);
     try {
-      await register({ name: name.trim(), email: email.trim(), password, role }, remember);
+      await register({ name: name.trim(), email: email.trim(), password }, remember);
       navigate('/dashboard', { replace: true });
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Registration failed';
@@ -110,13 +107,6 @@ export function RegisterPage() {
               <PasswordStrengthMeter strength={strength.label} score={strength.score} />
             )}
           </Field>
-          <Field label="Role" htmlFor="role">
-            <Select id="role" value={role} onChange={e => setRole(e.target.value as Role)}>
-              <option value="MEMBER">Member</option>
-              <option value="ADMIN">Admin</option>
-            </Select>
-          </Field>
-
           <label className="inline-flex items-center gap-2 text-sm text-ink select-none">
             <input
               type="checkbox"
