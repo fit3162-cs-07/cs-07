@@ -3,12 +3,29 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
 import { Sidebar } from '../../../src/components/layout/Sidebar';
+import { AuthContext, type AuthContextValue } from '../../../src/contexts/AuthContext';
 
-function renderSidebar(props: Partial<Parameters<typeof Sidebar>[0]> = {}) {
+interface RenderOptions extends Partial<Parameters<typeof Sidebar>[0]> {
+  isAdmin?: boolean;
+}
+
+function renderSidebar(props: RenderOptions = {}) {
   const onMobileClose = props.onMobileClose ?? vi.fn();
+  const auth: AuthContextValue = {
+    user: null,
+    token: null,
+    isAuthenticated: true,
+    isAdmin: props.isAdmin ?? false,
+    login: vi.fn(),
+    register: vi.fn(),
+    logout: vi.fn(),
+    updateUser: vi.fn(),
+  };
   render(
     <MemoryRouter>
-      <Sidebar mobileOpen={props.mobileOpen ?? false} onMobileClose={onMobileClose} />
+      <AuthContext.Provider value={auth}>
+        <Sidebar mobileOpen={props.mobileOpen ?? false} onMobileClose={onMobileClose} />
+      </AuthContext.Provider>
     </MemoryRouter>,
   );
   return { onMobileClose };
@@ -61,5 +78,15 @@ describe('Sidebar', () => {
 
     await user.keyboard('{Escape}');
     expect(onMobileClose).not.toHaveBeenCalled();
+  });
+
+  it('hides the User Management link from non-admins', () => {
+    renderSidebar({ isAdmin: false });
+    expect(screen.queryAllByRole('link', { name: 'User Management' })).toHaveLength(0);
+  });
+
+  it('shows the User Management link to admins', () => {
+    renderSidebar({ isAdmin: true });
+    expect(screen.getAllByRole('link', { name: 'User Management' }).length).toBeGreaterThan(0);
   });
 });

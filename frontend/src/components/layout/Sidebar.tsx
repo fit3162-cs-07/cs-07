@@ -1,11 +1,21 @@
 import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { cn } from '../../lib/cn';
+import { useAuth } from '../../hooks/useAuth';
 
-const links = [
+interface NavLinkItem {
+  to: string;
+  label: string;
+}
+
+const baseLinks: NavLinkItem[] = [
   { to: '/dashboard', label: 'Dashboard' },
   { to: '/tasks', label: 'Tasks' },
   { to: '/kanban', label: 'Kanban' },
+];
+
+const adminLinks: NavLinkItem[] = [
+  { to: '/admin/users', label: 'User Management' },
 ];
 
 export interface SidebarProps {
@@ -74,6 +84,8 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 }
 
 function SidebarLinks() {
+  const { isAdmin } = useAuth();
+  const links = isAdmin ? [...baseLinks, ...adminLinks] : baseLinks;
   return (
     <nav className="flex flex-col gap-1">
       {links.map(link => (

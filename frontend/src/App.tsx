@@ -11,6 +11,7 @@ import { TasksPage } from './pages/TasksPage';
 import { TaskDetailPage } from './pages/TaskDetailPage';
 import { KanbanPage } from './pages/KanbanPage';
 import { AccountPage } from './pages/AccountPage';
+import { AdminUsersPage } from './pages/AdminUsersPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
 export default function App() {
@@ -31,6 +32,12 @@ export default function App() {
                   <Route path="/tasks/:id" element={<TaskDetailPage />} />
                   <Route path="/kanban" element={<KanbanPage />} />
                   <Route path="/account" element={<AccountPage />} />
+                </Route>
+              </Route>
+
+              <Route element={<ProtectedRoute requireAdmin />}>
+                <Route element={<AppShell />}>
+                  <Route path="/admin/users" element={<AdminUsersPage />} />
                 </Route>
               </Route>
 

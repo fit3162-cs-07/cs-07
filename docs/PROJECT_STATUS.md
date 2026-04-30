@@ -164,12 +164,17 @@ frontend test harness. Smoke-tested locally before each merge.
   field-level validation, `scorePassword` (extracted to
   `src/lib/passwordStrength.ts`) drives a three-segment strength meter,
   plus the same show/hide + Remember-me controls. Both pages render
-  `role="alert"` on a failed submit. The role select on register stays for
-  now — it gets locked to `MEMBER` in Task F1 alongside the admin user
-  management endpoints.
+  `role="alert"` on a failed submit.
+- 🚧 (PR #13) Register form drops the role select (server-side hardening
+  in PR #12 means self-registration is always `MEMBER`). New
+  `AdminUsersPage` at `/admin/users` (admin-only route) lists every user
+  with edit (name + role), deactivate, and activate actions backed by the
+  `/users/:id` admin endpoints. Sidebar conditionally shows the "User
+  Management" link for admins. Self-protection rules surface in the UI:
+  the role select is disabled when editing yourself, the Deactivate button
+  is disabled on your own row.
 
 ### Outstanding (planned this sprint)
-- Admin user management page + RBAC backend tightening (Tasks F1 + F2)
 - Notifications module + TopNav bell (Task G)
 
 ### Outstanding (intentional, scoped for teammates)
@@ -207,6 +212,11 @@ frontend test harness. Smoke-tested locally before each merge.
   tests plus integration coverage of `PATCH /users/:id`,
   `/users/:id/(de)activate`, and the deactivated-login path. Brings the
   backend suite to **17 suites / 112 tests**.
+- 🚧 (PR #13) Frontend: `AdminUsersPage` test (9 tests covering table
+  render, self-marker, disabled self-deactivate, edit-modal save, role
+  select disabled on self, deactivate confirm flow, reactivate flow,
+  empty + error states) and 2 extra `Sidebar` tests for the admin-only
+  link visibility.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
@@ -237,11 +247,19 @@ frontend test harness. Smoke-tested locally before each merge.
   with `localStorage` (Remember me) vs `sessionStorage` backends, login
   Remember-me + show/hide + Forgot-password toast, register inline
   validation + password strength meter
+- **#12** `feature/admin-users-backend → main` — `isActive` flag on
+  `User`, admin-only `PATCH /users/:id` + `POST /users/:id/{de,}activate`,
+  `UserRoleChanged` and `UserStatusChanged` domain events,
+  `LoginUseCase` rejects deactivated accounts with `ACCOUNT_DEACTIVATED`,
+  self-registration locked to `MEMBER`, audit-logger picks up the new
+  events
+- **#13** `feature/admin-users-frontend → main` — `AdminUsersPage` at
+  `/admin/users` with edit / deactivate / activate flows, admin-only
+  Sidebar link, register form drops the role select to match the new
+  backend rule
 
 ### Outstanding queue (this contributor)
-1. Admin user management — backend (`feature/admin-users-backend`)
-2. Admin user management — frontend (`feature/admin-users-frontend`)
-3. Notifications module + bell (`feature/notifications`)
+1. Notifications module + bell (`feature/notifications`)
 
 ---
 

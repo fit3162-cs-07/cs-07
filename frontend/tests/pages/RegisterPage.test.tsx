@@ -128,7 +128,7 @@ describe('RegisterPage', () => {
     await user.click(screen.getByRole('button', { name: 'Create account' }));
 
     expect(register).toHaveBeenCalledWith(
-      { name: 'New User', email: 'new@monash.edu', password: 'Abcdefghij1!', role: 'MEMBER' },
+      { name: 'New User', email: 'new@monash.edu', password: 'Abcdefghij1!' },
       true,
     );
   });

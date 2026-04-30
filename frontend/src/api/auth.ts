@@ -1,5 +1,5 @@
 import { apiClient } from './client';
-import type { LoginResponse, RegisterResponse, Role } from './types';
+import type { LoginResponse, RegisterResponse } from './types';
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const { data } = await apiClient.post<LoginResponse>('/auth/login', { email, password });
@@ -10,7 +10,6 @@ export interface RegisterInput {
   email: string;
   name: string;
   password: string;
-  role: Role;
 }
 
 export async function register(input: RegisterInput): Promise<RegisterResponse> {
