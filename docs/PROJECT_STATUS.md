@@ -1,6 +1,6 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-30 (rev — Sprint 8 design pass kicks off, PR #16 design tokens)
+**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell)
 **Sprint:** Sprint 8 (week beginning Mon 28 Apr 2026)
 
 > **Sprint 8 — design pass.** Six sequential PRs rebuild the UI on Monash Blue
@@ -258,6 +258,10 @@ frontend test harness. Smoke-tested locally before each merge.
 - 🚧 (PR #16) Sprint 8 design tokens — no test additions or removals. All
   91 frontend tests and 21 backend suites / 129 tests still green; primitive
   APIs preserved so existing component tests unchanged.
+- 🚧 (PR #17) Sprint 8 shell redesign — no test additions or removals. The
+  TopNav / Sidebar / NotificationsBell tests were written against ARIA
+  roles + test-ids, so they remain green after the visual refresh. 91
+  frontend tests + 129 backend tests still passing.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
