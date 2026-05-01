@@ -58,11 +58,7 @@ export function TasksPage() {
       <PageHeader
         title="Tasks"
         description={totalLabel}
-        actions={
-          isAdmin && (
-            <Button onClick={() => setCreateOpen(true)}>+ New task</Button>
-          )
-        }
+        actions={isAdmin && <Button onClick={() => setCreateOpen(true)}>New task</Button>}
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
@@ -79,35 +75,63 @@ export function TasksPage() {
             <EmptyState
               title="No tasks match"
               description="Try clearing the filters or creating a new task."
-              action={isAdmin && <Button onClick={() => setCreateOpen(true)}>+ New task</Button>}
+              action={
+                isAdmin && <Button onClick={() => setCreateOpen(true)}>New task</Button>
+              }
             />
           ) : (
             <Card padded={false}>
               <div className="overflow-x-auto">
-                <table className="w-full text-base">
-                  <thead className="bg-page text-sm text-muted">
-                    <tr className="text-left">
-                      <th className="px-4 py-3 font-medium">Title</th>
-                      <th className="px-4 py-3 font-medium">Status</th>
-                      <th className="px-4 py-3 font-medium">Priority</th>
-                      <th className="px-4 py-3 font-medium">Assignee</th>
-                      <th className="px-4 py-3 font-medium">Due date</th>
-                      <th className="px-4 py-3 font-medium">Tags</th>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left border-b border-border-default">
+                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                        Title
+                      </th>
+                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                        Priority
+                      </th>
+                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                        Assignee
+                      </th>
+                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                        Due date
+                      </th>
+                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                        Tags
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {tasks.map(t => (
-                      <tr key={t.id} className="border-t border-border hover:bg-primary-soft">
+                    {tasks.map((t, idx) => (
+                      <tr
+                        key={t.id}
+                        className={`hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT ${
+                          idx > 0 ? 'border-t border-border-default' : ''
+                        }`}
+                      >
                         <td className="px-4 py-3">
-                          <Link to={`/tasks/${t.id}`} className="font-medium text-ink hover:text-primary">
+                          <Link
+                            to={`/tasks/${t.id}`}
+                            className="font-medium text-text-primary hover:text-primary transition-colors duration-DEFAULT ease-DEFAULT"
+                          >
                             {t.title}
                           </Link>
                         </td>
-                        <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
-                        <td className="px-4 py-3"><PriorityBadge priority={t.priority} /></td>
-                        <td className="px-4 py-3 text-muted">{displayName(t.assigneeId)}</td>
-                        <td className="px-4 py-3 text-muted">{formatDate(t.dueDate)}</td>
-                        <td className="px-4 py-3 text-muted text-sm">
+                        <td className="px-4 py-3">
+                          <StatusBadge status={t.status} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <PriorityBadge priority={t.priority} />
+                        </td>
+                        <td className="px-4 py-3 text-text-secondary">
+                          {displayName(t.assigneeId)}
+                        </td>
+                        <td className="px-4 py-3 text-text-secondary">{formatDate(t.dueDate)}</td>
+                        <td className="px-4 py-3 text-text-tertiary">
                           {t.tags && t.tags.length > 0 ? t.tags.join(', ') : '—'}
                         </td>
                       </tr>
@@ -120,7 +144,7 @@ export function TasksPage() {
 
           {meta && totalPages > 1 && (
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted">
+              <span className="text-sm text-text-secondary">
                 Page {meta.page} of {totalPages}
               </span>
               <div className="flex gap-2">
@@ -161,26 +185,53 @@ function TaskTableSkeleton() {
   return (
     <Card padded={false} data-testid="tasks-skeleton">
       <div className="overflow-x-auto">
-        <table className="w-full text-base">
-          <thead className="bg-page text-sm text-muted">
-            <tr className="text-left">
-              <th className="px-4 py-3 font-medium">Title</th>
-              <th className="px-4 py-3 font-medium">Status</th>
-              <th className="px-4 py-3 font-medium">Priority</th>
-              <th className="px-4 py-3 font-medium">Assignee</th>
-              <th className="px-4 py-3 font-medium">Due date</th>
-              <th className="px-4 py-3 font-medium">Tags</th>
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="text-left border-b border-border-default">
+              <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Title
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Status
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Priority
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Assignee
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Due date
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Tags
+              </th>
             </tr>
           </thead>
           <tbody>
             {Array.from({ length: 5 }).map((_, i) => (
-              <tr key={i} className="border-t border-border">
-                <td className="px-4 py-3"><Skeleton width="80%" height={16} /></td>
-                <td className="px-4 py-3"><Skeleton width={64} height={20} /></td>
-                <td className="px-4 py-3"><Skeleton width={56} height={20} /></td>
-                <td className="px-4 py-3"><Skeleton width="70%" height={16} /></td>
-                <td className="px-4 py-3"><Skeleton width={72} height={16} /></td>
-                <td className="px-4 py-3"><Skeleton width={48} height={16} /></td>
+              <tr
+                key={i}
+                className={i > 0 ? 'border-t border-border-default' : ''}
+              >
+                <td className="px-4 py-3">
+                  <Skeleton width="80%" height={16} />
+                </td>
+                <td className="px-4 py-3">
+                  <Skeleton width={64} height={20} />
+                </td>
+                <td className="px-4 py-3">
+                  <Skeleton width={56} height={20} />
+                </td>
+                <td className="px-4 py-3">
+                  <Skeleton width="70%" height={16} />
+                </td>
+                <td className="px-4 py-3">
+                  <Skeleton width={72} height={16} />
+                </td>
+                <td className="px-4 py-3">
+                  <Skeleton width={48} height={16} />
+                </td>
               </tr>
             ))}
           </tbody>

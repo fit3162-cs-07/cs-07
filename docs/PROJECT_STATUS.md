@@ -1,13 +1,14 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell)
+**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages)
 **Sprint:** Sprint 8 (week beginning Mon 28 Apr 2026)
 
 > **Sprint 8 — design pass.** Six sequential PRs rebuild the UI on Monash Blue
-> tokens with Linear-style craft. PR #16 (this PR) lands the foundation:
-> tokens, primitives, `STYLE_GUIDE.md`, and a `/design/preview` page. Visual
-> changes only land progressively in PRs #17–#21 as shell, pages, components,
-> polish, and mobile follow.
+> tokens with Linear-style craft. PR #16 lands the foundation: tokens,
+> primitives, `STYLE_GUIDE.md`, and a `/design/preview` page. PR #17 redresses
+> the AppShell, TopNav, and Sidebar. PR #18 (this PR) re-skins all 9 pages
+> + ErrorBoundary against the new tokens. Visual polish, smaller
+> components, and mobile verification land in PRs #19–#21.
 
 ---
 
@@ -262,6 +263,11 @@ frontend test harness. Smoke-tested locally before each merge.
   TopNav / Sidebar / NotificationsBell tests were written against ARIA
   roles + test-ids, so they remain green after the visual refresh. 91
   frontend tests + 129 backend tests still passing.
+- 🚧 (PR #18) Sprint 8 page redesign — all 9 pages plus `ErrorBoundary`
+  re-skinned on the new token vocabulary (text-text-primary / text-text-secondary,
+  border-border-default, bg-surface-muted, primary-subtle, danger-subtle).
+  Behaviour and ARIA preserved; 91 frontend tests + 129 backend tests still
+  green.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 

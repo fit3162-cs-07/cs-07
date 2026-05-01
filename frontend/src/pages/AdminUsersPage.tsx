@@ -79,33 +79,53 @@ export function AdminUsersPage() {
       ) : sortedUsers.length === 0 ? (
         <EmptyState title="No users yet" />
       ) : (
-        <Card className="p-0 overflow-hidden">
+        <Card padded={false}>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-page text-muted text-left">
-                <tr>
-                  <th className="px-4 py-3 font-medium">Name</th>
-                  <th className="px-4 py-3 font-medium">Email</th>
-                  <th className="px-4 py-3 font-medium">Role</th>
-                  <th className="px-4 py-3 font-medium">Status</th>
-                  <th className="px-4 py-3 font-medium text-right">Actions</th>
+              <thead>
+                <tr className="text-left border-b border-border-default">
+                  <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    Name
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    Role
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider text-right">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {sortedUsers.map(u => {
+                {sortedUsers.map((u, idx) => {
                   const isSelf = me?.id === u.id;
                   return (
-                    <tr key={u.id} className="border-t border-border" data-testid={`user-row-${u.id}`}>
-                      <td className="px-4 py-3 text-ink font-medium">
+                    <tr
+                      key={u.id}
+                      className={`hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT ${
+                        idx > 0 ? 'border-t border-border-default' : ''
+                      }`}
+                      data-testid={`user-row-${u.id}`}
+                    >
+                      <td className="px-4 py-3 text-text-primary font-medium">
                         {u.name}
-                        {isSelf && <span className="text-muted font-normal ml-2">(you)</span>}
+                        {isSelf && (
+                          <span className="text-text-tertiary font-normal ml-2">(you)</span>
+                        )}
                       </td>
-                      <td className="px-4 py-3 text-muted">{u.email}</td>
+                      <td className="px-4 py-3 text-text-secondary font-mono text-xs">
+                        {u.email}
+                      </td>
                       <td className="px-4 py-3">
                         <Badge tone={u.role === 'ADMIN' ? 'primary' : 'soft'}>{u.role}</Badge>
                       </td>
                       <td className="px-4 py-3">
-                        <Badge tone={u.isActive ? 'success' : 'error'}>
+                        <Badge tone={u.isActive ? 'success' : 'danger'}>
                           {u.isActive ? 'Active' : 'Inactive'}
                         </Badge>
                       </td>
@@ -123,7 +143,11 @@ export function AdminUsersPage() {
                             size="sm"
                             onClick={() => setConfirming(u)}
                             disabled={isSelf && u.isActive}
-                            title={isSelf && u.isActive ? 'You cannot deactivate yourself' : undefined}
+                            title={
+                              isSelf && u.isActive
+                                ? 'You cannot deactivate yourself'
+                                : undefined
+                            }
                           >
                             {u.isActive ? 'Deactivate' : 'Activate'}
                           </Button>
@@ -174,9 +198,7 @@ export function AdminUsersPage() {
             </>
           }
         >
-          <p className="text-base text-muted">
-            {confirming.email}
-          </p>
+          <p className="text-sm text-text-secondary font-mono">{confirming.email}</p>
         </Modal>
       )}
     </div>
@@ -273,7 +295,10 @@ function EditUserModal({ user, isSelf, onClose, onSaved }: EditUserModalProps) {
           </Select>
         </Field>
         {topError && (
-          <div role="alert" className="text-sm text-error bg-primary-soft border border-error/20 rounded-md p-3">
+          <div
+            role="alert"
+            className="text-sm text-danger bg-danger-subtle border border-danger/20 rounded-md px-3 py-2"
+          >
             {topError}
           </div>
         )}

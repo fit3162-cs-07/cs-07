@@ -72,7 +72,9 @@ export function TaskDetailPage() {
     return <TaskDetailSkeleton />;
   }
 
-  const canChangeStatus = isAdmin || (user?.id !== undefined && (task.assigneeId === user.id || task.createdBy === user.id));
+  const canChangeStatus =
+    isAdmin ||
+    (user?.id !== undefined && (task.assigneeId === user.id || task.createdBy === user.id));
   const canEdit = isAdmin;
 
   const handleStatusChange = async (status: TaskStatus) => {
@@ -126,8 +128,10 @@ export function TaskDetailPage() {
         <div className="lg:col-span-2 flex flex-col gap-6">
           <Card>
             <CardTitle>Details</CardTitle>
-            <CardSubtitle>Created {formatDateTime(task.createdAt)} · Updated {formatDateTime(task.updatedAt)}</CardSubtitle>
-            <dl className="mt-6 grid grid-cols-2 gap-4 text-base">
+            <CardSubtitle>
+              Created {formatDateTime(task.createdAt)} · Updated {formatDateTime(task.updatedAt)}
+            </CardSubtitle>
+            <dl className="mt-6 grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
               <DetailRow label="Status">
                 <StatusBadge status={task.status} />
               </DetailRow>
@@ -135,13 +139,13 @@ export function TaskDetailPage() {
                 <PriorityBadge priority={task.priority} />
               </DetailRow>
               <DetailRow label="Assignee">
-                <span className="text-ink">{displayName(task.assigneeId)}</span>
+                <span className="text-text-primary">{displayName(task.assigneeId)}</span>
               </DetailRow>
               <DetailRow label="Due date">
-                <span className="text-ink">{formatDate(task.dueDate)}</span>
+                <span className="text-text-primary">{formatDate(task.dueDate)}</span>
               </DetailRow>
               <DetailRow label="Tags" full>
-                <span className="text-ink">
+                <span className="text-text-primary">
                   {task.tags && task.tags.length > 0 ? task.tags.join(', ') : '—'}
                 </span>
               </DetailRow>
@@ -152,17 +156,19 @@ export function TaskDetailPage() {
             <Card>
               <CardTitle>Activity</CardTitle>
               <CardSubtitle>Audit events recorded for this task.</CardSubtitle>
-              <div className="mt-4 flex flex-col divide-y divide-border">
+              <div className="mt-4 flex flex-col divide-y divide-border-default">
                 {audit.length === 0 ? (
-                  <p className="text-sm text-muted py-3">No events yet.</p>
+                  <p className="text-sm text-text-secondary py-3">No events yet.</p>
                 ) : (
                   audit
                     .slice()
                     .reverse()
                     .map((e, idx) => (
                       <div key={idx} className="py-3">
-                        <div className="text-base text-ink">{e.eventType}</div>
-                        <div className="text-sm text-muted">{formatDateTime(e.timestamp)} by {e.actor}</div>
+                        <div className="text-sm text-text-primary font-medium">{e.eventType}</div>
+                        <div className="text-xs text-text-tertiary mt-0.5">
+                          {formatDateTime(e.timestamp)} · {e.actor}
+                        </div>
                       </div>
                     ))
                 )}
@@ -187,7 +193,7 @@ export function TaskDetailPage() {
               </Select>
             </Field>
             {!canChangeStatus && (
-              <p className="text-sm text-muted">
+              <p className="text-xs text-text-tertiary">
                 Only admins, the creator, or the assignee can change status.
               </p>
             )}
@@ -212,7 +218,7 @@ export function TaskDetailPage() {
 function TaskDetailSkeleton() {
   return (
     <div data-testid="task-detail-skeleton" className="flex flex-col gap-6">
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 mb-2">
         <Skeleton width="60%" height={28} />
         <Skeleton width="80%" height={16} />
       </div>
@@ -221,7 +227,7 @@ function TaskDetailSkeleton() {
           <Card>
             <Skeleton width="40%" height={20} />
             <Skeleton width="70%" height={12} className="mt-2" />
-            <div className="grid grid-cols-2 gap-4 mt-6">
+            <div className="grid grid-cols-2 gap-x-6 gap-y-4 mt-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex flex-col gap-2">
                   <Skeleton width="40%" height={12} />
@@ -241,10 +247,20 @@ function TaskDetailSkeleton() {
   );
 }
 
-function DetailRow({ label, children, full }: { label: string; children: React.ReactNode; full?: boolean }) {
+function DetailRow({
+  label,
+  children,
+  full,
+}: {
+  label: string;
+  children: React.ReactNode;
+  full?: boolean;
+}) {
   return (
     <div className={full ? 'col-span-2' : ''}>
-      <dt className="text-sm text-muted mb-1">{label}</dt>
+      <dt className="text-xs font-medium text-text-tertiary uppercase tracking-wider mb-1">
+        {label}
+      </dt>
       <dd>{children}</dd>
     </div>
   );
