@@ -14,6 +14,7 @@ import { KanbanPage } from './pages/KanbanPage';
 import { AccountPage } from './pages/AccountPage';
 import { AdminUsersPage } from './pages/AdminUsersPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { DesignPreviewPage } from './pages/DesignPreviewPage';
 
 export default function App() {
   return (
@@ -26,6 +27,7 @@ export default function App() {
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/register" element={<RegisterPage />} />
+              <Route path="/design/preview" element={<DesignPreviewPage />} />
 
               <Route element={<ProtectedRoute />}>
                 <Route element={<AppShell />}>

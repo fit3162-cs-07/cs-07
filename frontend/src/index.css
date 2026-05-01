@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -12,13 +12,21 @@
   }
 
   body {
-    @apply bg-page text-ink font-sans text-base antialiased;
+    @apply bg-surface-muted text-text-primary font-sans text-base antialiased;
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
   }
 
   *:focus-visible {
     outline: none;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+    box-shadow:
+      0 0 0 2px #ffffff,
+      0 0 0 4px #006cab;
     border-radius: 6px;
+  }
+
+  ::selection {
+    background-color: #e6f2f8;
+    color: #004875;
   }
 }
 

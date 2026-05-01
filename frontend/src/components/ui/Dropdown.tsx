@@ -35,7 +35,7 @@ export function Dropdown({ trigger, items, align = 'right' }: DropdownProps) {
       {open && (
         <div
           className={cn(
-            'absolute mt-2 z-30 min-w-[160px] bg-surface border border-border rounded-md shadow-sm py-1',
+            'absolute mt-2 z-30 min-w-[180px] bg-surface-elevated border border-border-default rounded-md shadow-lg py-1',
             align === 'right' ? 'right-0' : 'left-0',
           )}
         >
@@ -50,8 +50,10 @@ export function Dropdown({ trigger, items, align = 'right' }: DropdownProps) {
                 item.onClick();
               }}
               className={cn(
-                'block w-full text-left px-3 py-2 text-sm hover:bg-primary-soft disabled:opacity-50 disabled:cursor-not-allowed',
-                item.destructive ? 'text-error' : 'text-ink',
+                'block w-full text-left px-3 py-2 text-sm transition-colors duration-DEFAULT ease-DEFAULT disabled:opacity-50 disabled:cursor-not-allowed',
+                item.destructive
+                  ? 'text-danger hover:bg-danger-subtle'
+                  : 'text-text-primary hover:bg-surface-muted',
               )}
             >
               {item.label}

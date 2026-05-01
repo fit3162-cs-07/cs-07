@@ -19,9 +19,9 @@ export interface ToastContextValue {
 export const ToastContext = createContext<ToastContextValue | null>(null);
 
 const toneStyles: Record<ToastTone, string> = {
-  info: 'border-border text-ink',
+  info: 'border-border-default text-text-primary',
   success: 'border-success text-success',
-  error: 'border-error text-error',
+  error: 'border-danger text-danger',
 };
 
 let counter = 0;
@@ -44,7 +44,12 @@ export function ToastProvider({ children }: { children: ReactNode }) {
       {createPortal(
         <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
           {toasts.map(t => (
-            <ToastItem key={t.id} toast={t} onDismiss={() => dismiss(t.id)} className={toneStyles[t.tone]} />
+            <ToastItem
+              key={t.id}
+              toast={t}
+              onDismiss={() => dismiss(t.id)}
+              className={toneStyles[t.tone]}
+            />
           ))}
         </div>,
         document.body,
@@ -70,7 +75,7 @@ function ToastItem({
   return (
     <div
       className={cn(
-        'min-w-[240px] max-w-sm bg-surface border rounded-md shadow-sm px-4 py-3 text-sm flex items-start gap-2',
+        'min-w-[240px] max-w-sm bg-surface-elevated border rounded-md shadow-lg px-4 py-3 text-sm flex items-start gap-2',
         className,
       )}
       role="status"
@@ -79,7 +84,7 @@ function ToastItem({
       <button
         type="button"
         onClick={onDismiss}
-        className="text-muted hover:text-ink leading-none text-base"
+        className="text-text-tertiary hover:text-text-primary leading-none text-base transition-colors duration-DEFAULT ease-DEFAULT"
         aria-label="Dismiss"
       >
         ×
