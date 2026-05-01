@@ -23,7 +23,7 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
 
   const fields = (
     <>
-      <Field label="Search" hint="Title or description (R5)">
+      <Field label="Search" hint="Title or description">
         <Input
           placeholder="Search keyword"
           value={value.search ?? ''}
@@ -44,7 +44,9 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
       <Field label="Priority">
         <Select
           value={value.priority ?? ''}
-          onChange={e => set('priority', (e.target.value || undefined) as TaskPriority | undefined)}
+          onChange={e =>
+            set('priority', (e.target.value || undefined) as TaskPriority | undefined)
+          }
         >
           <option value="">All</option>
           <option value="HIGH">High</option>
@@ -66,7 +68,7 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
           ))}
         </Select>
       </Field>
-      <Field label="Tags" hint="Comma-separated (R5)">
+      <Field label="Tags" hint="Comma-separated">
         <Input
           placeholder="events, urgent"
           value={tagText}
@@ -80,21 +82,27 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
         />
       </Field>
       <div className="grid grid-cols-2 gap-4">
-        <Field label="Due after" hint="(R5)">
+        <Field label="Due after">
           <Input
             type="date"
             value={value.dueAfter ? value.dueAfter.slice(0, 10) : ''}
             onChange={e =>
-              set('dueAfter', e.target.value ? new Date(e.target.value).toISOString() : undefined)
+              set(
+                'dueAfter',
+                e.target.value ? new Date(e.target.value).toISOString() : undefined,
+              )
             }
           />
         </Field>
-        <Field label="Due before" hint="(R5)">
+        <Field label="Due before">
           <Input
             type="date"
             value={value.dueBefore ? value.dueBefore.slice(0, 10) : ''}
             onChange={e =>
-              set('dueBefore', e.target.value ? new Date(e.target.value).toISOString() : undefined)
+              set(
+                'dueBefore',
+                e.target.value ? new Date(e.target.value).toISOString() : undefined,
+              )
             }
           />
         </Field>
@@ -118,7 +126,7 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
   return (
     <Card>
       <details open data-testid="filters-toggle">
-        <summary className="text-base font-semibold text-ink cursor-pointer select-none">
+        <summary className="text-h3 font-semibold text-text-primary cursor-pointer select-none">
           Filters
         </summary>
         <div className="flex flex-col gap-4 mt-4">

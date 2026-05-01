@@ -6,7 +6,8 @@ import { formatDateTime } from '../../lib/format';
 import type { Notification } from '../../api/notifications';
 
 export function NotificationsBell() {
-  const { notifications, unreadCount, loading, markRead, markAllRead, refresh } = useNotifications();
+  const { notifications, unreadCount, loading, markRead, markAllRead, refresh } =
+    useNotifications();
   const [open, setOpen] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -50,9 +51,7 @@ export function NotificationsBell() {
       <button
         type="button"
         aria-label={
-          unreadCount > 0
-            ? `Notifications, ${unreadCount} unread`
-            : 'Notifications'
+          unreadCount > 0 ? `Notifications, ${unreadCount} unread` : 'Notifications'
         }
         aria-haspopup="true"
         aria-expanded={open}
@@ -74,14 +73,14 @@ export function NotificationsBell() {
         <div
           role="dialog"
           aria-label="Notifications"
-          className="absolute right-0 mt-2 z-30 w-80 sm:w-96 max-h-[70vh] bg-surface border border-border rounded-md shadow-sm flex flex-col"
+          className="absolute right-0 mt-2 z-30 w-80 sm:w-96 max-h-[70vh] bg-surface border border-border-default rounded-md shadow-lg flex flex-col overflow-hidden"
         >
-          <div className="px-4 py-3 border-b border-border flex items-center justify-between">
-            <span className="text-base font-semibold text-ink">Notifications</span>
+          <div className="px-4 py-3 border-b border-border-default flex items-center justify-between">
+            <span className="text-sm font-semibold text-text-primary">Notifications</span>
             {notifications.some(n => !n.isRead) && (
               <button
                 type="button"
-                className="text-sm text-primary hover:underline"
+                className="text-sm font-medium text-primary hover:text-primary-hover transition-colors duration-DEFAULT ease-DEFAULT"
                 onClick={() => void markAllRead()}
               >
                 Mark all read
@@ -90,19 +89,22 @@ export function NotificationsBell() {
           </div>
           <div className="overflow-y-auto flex-1">
             {loading && notifications.length === 0 ? (
-              <div className="px-4 py-6 text-sm text-muted">Loading…</div>
+              <div className="px-4 py-6 text-sm text-text-tertiary">Loading…</div>
             ) : notifications.length === 0 ? (
-              <div className="px-4 py-6 text-sm text-muted">You\u2019re all caught up.</div>
+              <div className="px-4 py-6 text-sm text-text-tertiary">
+                You&rsquo;re all caught up.
+              </div>
             ) : (
               <ul>
-                {notifications.map(n => (
+                {notifications.map((n, idx) => (
                   <li key={n.id}>
                     <button
                       type="button"
                       onClick={() => void handleClick(n)}
                       className={cn(
-                        'w-full text-left px-4 py-3 hover:bg-primary-soft border-b border-border last:border-b-0',
-                        !n.isRead && 'bg-primary-soft/40',
+                        'w-full text-left px-4 py-3 hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT',
+                        idx > 0 && 'border-t border-border-default',
+                        !n.isRead && 'bg-primary-subtle/40',
                       )}
                     >
                       <div className="flex items-start gap-2">
@@ -113,10 +115,19 @@ export function NotificationsBell() {
                           />
                         )}
                         <div className="min-w-0 flex-1">
-                          <p className={cn('text-sm', !n.isRead ? 'text-ink font-medium' : 'text-ink')}>
+                          <p
+                            className={cn(
+                              'text-sm',
+                              !n.isRead
+                                ? 'text-text-primary font-medium'
+                                : 'text-text-primary',
+                            )}
+                          >
                             {n.title}
                           </p>
-                          <p className="text-xs text-muted mt-1">{formatDateTime(n.createdAt)}</p>
+                          <p className="text-xs text-text-tertiary mt-1">
+                            {formatDateTime(n.createdAt)}
+                          </p>
                         </div>
                       </div>
                     </button>

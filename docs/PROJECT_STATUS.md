@@ -1,14 +1,15 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages)
+**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages, PR #19 components)
 **Sprint:** Sprint 8 (week beginning Mon 28 Apr 2026)
 
 > **Sprint 8 — design pass.** Six sequential PRs rebuild the UI on Monash Blue
 > tokens with Linear-style craft. PR #16 lands the foundation: tokens,
 > primitives, `STYLE_GUIDE.md`, and a `/design/preview` page. PR #17 redresses
-> the AppShell, TopNav, and Sidebar. PR #18 (this PR) re-skins all 9 pages
-> + ErrorBoundary against the new tokens. Visual polish, smaller
-> components, and mobile verification land in PRs #19–#21.
+> the AppShell, TopNav, and Sidebar. PR #18 re-skins all 9 pages
+> + ErrorBoundary. PR #19 (this PR) migrates the remaining feature/dashboard
+> components, drops the backwards-compat tailwind aliases, and finishes the
+> token migration. Polish and mobile verification land in PRs #20–#21.
 
 ---
 
@@ -268,6 +269,13 @@ frontend test harness. Smoke-tested locally before each merge.
   border-border-default, bg-surface-muted, primary-subtle, danger-subtle).
   Behaviour and ARIA preserved; 91 frontend tests + 129 backend tests still
   green.
+- 🚧 (PR #19) Sprint 8 component redesign — TaskCard, TaskFilters,
+  UpcomingReminders, and the NotificationsBell dropdown panel migrated to
+  the new token vocabulary; backwards-compat aliases (`page`, `ink`,
+  `muted`, `border`, `accent`, `error`, `primary-soft`) removed from
+  tailwind config and the `'error'` Badge tone alias dropped. CSS bundle
+  shrinks from 19.20 → 18.58 kB; 91 frontend tests + 129 backend tests
+  still green.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
