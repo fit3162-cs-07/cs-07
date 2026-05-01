@@ -1,15 +1,17 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages, PR #19 components)
+**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages, PR #19 components, PR #20 polish)
 **Sprint:** Sprint 8 (week beginning Mon 28 Apr 2026)
 
 > **Sprint 8 — design pass.** Six sequential PRs rebuild the UI on Monash Blue
 > tokens with Linear-style craft. PR #16 lands the foundation: tokens,
 > primitives, `STYLE_GUIDE.md`, and a `/design/preview` page. PR #17 redresses
 > the AppShell, TopNav, and Sidebar. PR #18 re-skins all 9 pages
-> + ErrorBoundary. PR #19 (this PR) migrates the remaining feature/dashboard
-> components, drops the backwards-compat tailwind aliases, and finishes the
-> token migration. Polish and mobile verification land in PRs #20–#21.
+> + ErrorBoundary. PR #19 migrates the remaining feature/dashboard
+> components and drops the backwards-compat tailwind aliases. PR #20 (this
+> PR) lands micro-detail polish: inline button spinner, route fade-in, a
+> reusable Tooltip, and disabled-state colour treatments. Mobile
+> verification lands in PR #21.
 
 ---
 
@@ -276,6 +278,12 @@ frontend test harness. Smoke-tested locally before each merge.
   tailwind config and the `'error'` Badge tone alias dropped. CSS bundle
   shrinks from 19.20 → 18.58 kB; 91 frontend tests + 129 backend tests
   still green.
+- 🚧 (PR #20) Sprint 8 polish — inline spinner inside loading buttons
+  (with `aria-busy`); route-level fade-in keyframe respecting
+  `prefers-reduced-motion`; new `Tooltip` primitive (CSS-only,
+  hover/focus-within); disabled-state colour treatments per variant
+  (replaces blanket `opacity-50`). 91 frontend tests + 129 backend
+  tests still green.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 
