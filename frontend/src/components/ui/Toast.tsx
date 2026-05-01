@@ -42,7 +42,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ show }}>
       {children}
       {createPortal(
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2">
+        <div className="fixed inset-x-4 bottom-4 sm:inset-x-auto sm:bottom-6 sm:right-6 z-50 flex flex-col gap-2 items-stretch sm:items-end">
           {toasts.map(t => (
             <ToastItem
               key={t.id}
@@ -75,7 +75,7 @@ function ToastItem({
   return (
     <div
       className={cn(
-        'min-w-[240px] max-w-sm bg-surface-elevated border rounded-md shadow-lg px-4 py-3 text-sm flex items-start gap-2',
+        'w-full sm:min-w-[240px] sm:max-w-sm bg-surface-elevated border rounded-md shadow-lg px-4 py-3 text-sm flex items-start gap-2',
         className,
       )}
       role="status"
