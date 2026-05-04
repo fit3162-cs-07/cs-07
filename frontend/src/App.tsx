@@ -177,11 +177,25 @@ function TaskCard({ task, onClick }: { task: api.Task; onClick: () => void }) {
     <div className="task-card" onClick={onClick}>
       <div className="task-card-title">{task.title}</div>
       {task.description && <div className="task-card-desc">{task.description}</div>}
+
       <div className="task-card-meta">
         <span className={priorityClass}>{task.priority}</span>
         {task.assigneeId && <span className="badge badge-assignee">Assigned</span>}
         {due && <span className="badge badge-due">Due {due}</span>}
+        {task.attachment && <span className="badge badge-attachment">Attachment</span>}
       </div>
+
+      {task.attachment && (
+        <a
+          className="attachment-link"
+          href={api.getFileUrl(task.attachment.url)}
+          target="_blank"
+          rel="noreferrer"
+          onClick={e => e.stopPropagation()}
+        >
+          📎 {task.attachment.originalName}
+        </a>
+      )}
     </div>
   );
 }
@@ -214,32 +228,47 @@ function TaskModal({
   const [dueDate, setDueDate] = useState(
     task?.dueDate ? task.dueDate.slice(0, 10) : ''
   );
+  const [attachmentFile, setAttachmentFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
 
   const handleSave = async () => {
     if (!title.trim()) return;
+
     setSaving(true);
+
     try {
       if (isEdit && task) {
         if (task.status !== status) {
           await api.changeStatus(task.id, status);
         }
-        await api.updateTask(task.id, {
+
+        const savedTask = await api.updateTask(task.id, {
           title,
           description,
           priority,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
         });
+
+        if (attachmentFile) {
+          await api.uploadTaskAttachment(savedTask.id, attachmentFile);
+        }
+
         toast('Task updated');
       } else {
-        await api.createTask({
+        const savedTask = await api.createTask({
           title,
           description,
           priority,
           dueDate: dueDate ? new Date(dueDate).toISOString() : undefined,
         });
+
+        if (attachmentFile) {
+          await api.uploadTaskAttachment(savedTask.id, attachmentFile);
+        }
+
         toast('Task created');
       }
+
       onSaved();
     } catch (err: unknown) {
       toast(err instanceof Error ? err.message : 'Failed');
@@ -250,6 +279,7 @@ function TaskModal({
 
   const handleDelete = async () => {
     if (!task) return;
+
     try {
       await api.deleteTask(task.id);
       toast('Task deleted');
@@ -263,14 +293,17 @@ function TaskModal({
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <h3>{isEdit ? 'Edit Task' : 'New Task'}</h3>
+
         <div className="field">
           <label>Title</label>
           <input value={title} onChange={e => setTitle(e.target.value)} placeholder="Task title" />
         </div>
+
         <div className="field">
           <label>Description</label>
           <textarea rows={3} value={description} onChange={e => setDescription(e.target.value)} placeholder="Optional description" />
         </div>
+
         <div className="field">
           <label>Priority</label>
           <select
@@ -282,10 +315,39 @@ function TaskModal({
             <option value="HIGH">High</option>
           </select>
         </div>
+
         <div className="field">
           <label>Due Date</label>
           <input type="date" value={dueDate} onChange={e => setDueDate(e.target.value)} />
         </div>
+
+        <div className="field">
+          <label>Attachment optional</label>
+          <input
+            type="file"
+            onChange={e => setAttachmentFile(e.target.files?.[0] || null)}
+          />
+
+          {task?.attachment && !attachmentFile && (
+            <div className="current-attachment">
+              Current attachment:{' '}
+              <a
+                href={api.getFileUrl(task.attachment.url)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {task.attachment.originalName}
+              </a>
+            </div>
+          )}
+
+          {attachmentFile && (
+            <div className="current-attachment">
+              Selected file: {attachmentFile.name}
+            </div>
+          )}
+        </div>
+
         {isEdit && (
           <div className="field">
             <label>Status</label>
@@ -298,6 +360,7 @@ function TaskModal({
             </div>
           </div>
         )}
+
         <div className="modal-actions">
           {isEdit && isAdmin && <button className="btn-delete" onClick={handleDelete}>Delete</button>}
           <button className="btn-cancel" onClick={onClose}>Cancel</button>
@@ -328,7 +391,7 @@ function Board({ user, onLogout }: { user: api.User; onLogout: () => void }) {
   }, [filterPriority]);
 
   useEffect(() => {
-    void loadTasks();
+    loadTasks();
   }, [loadTasks]);
 
   const toast = (msg: string) => setToastMsg(msg);
@@ -368,12 +431,14 @@ function Board({ user, onLogout }: { user: api.User; onLogout: () => void }) {
         <div className="kanban">
           {cols.map(col => {
             const colTasks = tasks.filter(t => t.status === col.key);
+
             return (
               <div key={col.key} className={`kanban-col ${col.className}`}>
                 <div className="kanban-col-header">
                   {col.label}
                   <span className="count">{colTasks.length}</span>
                 </div>
+
                 {colTasks.map(t => (
                   <TaskCard key={t.id} task={t} onClick={() => setModal({ mode: 'edit', task: t })} />
                 ))}
@@ -390,11 +455,11 @@ function Board({ user, onLogout }: { user: api.User; onLogout: () => void }) {
           onClose={() => setModal(null)}
           onSaved={() => {
             setModal(null);
-            void loadTasks();
+            loadTasks();
           }}
           onDeleted={() => {
             setModal(null);
-            void loadTasks();
+            loadTasks();
           }}
           toast={toast}
         />

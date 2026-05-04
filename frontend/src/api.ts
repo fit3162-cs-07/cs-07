@@ -1,9 +1,11 @@
 const BASE = 'http://localhost:3000/api/v1';
+const FILE_BASE = 'http://localhost:3000';
 
 let token = '';
 
 export function setToken(t: string) { token = t; }
 export function getToken() { return token; }
+export function getFileUrl(path: string) { return `${FILE_BASE}${path}`; }
 
 async function request(path: string, opts: RequestInit = {}) {
   const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -23,6 +25,15 @@ export interface User {
   role: 'ADMIN' | 'MEMBER';
 }
 
+export interface TaskAttachment {
+  originalName: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  uploadedAt: string;
+}
+
 export interface Task {
   id: string;
   title: string;
@@ -31,6 +42,7 @@ export interface Task {
   priority: 'LOW' | 'MEDIUM' | 'HIGH';
   assigneeId?: string;
   dueDate?: string;
+  attachment?: TaskAttachment;
   createdBy: string;
   createdAt: string;
   updatedAt: string;
@@ -80,4 +92,26 @@ export async function assignTask(id: string, assigneeId: string): Promise<Task> 
 
 export async function changeStatus(id: string, status: string): Promise<Task> {
   return await request(`/tasks/${id}/status`, { method: 'PATCH', body: JSON.stringify({ status }) });
+}
+
+export async function uploadTaskAttachment(id: string, file: File): Promise<Task> {
+  const formData = new FormData();
+  formData.append('attachment', file);
+
+  const headers: Record<string, string> = {};
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+
+  const res = await fetch(`${BASE}/tasks/${id}/attachment`, {
+    method: 'PATCH',
+    headers,
+    body: formData,
+  });
+
+  const json = await res.json();
+
+  if (!json.success) {
+    throw new Error(json.error?.message || 'Upload failed');
+  }
+
+  return json.data;
 }

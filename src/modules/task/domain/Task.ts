@@ -2,6 +2,15 @@ import { Entity } from '../../../shared/domain/Entity';
 import { TaskStatus } from './TaskStatus';
 import { TaskPriority } from './TaskPriority';
 
+export interface TaskAttachment {
+  originalName: string;
+  fileName: string;
+  mimeType: string;
+  size: number;
+  url: string;
+  uploadedAt: Date;
+}
+
 export class Task extends Entity {
   title: string;
   description: string;
@@ -11,6 +20,7 @@ export class Task extends Entity {
   dueDate?: Date;
   createdBy: string;
   clubId?: string;
+  attachment?: TaskAttachment;
 
   constructor(props: {
     id?: string;
@@ -22,6 +32,7 @@ export class Task extends Entity {
     dueDate?: Date;
     createdBy: string;
     clubId?: string;
+    attachment?: TaskAttachment;
   }) {
     super(props.id);
     this.title = props.title;
@@ -32,6 +43,7 @@ export class Task extends Entity {
     this.dueDate = props.dueDate;
     this.createdBy = props.createdBy;
     this.clubId = props.clubId;
+    this.attachment = props.attachment;
   }
 
   assign(assigneeId: string): void {
@@ -44,12 +56,17 @@ export class Task extends Entity {
     this.touch();
   }
 
-  update(props: Partial<Pick<Task, 'title' | 'description' | 'priority' | 'dueDate' | 'status'>>): void {
+  update(
+    props: Partial<
+      Pick<Task, 'title' | 'description' | 'priority' | 'dueDate' | 'status' | 'attachment'>
+    >
+  ): void {
     if (props.title !== undefined) this.title = props.title;
     if (props.description !== undefined) this.description = props.description;
     if (props.priority !== undefined) this.priority = props.priority;
     if (props.dueDate !== undefined) this.dueDate = props.dueDate;
     if (props.status !== undefined) this.status = props.status;
+    if (props.attachment !== undefined) this.attachment = props.attachment;
     this.touch();
   }
 }

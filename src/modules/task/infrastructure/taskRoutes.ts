@@ -1,4 +1,7 @@
 import { Router, Response, NextFunction } from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { AuthRequest } from '../../../shared/infrastructure/middleware/authMiddleware';
 import { requireRole } from '../../../shared/infrastructure/middleware/requireRole';
 import { CreateTaskSchema } from '../application/dtos/CreateTaskDTO';
@@ -20,6 +23,30 @@ import { TaskPriority } from '../domain/TaskPriority';
 
 export function createTaskRouter(taskRepo: ITaskRepository, eventBus: IEventBus): Router {
   const router = Router();
+
+  const uploadDir = path.join(process.cwd(), 'uploads', 'tasks');
+
+  if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir, { recursive: true });
+  }
+
+  const storage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      cb(null, uploadDir);
+    },
+    filename: (_req, file, cb) => {
+      const safeOriginalName = file.originalname.replace(/[^a-zA-Z0-9.\-_]/g, '_');
+      cb(null, `${Date.now()}-${safeOriginalName}`);
+    },
+  });
+
+  const upload = multer({
+    storage,
+    limits: {
+      fileSize: 5 * 1024 * 1024,
+      files: 1,
+    },
+  });
 
   const createTask = new CreateTaskUseCase(taskRepo, eventBus);
   const getTasks = new GetTasksUseCase(taskRepo);
@@ -71,6 +98,56 @@ export function createTaskRouter(taskRepo: ITaskRepository, eventBus: IEventBus)
       next(err);
     }
   });
+
+  router.patch(
+    '/:id/attachment',
+    requireRole('ADMIN'),
+    upload.single('attachment'),
+    async (req: AuthRequest, res: Response, next: NextFunction) => {
+      try {
+        if (!req.file) {
+          res.status(400).json({
+            success: false,
+            error: {
+              code: 'NO_FILE',
+              message: 'Please upload one attachment file.',
+            },
+          });
+          return;
+        }
+
+        const task = await taskRepo.findById(req.params.id);
+
+        if (!task) {
+          res.status(404).json({
+            success: false,
+            error: {
+              code: 'NOT_FOUND',
+              message: 'Task not found.',
+            },
+          });
+          return;
+        }
+
+        task.update({
+          attachment: {
+            originalName: req.file.originalname,
+            fileName: req.file.filename,
+            mimeType: req.file.mimetype,
+            size: req.file.size,
+            url: `/uploads/tasks/${req.file.filename}`,
+            uploadedAt: new Date(),
+          },
+        });
+
+        await taskRepo.update(task);
+
+        sendSuccess(res, task);
+      } catch (err) {
+        next(err);
+      }
+    }
+  );
 
   router.delete('/:id', requireRole('ADMIN'), async (req: AuthRequest, res: Response, next: NextFunction) => {
     try {

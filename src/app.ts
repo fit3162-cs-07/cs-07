@@ -17,6 +17,7 @@ export function createApp(userRepo: IUserRepository, taskRepo: ITaskRepository) 
   app.use(helmet());
   app.use(cors());
   app.use(express.json());
+  app.use('/uploads', express.static('uploads'));
   app.use(requestLogger);
 
   // Set up audit logging
