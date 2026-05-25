@@ -61,22 +61,23 @@ describe('LoginPage', () => {
     const user = userEvent.setup();
     const { login } = renderLoginPage();
 
-    const password = screen.getByLabelText(/^Password/);
-    await user.clear(password);
-    await user.type(password, 'secret-1234');
+    await user.type(screen.getByLabelText(/^Email/), 'user@monashclubs.org');
+    await user.type(screen.getByLabelText(/^Password/), 'secret-1234');
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(login).toHaveBeenCalledWith('admin@monash.edu', 'secret-1234', false);
+    expect(login).toHaveBeenCalledWith('user@monashclubs.org', 'secret-1234', false);
   });
 
   it('passes remember=true when the Remember-me box is checked', async () => {
     const user = userEvent.setup();
     const { login } = renderLoginPage();
 
+    await user.type(screen.getByLabelText(/^Email/), 'user@monashclubs.org');
+    await user.type(screen.getByLabelText(/^Password/), 'secret-1234');
     await user.click(screen.getByLabelText('Remember me'));
     await user.click(screen.getByRole('button', { name: 'Sign in' }));
 
-    expect(login).toHaveBeenCalledWith('admin@monash.edu', 'admin123', true);
+    expect(login).toHaveBeenCalledWith('user@monashclubs.org', 'secret-1234', true);
   });
 
   it('toggles the password input type when Show / Hide is clicked', async () => {

@@ -19,8 +19,8 @@ export function LoginPage() {
   const location = useLocation();
   const from = (location.state as LocationState | null)?.from ?? '/dashboard';
 
-  const [email, setEmail] = useState('admin@monash.edu');
-  const [password, setPassword] = useState('admin123');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [remember, setRemember] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,12 +46,12 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-full bg-surface-muted flex items-center justify-center p-4">
+    <div className="auth-bg min-h-full flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center gap-2 justify-center mb-8">
           <div
             aria-hidden
-            className="w-8 h-8 rounded-md bg-primary text-text-on-primary flex items-center justify-center text-base font-semibold"
+            className="w-9 h-9 rounded-lg bg-primary text-text-on-primary flex items-center justify-center text-lg font-semibold shadow-sm"
           >
             M
           </div>
@@ -59,7 +59,7 @@ export function LoginPage() {
             Monash Club Tasks
           </span>
         </div>
-        <Card>
+        <Card className="shadow-md">
           <div className="mb-6">
             <h1 className="text-h2 font-semibold text-text-primary">Sign in</h1>
             <p className="text-sm text-text-secondary mt-1">
@@ -72,6 +72,7 @@ export function LoginPage() {
                 id="email"
                 type="email"
                 autoComplete="email"
+                placeholder="Enter your email"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 required
@@ -83,6 +84,7 @@ export function LoginPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="current-password"
+                  placeholder="Enter your password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   required
@@ -140,11 +142,42 @@ export function LoginPage() {
             </Link>
           </div>
         </Card>
-        <div className="mt-4 px-4 py-3 bg-surface border border-border-default rounded-md text-sm text-text-secondary">
-          <div className="font-medium text-text-primary mb-1">Seed accounts</div>
-          <code className="font-mono text-xs">admin@monash.edu / admin123</code>
-          <br />
-          <code className="font-mono text-xs">member1@monash.edu / member123</code>
+
+        <div className="mt-4 rounded-lg border border-border-default bg-surface shadow-sm overflow-hidden">
+          <div className="flex items-center gap-2 px-4 py-2.5 bg-primary-subtle border-b border-border-default">
+            <svg
+              aria-hidden
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="h-4 w-4 text-primary shrink-0"
+            >
+              <circle cx="8" cy="8" r="6.5" />
+              <path d="M8 5v3.5M8 11h.01" strokeLinecap="round" />
+            </svg>
+            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+              Demo accounts
+            </span>
+          </div>
+          <ul className="px-4 py-3 space-y-2.5">
+            <li className="flex flex-col gap-0.5">
+              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Admin
+              </span>
+              <code className="font-mono text-xs text-text-primary break-all">
+                admin@monashclubs.org / Admin1234!
+              </code>
+            </li>
+            <li className="flex flex-col gap-0.5">
+              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                Member
+              </span>
+              <code className="font-mono text-xs text-text-primary break-all">
+                parsa.aghajani@monashclubs.org / Member1234!
+              </code>
+            </li>
+          </ul>
         </div>
       </div>
     </div>

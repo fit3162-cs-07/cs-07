@@ -35,6 +35,13 @@
     scrollbar-width: thin;
   }
 
+  .auth-bg {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgba(0, 108, 171, 0.10) 0%, transparent 45%),
+      radial-gradient(circle at 100% 100%, rgba(0, 108, 171, 0.08) 0%, transparent 50%);
+  }
+
   @keyframes fade-in {
     from {
       opacity: 0;

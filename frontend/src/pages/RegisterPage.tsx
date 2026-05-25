@@ -57,12 +57,12 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-full bg-surface-muted flex items-center justify-center p-4">
+    <div className="auth-bg min-h-full flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         <div className="flex items-center gap-2 justify-center mb-8">
           <div
             aria-hidden
-            className="w-8 h-8 rounded-md bg-primary text-text-on-primary flex items-center justify-center text-base font-semibold"
+            className="w-9 h-9 rounded-lg bg-primary text-text-on-primary flex items-center justify-center text-lg font-semibold shadow-sm"
           >
             M
           </div>
@@ -70,7 +70,7 @@ export function RegisterPage() {
             Monash Club Tasks
           </span>
         </div>
-        <Card>
+        <Card className="shadow-md">
           <div className="mb-6">
             <h1 className="text-h2 font-semibold text-text-primary">Create your account</h1>
             <p className="text-sm text-text-secondary mt-1">
@@ -82,6 +82,7 @@ export function RegisterPage() {
               <Input
                 id="name"
                 autoComplete="name"
+                placeholder="Your full name"
                 value={name}
                 onChange={e => setName(e.target.value)}
                 invalid={!!errors.name}
@@ -92,6 +93,7 @@ export function RegisterPage() {
                 id="email"
                 type="email"
                 autoComplete="email"
+                placeholder="you@monashclubs.org"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
                 invalid={!!errors.email}
@@ -109,6 +111,7 @@ export function RegisterPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   autoComplete="new-password"
+                  placeholder="Create a password"
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   invalid={!!errors.password}
