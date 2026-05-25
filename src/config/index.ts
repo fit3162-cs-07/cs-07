@@ -20,4 +20,5 @@ export const config = {
     driver: parseDriver(process.env.REPOSITORY_DRIVER),
     mongoUri: process.env.MONGODB_URI ?? '',
   },
+  frontendOrigin: process.env.FRONTEND_ORIGIN ?? '',
 };
