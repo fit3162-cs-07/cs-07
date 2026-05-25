@@ -1,6 +1,6 @@
 # Project Status — Monash Club Task Manager
 
-**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages, PR #19 components, PR #20 polish)
+**Last updated:** 2026-04-30 (rev — Sprint 8 design pass: PR #16 tokens, PR #17 shell, PR #18 pages, PR #19 components, PR #20 polish, PR #21 mobile)
 **Sprint:** Sprint 8 (week beginning Mon 28 Apr 2026)
 
 > **Sprint 8 — design pass.** Six sequential PRs rebuild the UI on Monash Blue
@@ -8,10 +8,12 @@
 > primitives, `STYLE_GUIDE.md`, and a `/design/preview` page. PR #17 redresses
 > the AppShell, TopNav, and Sidebar. PR #18 re-skins all 9 pages
 > + ErrorBoundary. PR #19 migrates the remaining feature/dashboard
-> components and drops the backwards-compat tailwind aliases. PR #20 (this
-> PR) lands micro-detail polish: inline button spinner, route fade-in, a
-> reusable Tooltip, and disabled-state colour treatments. Mobile
-> verification lands in PR #21.
+> components and drops the backwards-compat tailwind aliases. PR #20 lands
+> micro-detail polish: inline button spinner, route fade-in, a reusable
+> Tooltip, and disabled-state colour treatments. PR #21 (this PR) finishes
+> the sprint with mobile verification: Modal becomes a bottom-sheet on
+> small screens with a drag-handle indicator, Toast spans full-width on
+> mobile, and the breakpoints across pages are re-checked.
 
 ---
 
@@ -284,6 +286,12 @@ frontend test harness. Smoke-tested locally before each merge.
   hover/focus-within); disabled-state colour treatments per variant
   (replaces blanket `opacity-50`). 91 frontend tests + 129 backend
   tests still green.
+- 🚧 (PR #21) Sprint 8 mobile verification — `Modal` becomes a
+  bottom-sheet on mobile (rounded-top, drag-handle indicator,
+  `max-h-92vh`) and reverts to a centered modal on `md+`; `Toast`
+  spans full-width on mobile and reverts to its bottom-right pill
+  on `sm+`. APIs unchanged; 91 frontend tests + 129 backend tests
+  still green.
 - ❌ Cypress E2E (owned by Ethan)
 - ❌ Coverage reporting in CI
 

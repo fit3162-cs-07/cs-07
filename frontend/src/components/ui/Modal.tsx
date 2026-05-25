@@ -13,9 +13,9 @@ export interface ModalProps {
 }
 
 const sizes = {
-  sm: 'max-w-md',
-  md: 'max-w-lg',
-  lg: 'max-w-2xl',
+  sm: 'md:max-w-md',
+  md: 'md:max-w-lg',
+  lg: 'md:max-w-2xl',
 };
 
 export function Modal({
@@ -40,22 +40,34 @@ export function Modal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-text-primary/40 p-4"
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-text-primary/40 md:p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
     >
       <div
         className={cn(
-          'w-full bg-surface-elevated rounded-xl shadow-md border border-border-default max-h-[90vh] overflow-hidden flex flex-col',
+          'w-full bg-surface-elevated border border-border-default flex flex-col',
+          'rounded-t-xl rounded-b-none max-h-[92vh]',
+          'md:rounded-xl md:max-h-[90vh] md:shadow-md',
           sizes[size],
         )}
         onClick={e => e.stopPropagation()}
       >
+        <div
+          aria-hidden
+          className="md:hidden flex justify-center pt-3 pb-1"
+        >
+          <span className="h-1 w-10 rounded-full bg-border-strong" />
+        </div>
         {(title || description) && (
           <div className="px-6 py-4 border-b border-border-default">
-            {title && <h2 className="text-h2 font-semibold text-text-primary">{title}</h2>}
-            {description && <p className="text-sm text-text-secondary mt-1">{description}</p>}
+            {title && (
+              <h2 className="text-h2 font-semibold text-text-primary">{title}</h2>
+            )}
+            {description && (
+              <p className="text-sm text-text-secondary mt-1">{description}</p>
+            )}
           </div>
         )}
         <div className="px-6 py-4 overflow-y-auto flex-1">{children}</div>
