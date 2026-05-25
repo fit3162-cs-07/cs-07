@@ -1,4 +1,4 @@
-import { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { setAuthToken } from '../api/client';
 import * as authApi from '../api/auth';
@@ -27,19 +27,25 @@ export interface AuthContextValue {
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const initial = readPreferredAuth();
-  const [stored, setStored] = useState<StoredAuth | null>(initial.auth);
-  const [storage, setStorage] = useState<TokenStorage>(initial.storage);
-
-  useEffect(() => {
-    setAuthToken(stored?.token ?? null);
-  }, [stored]);
+  // Sync the imperative module-level auth token during the useState initializer
+  // so it is set BEFORE any child provider renders. Doing this in a useEffect
+  // raced with child effects (e.g. UsersProvider's initial fetch fires before
+  // parent effects), so /users would be requested with a null token and 401.
+  const [stored, setStored] = useState<StoredAuth | null>(() => {
+    const initial = readPreferredAuth();
+    setAuthToken(initial.auth?.token ?? null);
+    return initial.auth;
+  });
+  const [storage, setStorage] = useState<TokenStorage>(() => readPreferredAuth().storage);
 
   const persist = useCallback((value: StoredAuth, remember: boolean) => {
     const target = remember ? persistentTokenStorage : sessionOnlyTokenStorage;
     // Whichever store was in use before, the other must not retain the token.
     clearAllAuth();
     target.write(value);
+    // Set the imperative token synchronously so the next render's effects (which
+    // fire bottom-up — children before parents) see a valid token.
+    setAuthToken(value.token);
     setStorage(target);
     setStored(value);
   }, []);
@@ -63,6 +69,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = useCallback(() => {
     clearAllAuth();
+    setAuthToken(null);
     setStored(null);
   }, []);
 
