@@ -82,24 +82,37 @@ export function DashboardPage() {
         <Card>
           <CardTitle>Recent tasks</CardTitle>
           <CardSubtitle>Latest five tasks by creation date.</CardSubtitle>
-          <div className="mt-4 flex flex-col divide-y divide-border">
+          <div className="mt-4 flex flex-col">
             {loading ? (
               <RecentTasksSkeleton />
             ) : recentTasks.length === 0 ? (
-              <EmptyState title="No tasks yet" description="Create your first task to get started." />
+              <EmptyState
+                title="No tasks yet"
+                description="Create your first task to get started."
+              />
             ) : (
-              recentTasks.map(t => (
+              recentTasks.map((t, idx) => (
                 <Link
                   key={t.id}
                   to={`/tasks/${t.id}`}
-                  className="py-3 flex items-center justify-between hover:bg-primary-soft -mx-2 px-2 rounded-md"
+                  className={`py-3 px-2 -mx-2 flex items-center justify-between rounded-md hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT ${
+                    idx > 0 ? 'border-t border-border-default' : ''
+                  }`}
                 >
                   <div className="min-w-0">
-                    <div className="text-base font-medium text-ink truncate">{t.title}</div>
-                    <div className="text-sm text-muted">{relativeDeadline(t.dueDate)}</div>
+                    <div className="text-base font-medium text-text-primary truncate">
+                      {t.title}
+                    </div>
+                    <div className="text-sm text-text-tertiary mt-0.5">
+                      {relativeDeadline(t.dueDate)}
+                    </div>
                   </div>
-                  <span className="text-sm text-muted shrink-0 ml-3">
-                    {t.status === 'IN_PROGRESS' ? 'In Progress' : t.status === 'TODO' ? 'To Do' : 'Done'}
+                  <span className="text-sm text-text-secondary shrink-0 ml-3">
+                    {t.status === 'IN_PROGRESS'
+                      ? 'In Progress'
+                      : t.status === 'TODO'
+                        ? 'To Do'
+                        : 'Done'}
                   </span>
                 </Link>
               ))
@@ -110,23 +123,29 @@ export function DashboardPage() {
         <Card>
           <CardTitle>Activity</CardTitle>
           <CardSubtitle>
-            {isAdmin ? 'Latest events from the audit log.' : 'Sign in as an admin to see the audit feed.'}
+            {isAdmin
+              ? 'Latest events from the audit log.'
+              : 'Sign in as an admin to see the audit feed.'}
           </CardSubtitle>
-          <div className="mt-4 flex flex-col divide-y divide-border">
+          <div className="mt-4 flex flex-col divide-y divide-border-default">
             {!isAdmin ? (
-              <p className="text-sm text-muted py-4">No activity available for your role.</p>
+              <p className="text-sm text-text-secondary py-4">
+                No activity available for your role.
+              </p>
             ) : loading ? (
               <ActivitySkeleton />
             ) : audit.length === 0 ? (
-              <p className="text-sm text-muted py-4">No recorded events yet.</p>
+              <p className="text-sm text-text-secondary py-4">No recorded events yet.</p>
             ) : (
               audit
                 .slice(-10)
                 .reverse()
                 .map((e, idx) => (
                   <div key={`${e.timestamp}-${idx}`} className="py-3">
-                    <div className="text-base text-ink">{formatEvent(e)}</div>
-                    <div className="text-sm text-muted">{formatDateTime(e.timestamp)}</div>
+                    <div className="text-sm text-text-primary">{formatEvent(e)}</div>
+                    <div className="text-xs text-text-tertiary mt-0.5">
+                      {formatDateTime(e.timestamp)}
+                    </div>
                   </div>
                 ))
             )}
@@ -149,13 +168,15 @@ function StatCard({
   to: string;
 }) {
   return (
-    <Link to={to}>
-      <Card className="hover:bg-primary-soft transition-colors">
-        <div className="text-sm text-muted">{label}</div>
+    <Link to={to} className="block group">
+      <Card interactive>
+        <div className="text-sm text-text-secondary font-medium">{label}</div>
         {loading ? (
           <Skeleton className="mt-2" width={64} height={32} label={`Loading ${label}`} />
         ) : (
-          <div className="text-3xl font-semibold text-ink mt-2">{value}</div>
+          <div className="text-display font-semibold text-text-primary mt-2 tracking-tight">
+            {value}
+          </div>
         )}
       </Card>
     </Link>
@@ -166,7 +187,12 @@ function RecentTasksSkeleton() {
   return (
     <div className="flex flex-col" data-testid="recent-tasks-skeleton">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="py-3 flex items-center justify-between gap-3">
+        <div
+          key={i}
+          className={`py-3 flex items-center justify-between gap-3 ${
+            i > 0 ? 'border-t border-border-default' : ''
+          }`}
+        >
           <div className="flex-1 flex flex-col gap-2">
             <Skeleton width="60%" height={16} />
             <Skeleton width="40%" height={12} />
@@ -192,8 +218,7 @@ function ActivitySkeleton() {
 }
 
 function formatEvent(e: AuditEntry): string {
-  const title =
-    typeof e.payload?.title === 'string' ? ` "${e.payload.title}"` : '';
+  const title = typeof e.payload?.title === 'string' ? ` "${e.payload.title}"` : '';
   switch (e.eventType) {
     case 'TaskCreated':
       return `Task created${title}`;

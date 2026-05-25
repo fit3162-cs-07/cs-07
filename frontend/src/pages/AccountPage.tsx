@@ -21,7 +21,10 @@ export function AccountPage() {
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [savingPassword, setSavingPassword] = useState(false);
-  const [pwError, setPwError] = useState<{ field: 'current' | 'new' | 'confirm'; message: string } | null>(null);
+  const [pwError, setPwError] = useState<{
+    field: 'current' | 'new' | 'confirm';
+    message: string;
+  } | null>(null);
 
   if (!user) return null;
 
@@ -86,21 +89,33 @@ export function AccountPage() {
 
   return (
     <>
-      <PageHeader title="Account settings" description="Manage your name, email, and password." />
+      <PageHeader
+        title="Account settings"
+        description="Manage your name, email, and password."
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardTitle>Profile</CardTitle>
-          <CardSubtitle>Email and role are managed by your club administrator.</CardSubtitle>
-          <dl className="mt-4 grid grid-cols-[120px_1fr] gap-y-2 text-sm">
-            <dt className="text-muted">Email</dt>
-            <dd className="text-ink">{user.email}</dd>
-            <dt className="text-muted">Role</dt>
-            <dd className="text-ink">{user.role === 'ADMIN' ? 'Admin' : 'Member'}</dd>
+          <CardSubtitle>
+            Email and role are managed by your club administrator.
+          </CardSubtitle>
+          <dl className="mt-6 grid grid-cols-[120px_1fr] gap-y-3 text-sm">
+            <dt className="text-text-tertiary font-medium">Email</dt>
+            <dd className="text-text-primary font-mono text-xs">{user.email}</dd>
+            <dt className="text-text-tertiary font-medium">Role</dt>
+            <dd className="text-text-primary">
+              {user.role === 'ADMIN' ? 'Admin' : 'Member'}
+            </dd>
           </dl>
 
           <form onSubmit={onSubmitName} className="mt-6 flex flex-col gap-4" noValidate>
-            <Field label="Display name" htmlFor="account-name" required error={nameError ?? undefined}>
+            <Field
+              label="Display name"
+              htmlFor="account-name"
+              required
+              error={nameError ?? undefined}
+            >
               <Input
                 id="account-name"
                 value={name}
@@ -122,7 +137,7 @@ export function AccountPage() {
           <CardTitle>Change password</CardTitle>
           <CardSubtitle>Use at least 8 characters.</CardSubtitle>
 
-          <form onSubmit={onSubmitPassword} className="mt-4 flex flex-col gap-4" noValidate>
+          <form onSubmit={onSubmitPassword} className="mt-6 flex flex-col gap-4" noValidate>
             <Field
               label="Current password"
               htmlFor="account-current-password"

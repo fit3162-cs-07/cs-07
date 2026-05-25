@@ -39,7 +39,9 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         <CardSubtitle>
           The page hit an unexpected error. You can try again, or refresh.
         </CardSubtitle>
-        <p className="text-sm text-muted mt-4 break-words">{error.message}</p>
+        <p className="text-xs text-text-tertiary mt-4 break-words font-mono">
+          {error.message}
+        </p>
         <div className="mt-6 flex justify-center gap-2">
           <Button variant="secondary" onClick={() => window.location.reload()}>
             Refresh

@@ -65,7 +65,8 @@ export function KanbanPage() {
   }, [tasks]);
 
   const canDrag = useCallback(
-    (task: Task) => isAdmin || (!!user && (task.assigneeId === user.id || task.createdBy === user.id)),
+    (task: Task) =>
+      isAdmin || (!!user && (task.assigneeId === user.id || task.createdBy === user.id)),
     [isAdmin, user],
   );
 
@@ -81,7 +82,9 @@ export function KanbanPage() {
     }
 
     const previous = tasks;
-    setTasks(curr => curr.map(t => (t.id === task.id ? { ...t, status: targetStatus } : t)));
+    setTasks(curr =>
+      curr.map(t => (t.id === task.id ? { ...t, status: targetStatus } : t)),
+    );
     try {
       await taskApi.changeStatus(task.id, targetStatus);
     } catch (err) {
@@ -96,11 +99,7 @@ export function KanbanPage() {
       <PageHeader
         title="Kanban board"
         description={loading ? 'Loading…' : `${tasks.length} tasks across the board`}
-        actions={
-          isAdmin && (
-            <Button onClick={() => setCreateOpen(true)}>+ New task</Button>
-          )
-        }
+        actions={isAdmin && <Button onClick={() => setCreateOpen(true)}>New task</Button>}
       />
 
       <div className="mb-4">
@@ -113,7 +112,10 @@ export function KanbanPage() {
       </div>
 
       {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4" data-testid="kanban-skeleton">
+        <div
+          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          data-testid="kanban-skeleton"
+        >
           {COLUMNS.map(col => (
             <KanbanColumnSkeleton key={col.key} label={col.label} />
           ))}
@@ -150,9 +152,11 @@ export function KanbanPage() {
 
 function KanbanColumnSkeleton({ label }: { label: string }) {
   return (
-    <div className="rounded-lg border border-border bg-page p-3 min-h-[400px]">
+    <div className="rounded-lg border border-border-default bg-surface p-3 min-h-[400px]">
       <div className="flex items-center justify-between mb-3 px-1">
-        <h3 className="text-sm font-semibold text-ink uppercase tracking-wide">{label}</h3>
+        <h3 className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
+          {label}
+        </h3>
         <Skeleton width={16} height={12} />
       </div>
       <div className="flex flex-col gap-2">
@@ -189,17 +193,21 @@ function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        'rounded-lg border p-3 min-h-[400px] transition-colors',
-        isOver ? 'border-accent bg-primary-soft' : 'border-border bg-page',
+        'rounded-lg border p-3 min-h-[400px] transition-colors duration-DEFAULT ease-DEFAULT',
+        isOver
+          ? 'border-primary bg-primary-subtle'
+          : 'border-border-default bg-surface',
       )}
     >
       <div className="flex items-center justify-between mb-3 px-1">
-        <h3 className="text-sm font-semibold text-ink uppercase tracking-wide">{label}</h3>
-        <span className="text-sm text-muted">{tasks.length}</span>
+        <h3 className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
+          {label}
+        </h3>
+        <span className="text-xs text-text-tertiary font-medium">{tasks.length}</span>
       </div>
       <div className="flex flex-col gap-2">
         {tasks.length === 0 && (
-          <p className="text-sm text-muted px-1 py-2">No tasks</p>
+          <p className="text-sm text-text-tertiary px-1 py-2">No tasks</p>
         )}
         {tasks.map(task => (
           <DraggableTaskCard
@@ -234,17 +242,28 @@ function DraggableTaskCard({
   return (
     <Card
       padded={false}
-      className={cn('p-3', isDragging ? 'opacity-50' : '', !draggable ? 'cursor-not-allowed' : 'cursor-grab')}
+      className={cn(
+        'p-3 transition-shadow duration-DEFAULT ease-DEFAULT hover:border-border-strong hover:shadow-sm',
+        isDragging && 'opacity-50',
+        !draggable ? 'cursor-not-allowed' : 'cursor-grab',
+      )}
     >
       <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
-        <div className="text-base font-medium text-ink mb-2 line-clamp-2">{task.title}</div>
+        <div className="text-sm font-medium text-text-primary mb-2 line-clamp-2">
+          {task.title}
+        </div>
         <div className="flex items-center justify-between gap-2">
           <PriorityBadge priority={task.priority} />
-          {task.dueDate && <span className="text-sm text-muted">{relativeDeadline(task.dueDate)}</span>}
+          {task.dueDate && (
+            <span className="text-xs text-text-tertiary">{relativeDeadline(task.dueDate)}</span>
+          )}
         </div>
-        <div className="text-sm text-muted mt-2">{assigneeName}</div>
+        <div className="text-xs text-text-tertiary mt-2">{assigneeName}</div>
       </div>
-      <Link to={`/tasks/${task.id}`} className="text-sm text-primary mt-2 inline-block hover:underline">
+      <Link
+        to={`/tasks/${task.id}`}
+        className="text-xs text-primary font-medium mt-2 inline-block hover:text-primary-hover transition-colors duration-DEFAULT ease-DEFAULT"
+      >
         Open →
       </Link>
     </Card>
