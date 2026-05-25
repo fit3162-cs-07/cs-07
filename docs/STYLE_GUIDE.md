@@ -156,6 +156,7 @@ Every primitive lives at `src/components/ui/`. APIs are documented inline; visua
 | `EmptyState` | `Card` with centered title + optional description + action button. |
 | `PageHeader` | `text-h1` title, optional secondary description, right-aligned actions. |
 | `Skeleton`, `SkeletonText` | `bg-border-default` + `animate-pulse`. Three shapes: rect / text / circle. |
+| `Tooltip` | CSS-only label that fades in on hover or focus-within. `text-text-on-primary` text on a `bg-text-primary` chip; respects `prefers-reduced-motion`. |
 
 ---
 

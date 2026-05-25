@@ -9,6 +9,7 @@ import { Modal } from '../components/ui/Modal';
 import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
 import { Skeleton } from '../components/ui/Skeleton';
+import { Tooltip } from '../components/ui/Tooltip';
 import { useUsers } from '../hooks/useUsers';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -138,19 +139,26 @@ export function AdminUsersPage() {
                           >
                             Edit
                           </Button>
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => setConfirming(u)}
-                            disabled={isSelf && u.isActive}
-                            title={
-                              isSelf && u.isActive
-                                ? 'You cannot deactivate yourself'
-                                : undefined
-                            }
-                          >
-                            {u.isActive ? 'Deactivate' : 'Activate'}
-                          </Button>
+                          {isSelf && u.isActive ? (
+                            <Tooltip label="You cannot deactivate yourself">
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                disabled
+                                title="You cannot deactivate yourself"
+                              >
+                                Deactivate
+                              </Button>
+                            </Tooltip>
+                          ) : (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => setConfirming(u)}
+                            >
+                              {u.isActive ? 'Deactivate' : 'Activate'}
+                            </Button>
+                          )}
                         </div>
                       </td>
                     </tr>
