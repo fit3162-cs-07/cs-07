@@ -40,8 +40,6 @@ When in doubt, look at linear.app for craft cues — separation through structur
 | Danger | `danger` | `#DC2626` |
 | Danger subtle | `danger-subtle` | `#FEE2E2` |
 
-Aliases (`page`, `ink`, `muted`, `border`, `accent`, `error`, `primary-soft`) are kept for now so non-primitive code keeps working. They will be removed once Tasks 2 and 3 migrate consumers — do not use them in new code.
-
 ### When to use color
 - **Neutral** for the vast majority of UI: text, borders, backgrounds, icons.
 - **Primary** for the active brand action and current selection — usually one prominent place per screen.

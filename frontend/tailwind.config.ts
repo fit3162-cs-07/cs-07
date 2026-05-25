@@ -30,15 +30,6 @@ const palette = {
   'warning-subtle': '#FEF3C7',
   danger: '#DC2626',
   'danger-subtle': '#FEE2E2',
-
-  // Backwards-compat aliases (removed once Tasks 2-3 migrate consumers).
-  ink: '#0F172A',
-  muted: '#475569',
-  page: '#F8FAFC',
-  border: '#E2E8F0',
-  'primary-soft': '#E6F2F8',
-  accent: '#006CAB',
-  error: '#DC2626',
 } as const;
 
 const spacing = {

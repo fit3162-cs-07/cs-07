@@ -210,7 +210,7 @@ export function TaskFormModal({ open, task, onClose, onSaved }: TaskFormModalPro
 
         <Field
           label="Tags"
-          hint="Comma-separated. Persisted after the R5 task-filter PR merges."
+          hint="Comma-separated"
           htmlFor="task-tags"
         >
           <Input

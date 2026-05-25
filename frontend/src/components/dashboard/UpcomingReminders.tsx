@@ -45,25 +45,33 @@ export function UpcomingReminders() {
     return tasks
       .filter(t => t.status !== 'DONE' && !!t.dueDate)
       .map(t => ({ task: t, overdue: new Date(t.dueDate!).getTime() < now }))
-      .sort((a, b) => new Date(a.task.dueDate!).getTime() - new Date(b.task.dueDate!).getTime());
+      .sort(
+        (a, b) =>
+          new Date(a.task.dueDate!).getTime() - new Date(b.task.dueDate!).getTime(),
+      );
   }, [tasks]);
 
   return (
     <Card>
       <CardTitle>Upcoming reminders</CardTitle>
-      <CardSubtitle>Tasks due in the next 24 hours, plus anything overdue from the last 30 days.</CardSubtitle>
-      <div className="mt-4 flex flex-col divide-y divide-border">
+      <CardSubtitle>
+        Tasks due in the next 24 hours, plus anything overdue from the last 30 days.
+      </CardSubtitle>
+      <div className="mt-4 flex flex-col">
         {loading ? (
           <RemindersSkeleton />
         ) : actionable.length === 0 ? (
-          <p className="text-sm text-muted py-4">Nothing due in the next 24 hours.</p>
+          <p className="text-sm text-text-secondary py-4">
+            Nothing due in the next 24 hours.
+          </p>
         ) : (
-          actionable.map(({ task, overdue }) => (
+          actionable.map(({ task, overdue }, idx) => (
             <ReminderRow
               key={task.id}
               task={task}
               overdue={overdue}
               assigneeName={displayName(task.assigneeId)}
+              divider={idx > 0}
             />
           ))
         )}
@@ -76,7 +84,12 @@ function RemindersSkeleton() {
   return (
     <div className="flex flex-col" data-testid="reminders-skeleton">
       {Array.from({ length: 3 }).map((_, i) => (
-        <div key={i} className="py-3 flex items-center justify-between gap-3">
+        <div
+          key={i}
+          className={`py-3 flex items-center justify-between gap-3 ${
+            i > 0 ? 'border-t border-border-default' : ''
+          }`}
+        >
           <div className="flex-1 flex flex-col gap-2">
             <Skeleton width="55%" height={16} />
             <Skeleton width="35%" height={12} />
@@ -88,19 +101,31 @@ function RemindersSkeleton() {
   );
 }
 
-function ReminderRow({ task, overdue, assigneeName }: { task: Task; overdue: boolean; assigneeName: string }) {
+function ReminderRow({
+  task,
+  overdue,
+  assigneeName,
+  divider,
+}: {
+  task: Task;
+  overdue: boolean;
+  assigneeName: string;
+  divider: boolean;
+}) {
   return (
     <Link
       to={`/tasks/${task.id}`}
-      className="py-3 flex items-center justify-between gap-3 hover:bg-primary-soft -mx-2 px-2 rounded-md"
+      className={`py-3 px-2 -mx-2 flex items-center justify-between gap-3 rounded-md hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT ${
+        divider ? 'border-t border-border-default' : ''
+      }`}
     >
       <div className="min-w-0">
-        <div className="text-base font-medium text-ink truncate">{task.title}</div>
-        <div className="text-sm text-muted">
+        <div className="text-base font-medium text-text-primary truncate">{task.title}</div>
+        <div className="text-sm text-text-tertiary mt-0.5">
           {relativeDeadline(task.dueDate)} · {assigneeName}
         </div>
       </div>
-      {overdue && <Badge tone="error">Overdue</Badge>}
+      {overdue && <Badge tone="danger">Overdue</Badge>}
     </Link>
   );
 }
