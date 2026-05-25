@@ -12,38 +12,55 @@ export function TopNav({ onMenuToggle }: TopNavProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="h-14 bg-surface border-b border-border flex items-center justify-between px-4 md:px-6 shrink-0 gap-2">
-      <div className="flex items-center gap-2 min-w-0">
+    <header className="h-14 bg-surface border-b border-border-default flex items-center justify-between px-4 md:px-6 shrink-0 gap-2">
+      <div className="flex items-center gap-3 min-w-0">
         <button
           type="button"
           aria-label="Open navigation"
           onClick={onMenuToggle}
-          className="md:hidden h-8 w-8 rounded-md hover:bg-primary-soft text-ink flex items-center justify-center shrink-0"
+          className="md:hidden h-8 w-8 rounded-md hover:bg-surface-muted text-text-secondary hover:text-text-primary transition-colors duration-DEFAULT ease-DEFAULT inline-flex items-center justify-center shrink-0"
         >
-          <span aria-hidden className="text-lg leading-none">☰</span>
+          <svg
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            className="h-4 w-4"
+            aria-hidden
+          >
+            <path d="M2 4h12M2 8h12M2 12h12" />
+          </svg>
         </button>
-        <div className="w-6 h-6 rounded bg-primary shrink-0" aria-hidden />
-        <span className="text-base font-semibold text-ink truncate">
-          <span className="hidden sm:inline">Monash Club Tasks</span>
-          <span className="sm:hidden">MCT</span>
-        </span>
+        <div className="flex items-center gap-2 min-w-0">
+          <div
+            aria-hidden
+            className="w-6 h-6 rounded bg-primary text-text-on-primary flex items-center justify-center text-xs font-semibold shrink-0"
+          >
+            M
+          </div>
+          <span className="text-base font-semibold text-text-primary truncate tracking-tight">
+            <span className="hidden sm:inline">Monash Club Tasks</span>
+            <span className="sm:hidden">MCT</span>
+          </span>
+        </div>
       </div>
       {user && (
-        <div className="flex items-center gap-2 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           <NotificationsBell />
           <Dropdown
             trigger={
               <button
                 type="button"
-                className="flex items-center gap-2 h-8 px-2 rounded-md hover:bg-primary-soft text-sm shrink-0"
+                className="flex items-center gap-2 h-9 px-2 rounded-md hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT shrink-0"
               >
-                <span className="w-7 h-7 rounded-full bg-primary-soft text-primary flex items-center justify-center font-semibold text-sm">
+                <span className="w-7 h-7 rounded-full bg-primary-subtle text-primary flex items-center justify-center font-medium text-sm">
                   {user.name.charAt(0).toUpperCase()}
                 </span>
-                <span className="text-ink font-medium hidden sm:inline truncate max-w-[160px]">
+                <span className="text-text-primary font-medium text-sm hidden sm:inline truncate max-w-[160px]">
                   {user.name}
                 </span>
-                <span className="text-muted text-sm hidden md:inline">
+                <span className="text-text-tertiary text-xs hidden md:inline font-medium">
                   {user.role === 'ADMIN' ? 'Admin' : 'Member'}
                 </span>
               </button>
