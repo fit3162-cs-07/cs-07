@@ -167,24 +167,59 @@ export function LoginPage() {
                 Demo accounts
               </span>
             </div>
-            <ul className="px-4 py-3 space-y-2.5">
-              <li className="flex flex-col gap-0.5">
-                <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
+            <div className="px-4 py-3 space-y-4">
+              <div>
+                <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
                   Admin
-                </span>
-                <code className="font-mono text-xs text-text-primary break-all">
-                  admin@monashclubs.org / Admin1234!
-                </code>
-              </li>
-              <li className="flex flex-col gap-0.5">
-                <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
-                  Member
-                </span>
-                <code className="font-mono text-xs text-text-primary break-all">
-                  parsa.aghajani@monashclubs.org / Member1234!
-                </code>
-              </li>
-            </ul>
+                </div>
+                <ul className="space-y-1">
+                  <li>
+                    <code className="font-mono text-xs text-text-primary break-all">
+                      admin@monashclubs.org / Admin1234!
+                    </code>
+                  </li>
+                  <li>
+                    <code className="font-mono text-xs text-text-primary break-all">
+                      thanh@monashclubs.org / Admin1234!
+                    </code>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+                  Member &middot; MASA
+                </div>
+                <ul className="space-y-1">
+                  <li>
+                    <code className="font-mono text-xs text-text-primary break-all">
+                      parsa.aghajani@monashclubs.org / Member1234!
+                    </code>
+                  </li>
+                  <li>
+                    <code className="font-mono text-xs text-text-primary break-all">
+                      finlay.townsend@monashclubs.org / Member1234!
+                    </code>
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <div className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider mb-1.5">
+                  Member &middot; SAS
+                </div>
+                <ul className="space-y-1">
+                  <li>
+                    <code className="font-mono text-xs text-text-primary break-all">
+                      eliza.burnes@monashclubs.org / Member1234!
+                    </code>
+                  </li>
+                  <li>
+                    <code className="font-mono text-xs text-text-primary break-all">
+                      noah.caruso@monashclubs.org / Member1234!
+                    </code>
+                  </li>
+                </ul>
+              </div>
+            </div>
           </div>
         </div>
       </main>

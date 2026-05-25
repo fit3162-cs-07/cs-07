@@ -124,7 +124,7 @@ export function KanbanPage() {
 
       {loading ? (
         <div
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-3 gap-6"
           data-testid="kanban-skeleton"
         >
           {COLUMNS.map(col => (
@@ -133,7 +133,7 @@ export function KanbanPage() {
         </div>
       ) : (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {COLUMNS.map(col => (
               <KanbanColumn
                 key={col.key}

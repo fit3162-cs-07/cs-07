@@ -114,7 +114,7 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
 
   if (layout === 'bar') {
     return (
-      <Card padded={false} className="p-5">
+      <Card padded={false} className="p-6">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 items-end">
           {fields}
           <Button variant="secondary" onClick={onClear}>
