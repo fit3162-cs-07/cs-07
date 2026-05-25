@@ -75,7 +75,7 @@ export function LoginPage() {
                   placeholder="Enter your Monash email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
-                  className="block w-full h-12 px-3.5 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
+                  className="block w-full h-12 px-4 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
                 />
               </div>
 
@@ -95,7 +95,7 @@ export function LoginPage() {
                     placeholder="Enter your password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="block w-full h-12 pl-3.5 pr-12 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
+                    className="block w-full h-12 pl-4 pr-12 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
                   />
                   <button
                     type="button"

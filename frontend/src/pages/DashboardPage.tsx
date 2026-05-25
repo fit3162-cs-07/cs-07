@@ -69,7 +69,7 @@ export function DashboardPage() {
   return (
     <>
       <PageHeader
-        title={`Welcome back, ${user?.name.split(' ')[0] ?? 'there'}`}
+        title={`Welcome back, ${user?.name ?? 'there'}`}
         description="Snapshot of what's happening across your club's tasks."
       />
 

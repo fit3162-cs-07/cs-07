@@ -81,10 +81,11 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
           }}
         />
       </Field>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 col-span-2 lg:col-span-2">
         <Field label="Due after">
           <Input
             type="date"
+            className="min-w-[140px]"
             value={value.dueAfter ? value.dueAfter.slice(0, 10) : ''}
             onChange={e =>
               set(
@@ -97,6 +98,7 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
         <Field label="Due before">
           <Input
             type="date"
+            className="min-w-[140px]"
             value={value.dueBefore ? value.dueBefore.slice(0, 10) : ''}
             onChange={e =>
               set(
@@ -112,8 +114,8 @@ export function TaskFilters({ value, onChange, onClear, layout = 'sidebar' }: Ta
 
   if (layout === 'bar') {
     return (
-      <Card padded={false} className="p-4">
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 items-end">
+      <Card padded={false} className="p-5">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-4 items-end">
           {fields}
           <Button variant="secondary" onClick={onClear}>
             Clear

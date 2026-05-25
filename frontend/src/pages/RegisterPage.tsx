@@ -110,7 +110,7 @@ export function RegisterPage() {
                     onChange={e => setPassword(e.target.value)}
                     aria-invalid={!!errors.password}
                     className={cn(
-                      'block w-full h-12 pl-3.5 pr-12 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
+                      'block w-full h-12 pl-4 pr-12 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
                       errors.password
                         ? 'border-danger focus:border-danger'
                         : 'border-border-strong hover:border-text-tertiary focus:border-primary',
@@ -224,7 +224,7 @@ function RegisterField({
         onChange={e => onChange(e.target.value)}
         aria-invalid={!!error}
         className={cn(
-          'block w-full h-12 px-3.5 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
+          'block w-full h-12 px-4 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
           error
             ? 'border-danger focus:border-danger'
             : 'border-border-strong hover:border-text-tertiary focus:border-primary',

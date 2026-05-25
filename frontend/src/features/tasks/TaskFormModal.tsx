@@ -1,3 +1,6 @@
+// Tasks are single-assignee by design (following Jira, Linear, Azure DevOps).
+// Single ownership keeps accountability clear — split into subtasks or use
+// tags/comments to coordinate collaborative work. Multi-assignee is post-MVP.
 import { useEffect, useState } from 'react';
 import { Modal } from '../../components/ui/Modal';
 import { Button } from '../../components/ui/Button';

@@ -26,10 +26,20 @@ import type { Task, TaskFilterInput, TaskStatus } from '../api/types';
 import { relativeDeadline } from '../lib/format';
 import { cn } from '../lib/cn';
 
-const COLUMNS: { key: TaskStatus; label: string; dotClass: string }[] = [
-  { key: 'TODO', label: 'To Do', dotClass: 'bg-text-tertiary' },
-  { key: 'IN_PROGRESS', label: 'In Progress', dotClass: 'bg-primary' },
-  { key: 'DONE', label: 'Done', dotClass: 'bg-success' },
+const COLUMNS: {
+  key: TaskStatus;
+  label: string;
+  dotClass: string;
+  borderClass: string;
+}[] = [
+  { key: 'TODO', label: 'To Do', dotClass: 'bg-primary', borderClass: 'border-l-primary' },
+  {
+    key: 'IN_PROGRESS',
+    label: 'In Progress',
+    dotClass: 'bg-warning',
+    borderClass: 'border-l-warning',
+  },
+  { key: 'DONE', label: 'Done', dotClass: 'bg-success', borderClass: 'border-l-success' },
 ];
 
 export function KanbanPage() {
@@ -123,13 +133,14 @@ export function KanbanPage() {
         </div>
       ) : (
         <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {COLUMNS.map(col => (
               <KanbanColumn
                 key={col.key}
                 status={col.key}
                 label={col.label}
                 dotClass={col.dotClass}
+                borderClass={col.borderClass}
                 tasks={grouped[col.key]}
                 canDrag={canDrag}
                 displayName={displayName}
@@ -154,16 +165,16 @@ export function KanbanPage() {
 
 function KanbanColumnSkeleton({ label }: { label: string }) {
   return (
-    <div className="rounded-xl border border-border-default bg-surface-subtle p-3 min-h-[420px]">
-      <div className="flex items-center justify-between mb-3 px-1">
+    <div className="rounded-xl border border-border-default bg-surface p-4 min-h-[420px] shadow-card">
+      <div className="flex items-center justify-between mb-4 px-1">
         <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
           {label}
         </h3>
         <Skeleton width={20} height={14} />
       </div>
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-3">
         {Array.from({ length: 3 }).map((_, i) => (
-          <Card key={i} padded={false} className="p-3.5 flex flex-col gap-2 shadow-card">
+          <Card key={i} padded={false} className="p-4 flex flex-col gap-2 shadow-card">
             <Skeleton width="85%" height={16} />
             <div className="flex items-center justify-between">
               <Skeleton width={56} height={20} />
@@ -181,6 +192,7 @@ function KanbanColumn({
   status,
   label,
   dotClass,
+  borderClass,
   tasks,
   canDrag,
   displayName,
@@ -188,6 +200,7 @@ function KanbanColumn({
   status: TaskStatus;
   label: string;
   dotClass: string;
+  borderClass: string;
   tasks: Task[];
   canDrag(task: Task): boolean;
   displayName(id: string | undefined | null): string;
@@ -197,24 +210,25 @@ function KanbanColumn({
     <div
       ref={setNodeRef}
       className={cn(
-        'rounded-xl border p-3 min-h-[420px] transition-colors duration-DEFAULT ease-DEFAULT',
+        'rounded-xl border border-l-4 p-4 min-h-[420px] shadow-card transition-colors duration-DEFAULT ease-DEFAULT',
+        borderClass,
         isOver
           ? 'border-primary border-2 bg-primary-subtle'
-          : 'border-border-default bg-surface-subtle',
+          : 'border-border-default bg-surface',
       )}
     >
-      <div className="flex items-center justify-between mb-3 px-1">
+      <div className="flex items-center justify-between mb-4 px-1">
         <div className="flex items-center gap-2">
           <span className={cn('h-2 w-2 rounded-full', dotClass)} aria-hidden />
           <h3 className="text-xs font-semibold text-text-secondary uppercase tracking-wider">
             {label}
           </h3>
         </div>
-        <span className="text-xs text-text-tertiary font-semibold tabular-nums px-1.5 py-0.5 rounded-md bg-surface border border-border-default">
+        <span className="text-xs text-text-tertiary font-semibold tabular-nums px-1.5 py-0.5 rounded-md bg-surface-subtle border border-border-default">
           {tasks.length}
         </span>
       </div>
-      <div className="flex flex-col gap-2.5">
+      <div className="flex flex-col gap-3">
         {tasks.length === 0 && (
           <div className="text-xs text-text-tertiary px-1 py-3 italic">No tasks here yet.</div>
         )}
@@ -261,7 +275,7 @@ function DraggableTaskCard({
     <Card
       padded={false}
       className={cn(
-        'p-3.5 shadow-card transition-all duration-DEFAULT ease-DEFAULT hover:shadow-md hover:-translate-y-px',
+        'p-4 shadow-card transition-all duration-DEFAULT ease-DEFAULT hover:shadow-lg hover:-translate-y-0.5',
         isDragging && 'opacity-50 shadow-lg',
         !draggable ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing',
       )}
