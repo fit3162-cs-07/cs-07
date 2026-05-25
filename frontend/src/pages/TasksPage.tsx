@@ -80,62 +80,85 @@ export function TasksPage() {
               }
             />
           ) : (
-            <Card padded={false}>
+            <Card padded={false} className="shadow-card overflow-hidden">
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left border-b border-border-default">
-                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                    <tr className="text-left bg-surface-subtle border-b border-border-default">
+                      <th className="px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Title
                       </th>
-                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                      <th className="px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Status
                       </th>
-                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                      <th className="px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Priority
                       </th>
-                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                      <th className="px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Assignee
                       </th>
-                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                      <th className="px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Due date
                       </th>
-                      <th className="px-4 py-3 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+                      <th className="px-4 py-3 text-xs font-semibold text-text-secondary uppercase tracking-wider">
                         Tags
                       </th>
                     </tr>
                   </thead>
                   <tbody>
-                    {tasks.map((t, idx) => (
-                      <tr
-                        key={t.id}
-                        className={`hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT ${
-                          idx > 0 ? 'border-t border-border-default' : ''
-                        }`}
-                      >
-                        <td className="px-4 py-3">
-                          <Link
-                            to={`/tasks/${t.id}`}
-                            className="font-medium text-text-primary hover:text-primary transition-colors duration-DEFAULT ease-DEFAULT"
-                          >
-                            {t.title}
-                          </Link>
-                        </td>
-                        <td className="px-4 py-3">
-                          <StatusBadge status={t.status} />
-                        </td>
-                        <td className="px-4 py-3">
-                          <PriorityBadge priority={t.priority} />
-                        </td>
-                        <td className="px-4 py-3 text-text-secondary">
-                          {displayName(t.assigneeId)}
-                        </td>
-                        <td className="px-4 py-3 text-text-secondary">{formatDate(t.dueDate)}</td>
-                        <td className="px-4 py-3 text-text-tertiary">
-                          {t.tags && t.tags.length > 0 ? t.tags.join(', ') : '—'}
-                        </td>
-                      </tr>
-                    ))}
+                    {tasks.map((t, idx) => {
+                      const assigneeName = displayName(t.assigneeId);
+                      return (
+                        <tr
+                          key={t.id}
+                          className={`hover:bg-surface-subtle transition-colors duration-DEFAULT ease-DEFAULT ${
+                            idx > 0 ? 'border-t border-border-default' : ''
+                          }`}
+                        >
+                          <td className="px-4 py-3">
+                            <Link
+                              to={`/tasks/${t.id}`}
+                              className="font-semibold text-text-primary hover:text-primary transition-colors duration-DEFAULT ease-DEFAULT"
+                            >
+                              {t.title}
+                            </Link>
+                          </td>
+                          <td className="px-4 py-3">
+                            <StatusBadge status={t.status} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <PriorityBadge priority={t.priority} />
+                          </td>
+                          <td className="px-4 py-3">
+                            <AssigneeCell name={assigneeName} />
+                          </td>
+                          <td className="px-4 py-3 text-text-secondary tabular-nums">
+                            {formatDate(t.dueDate)}
+                          </td>
+                          <td className="px-4 py-3">
+                            {t.tags && t.tags.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {t.tags.slice(0, 3).map(tag => (
+                                  <span
+                                    key={tag}
+                                    className="inline-flex items-center px-1.5 h-5 rounded-md text-[11px] font-medium text-text-secondary bg-surface-muted"
+                                  >
+                                    {tag}
+                                  </span>
+                                ))}
+                                {t.tags.length > 3 && (
+                                  <span className="text-[11px] text-text-tertiary self-center">
+                                    +{t.tags.length - 3}
+                                  </span>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-text-tertiary">—</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -143,9 +166,10 @@ export function TasksPage() {
           )}
 
           {meta && totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-text-secondary">
-                Page {meta.page} of {totalPages}
+            <div className="flex items-center justify-between bg-surface rounded-lg border border-border-default px-4 py-3 shadow-card">
+              <span className="text-xs text-text-secondary font-medium">
+                Page <span className="text-text-primary font-semibold">{meta.page}</span> of{' '}
+                <span className="text-text-primary font-semibold">{totalPages}</span>
               </span>
               <div className="flex gap-2">
                 <Button
@@ -178,6 +202,34 @@ export function TasksPage() {
         }}
       />
     </>
+  );
+}
+
+function AssigneeCell({ name }: { name: string }) {
+  if (name === 'Unassigned') {
+    return (
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="h-6 w-6 rounded-full border border-dashed border-border-strong inline-flex items-center justify-center shrink-0">
+          <span className="h-1 w-1 rounded-full bg-text-tertiary" />
+        </span>
+        <span className="text-text-tertiary truncate">Unassigned</span>
+      </div>
+    );
+  }
+  const initials =
+    name
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map(s => s[0]?.toUpperCase() ?? '')
+      .join('') || '?';
+  return (
+    <div className="flex items-center gap-2 min-w-0">
+      <span className="h-6 w-6 rounded-full bg-primary-subtle text-primary text-[10px] font-bold inline-flex items-center justify-center shrink-0">
+        {initials}
+      </span>
+      <span className="text-text-secondary truncate">{name}</span>
+    </div>
   );
 }
 

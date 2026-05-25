@@ -1,5 +1,12 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
+import {
+  ListTodo,
+  Loader2,
+  CheckCircle2,
+  LayoutList,
+  type LucideIcon,
+} from 'lucide-react';
 import { Card, CardSubtitle, CardTitle } from '../components/ui/Card';
 import { PageHeader } from '../components/ui/PageHeader';
 import { EmptyState } from '../components/ui/EmptyState';
@@ -10,7 +17,8 @@ import { useToast } from '../hooks/useToast';
 import * as taskApi from '../api/tasks';
 import * as auditApi from '../api/audit';
 import type { AuditEntry, Task } from '../api/types';
-import { formatDateTime, daysUntil, relativeDeadline } from '../lib/format';
+import { formatDateTime, relativeDeadline } from '../lib/format';
+import { cn } from '../lib/cn';
 
 export function DashboardPage() {
   const { user, isAdmin } = useAuth();
@@ -44,13 +52,10 @@ export function DashboardPage() {
 
   const stats = useMemo(() => {
     const total = tasks.length;
+    const todo = tasks.filter(t => t.status === 'TODO').length;
     const inProgress = tasks.filter(t => t.status === 'IN_PROGRESS').length;
-    const dueThisWeek = tasks.filter(t => {
-      if (!t.dueDate || t.status === 'DONE') return false;
-      const days = daysUntil(t.dueDate);
-      return days !== null && days >= 0 && days <= 7;
-    }).length;
-    return { total, inProgress, dueThisWeek };
+    const done = tasks.filter(t => t.status === 'DONE').length;
+    return { total, todo, inProgress, done };
   }, [tasks]);
 
   const recentTasks = useMemo(
@@ -68,10 +73,39 @@ export function DashboardPage() {
         description="Snapshot of what's happening across your club's tasks."
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-        <StatCard label="Total tasks" value={stats.total} loading={loading} to="/tasks" />
-        <StatCard label="Due this week" value={stats.dueThisWeek} loading={loading} to="/tasks" />
-        <StatCard label="In progress" value={stats.inProgress} loading={loading} to="/kanban" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-8">
+        <StatCard
+          label="Total tasks"
+          value={stats.total}
+          icon={LayoutList}
+          tone="primary"
+          loading={loading}
+          to="/tasks"
+        />
+        <StatCard
+          label="To do"
+          value={stats.todo}
+          icon={ListTodo}
+          tone="neutral"
+          loading={loading}
+          to="/tasks"
+        />
+        <StatCard
+          label="In progress"
+          value={stats.inProgress}
+          icon={Loader2}
+          tone="warning"
+          loading={loading}
+          to="/kanban"
+        />
+        <StatCard
+          label="Done"
+          value={stats.done}
+          icon={CheckCircle2}
+          tone="success"
+          loading={loading}
+          to="/tasks"
+        />
       </div>
 
       <div className="mb-6">
@@ -79,7 +113,7 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
+        <Card className="shadow-card">
           <CardTitle>Recent tasks</CardTitle>
           <CardSubtitle>Latest five tasks by creation date.</CardSubtitle>
           <div className="mt-4 flex flex-col">
@@ -100,14 +134,14 @@ export function DashboardPage() {
                   }`}
                 >
                   <div className="min-w-0">
-                    <div className="text-base font-medium text-text-primary truncate">
+                    <div className="text-sm font-semibold text-text-primary truncate">
                       {t.title}
                     </div>
-                    <div className="text-sm text-text-tertiary mt-0.5">
+                    <div className="text-xs text-text-tertiary mt-0.5">
                       {relativeDeadline(t.dueDate)}
                     </div>
                   </div>
-                  <span className="text-sm text-text-secondary shrink-0 ml-3">
+                  <span className="text-xs text-text-secondary font-medium shrink-0 ml-3">
                     {t.status === 'IN_PROGRESS'
                       ? 'In Progress'
                       : t.status === 'TODO'
@@ -120,7 +154,7 @@ export function DashboardPage() {
           </div>
         </Card>
 
-        <Card>
+        <Card className="shadow-card">
           <CardTitle>Activity</CardTitle>
           <CardSubtitle>
             {isAdmin
@@ -156,28 +190,59 @@ export function DashboardPage() {
   );
 }
 
+type StatTone = 'primary' | 'success' | 'warning' | 'neutral';
+
+const statToneClasses: Record<StatTone, string> = {
+  primary: 'bg-primary-subtle text-primary',
+  success: 'bg-success-subtle text-success',
+  warning: 'bg-warning-subtle text-warning',
+  neutral: 'bg-surface-muted text-text-secondary',
+};
+
 function StatCard({
   label,
   value,
+  icon: Icon,
+  tone,
   loading,
   to,
 }: {
   label: string;
   value: number | string;
+  icon: LucideIcon;
+  tone: StatTone;
   loading?: boolean;
   to: string;
 }) {
   return (
     <Link to={to} className="block group">
-      <Card interactive>
-        <div className="text-sm text-text-secondary font-medium">{label}</div>
-        {loading ? (
-          <Skeleton className="mt-2" width={64} height={32} label={`Loading ${label}`} />
-        ) : (
-          <div className="text-display font-semibold text-text-primary mt-2 tracking-tight">
-            {value}
+      <Card
+        interactive
+        compact
+        className="shadow-card group-hover:shadow-sm group-hover:-translate-y-px transition-all duration-DEFAULT ease-DEFAULT"
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <div className="text-xs font-medium text-text-secondary uppercase tracking-wider">
+              {label}
+            </div>
+            {loading ? (
+              <Skeleton className="mt-2" width={48} height={28} label={`Loading ${label}`} />
+            ) : (
+              <div className="text-3xl font-bold text-text-primary mt-1.5 tracking-tight tabular-nums">
+                {value}
+              </div>
+            )}
           </div>
-        )}
+          <div
+            className={cn(
+              'h-10 w-10 rounded-lg flex items-center justify-center shrink-0',
+              statToneClasses[tone],
+            )}
+          >
+            <Icon className="h-5 w-5" strokeWidth={1.75} aria-hidden />
+          </div>
+        </div>
       </Card>
     </Link>
   );

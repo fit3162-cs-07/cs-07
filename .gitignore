@@ -19,6 +19,9 @@ claude-prompts/
 .claude-local/
 .claude/
 
+# Design mockups (local reference only)
+design-mockups/
+
 # Environment and secrets
 .env
 .env.local

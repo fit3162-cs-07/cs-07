@@ -1,22 +1,30 @@
-import { useEffect, type ReactElement, type SVGProps } from 'react';
+import { useEffect } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import {
+  LayoutDashboard,
+  ListChecks,
+  KanbanSquare,
+  Users,
+  X,
+  type LucideIcon,
+} from 'lucide-react';
 import { cn } from '../../lib/cn';
 import { useAuth } from '../../hooks/useAuth';
 
 interface NavLinkItem {
   to: string;
   label: string;
-  icon: (props: SVGProps<SVGSVGElement>) => ReactElement;
+  icon: LucideIcon;
 }
 
 const baseLinks: NavLinkItem[] = [
-  { to: '/dashboard', label: 'Dashboard', icon: DashboardIcon },
-  { to: '/tasks', label: 'Tasks', icon: TasksIcon },
-  { to: '/kanban', label: 'Kanban', icon: KanbanIcon },
+  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { to: '/tasks', label: 'Tasks', icon: ListChecks },
+  { to: '/kanban', label: 'Kanban Board', icon: KanbanSquare },
 ];
 
 const adminLinks: NavLinkItem[] = [
-  { to: '/admin/users', label: 'User Management', icon: UsersIcon },
+  { to: '/admin/users', label: 'User Management', icon: Users },
 ];
 
 export interface SidebarProps {
@@ -45,7 +53,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
     <>
       <aside
         aria-label="Primary navigation"
-        className="w-60 shrink-0 bg-surface border-r border-border-default py-6 px-3 hidden md:flex md:flex-col"
+        className="w-[220px] shrink-0 bg-surface border-r border-border-default py-5 px-3 hidden md:flex md:flex-col"
       >
         <SidebarLinks />
       </aside>
@@ -63,12 +71,12 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
         aria-label="Mobile navigation"
         aria-hidden={!mobileOpen}
         className={cn(
-          'md:hidden fixed top-0 left-0 z-50 h-full w-64 bg-surface border-r border-border-default py-4 px-3 transition-transform duration-DEFAULT ease-DEFAULT',
+          'md:hidden fixed top-0 left-0 z-50 h-full w-[260px] bg-surface border-r border-border-default py-4 px-3 transition-transform duration-DEFAULT ease-DEFAULT shadow-lg',
           mobileOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
-        <div className="flex items-center justify-between mb-6 px-2">
-          <span className="text-sm font-medium text-text-secondary uppercase tracking-wider">
+        <div className="flex items-center justify-between mb-5 px-2">
+          <span className="text-xs font-semibold text-text-tertiary uppercase tracking-wider">
             Menu
           </span>
           <button
@@ -77,7 +85,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
             onClick={onMobileClose}
             className="h-8 w-8 rounded-md hover:bg-surface-muted text-text-secondary hover:text-text-primary transition-colors duration-DEFAULT ease-DEFAULT inline-flex items-center justify-center"
           >
-            ✕
+            <X className="h-4 w-4" aria-hidden />
           </button>
         </div>
         <SidebarLinks />
@@ -89,7 +97,7 @@ export function Sidebar({ mobileOpen, onMobileClose }: SidebarProps) {
 function SidebarLinks() {
   const { isAdmin } = useAuth();
   return (
-    <nav className="flex flex-col gap-6">
+    <nav className="flex flex-col gap-5">
       <NavGroup label="Workspace" items={baseLinks} />
       {isAdmin && <NavGroup label="Admin" items={adminLinks} />}
     </nav>
@@ -98,8 +106,8 @@ function SidebarLinks() {
 
 function NavGroup({ label, items }: { label: string; items: NavLinkItem[] }) {
   return (
-    <div className="flex flex-col gap-1">
-      <span className="px-3 mb-1 text-xs font-medium text-text-tertiary uppercase tracking-wider">
+    <div className="flex flex-col gap-0.5">
+      <span className="px-3 mb-2 text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
         {label}
       </span>
       {items.map(link => {
@@ -110,10 +118,10 @@ function NavGroup({ label, items }: { label: string; items: NavLinkItem[] }) {
             to={link.to}
             className={({ isActive }) =>
               cn(
-                'flex items-center gap-3 px-3 h-9 rounded-md text-sm transition-colors duration-DEFAULT ease-DEFAULT',
+                'flex items-center gap-3 px-3 h-10 rounded-md text-sm transition-colors duration-DEFAULT ease-DEFAULT',
                 isActive
-                  ? 'bg-primary-subtle text-primary font-medium'
-                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-muted font-normal',
+                  ? 'bg-primary-subtle text-primary font-semibold'
+                  : 'text-text-secondary hover:text-text-primary hover:bg-surface-muted font-medium',
               )
             }
           >
@@ -121,9 +129,10 @@ function NavGroup({ label, items }: { label: string; items: NavLinkItem[] }) {
               <>
                 <Icon
                   className={cn(
-                    'h-4 w-4 shrink-0',
+                    'h-[18px] w-[18px] shrink-0',
                     isActive ? 'text-primary' : 'text-text-tertiary',
                   )}
+                  strokeWidth={isActive ? 2.25 : 1.75}
                   aria-hidden
                 />
                 <span className="truncate">{link.label}</span>
@@ -133,45 +142,5 @@ function NavGroup({ label, items }: { label: string; items: NavLinkItem[] }) {
         );
       })}
     </div>
-  );
-}
-
-function DashboardIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <rect x="2" y="2" width="5" height="5" rx="1" />
-      <rect x="9" y="2" width="5" height="5" rx="1" />
-      <rect x="2" y="9" width="5" height="5" rx="1" />
-      <rect x="9" y="9" width="5" height="5" rx="1" />
-    </svg>
-  );
-}
-
-function TasksIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <path d="M2 4h12M2 8h12M2 12h8" strokeLinecap="round" />
-    </svg>
-  );
-}
-
-function KanbanIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <rect x="2" y="2" width="3.5" height="12" rx="1" />
-      <rect x="6.25" y="2" width="3.5" height="8" rx="1" />
-      <rect x="10.5" y="2" width="3.5" height="10" rx="1" />
-    </svg>
-  );
-}
-
-function UsersIcon(props: SVGProps<SVGSVGElement>) {
-  return (
-    <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" {...props}>
-      <circle cx="6" cy="6" r="2.5" />
-      <path d="M2 13.5c0-2.21 1.79-4 4-4s4 1.79 4 4" strokeLinecap="round" />
-      <circle cx="11.5" cy="5.5" r="1.5" />
-      <path d="M14 11.5c0-1.38-1.12-2.5-2.5-2.5" strokeLinecap="round" />
-    </svg>
   );
 }

@@ -1,21 +1,25 @@
 import type { Config } from 'tailwindcss';
 
 const palette = {
-  // Monash institutional blue
-  primary: '#006CAB',
-  'primary-hover': '#005A8F',
-  'primary-pressed': '#004875',
-  'primary-subtle': '#E6F2F8',
+  // Brand blues (Monash Club design system)
+  primary: '#3867E4',
+  'primary-hover': '#254DB8',
+  'primary-pressed': '#1E3A8A',
+  'primary-subtle': '#EFF4FE',
+  'primary-soft': '#DCE7FD',
+  accent: '#4A85FA',
+  'accent-light': '#98CAFE',
 
   // Surfaces
   surface: '#FFFFFF',
   'surface-elevated': '#FFFFFF',
-  'surface-muted': '#F8FAFC',
+  'surface-muted': '#F7F9FC',
+  'surface-subtle': '#F1F5FB',
 
   // Borders (slate scale)
   'border-default': '#E2E8F0',
   'border-strong': '#CBD5E1',
-  'border-focus': '#006CAB',
+  'border-focus': '#3867E4',
 
   // Text (slate scale)
   'text-primary': '#0F172A',
@@ -24,12 +28,14 @@ const palette = {
   'text-on-primary': '#FFFFFF',
 
   // Semantic
-  success: '#059669',
+  success: '#10B981',
   'success-subtle': '#D1FAE5',
-  warning: '#D97706',
+  warning: '#F59E0B',
   'warning-subtle': '#FEF3C7',
-  danger: '#DC2626',
+  danger: '#EF4444',
   'danger-subtle': '#FEE2E2',
+  info: '#3867E4',
+  'info-subtle': '#EFF4FE',
 } as const;
 
 const spacing = {
@@ -90,13 +96,17 @@ const config: Config = {
     boxShadow: {
       none: 'none',
       // Cards: hover-only lift
-      sm: '0 1px 2px 0 rgba(15, 23, 42, 0.05)',
+      sm: '0 1px 2px 0 rgba(15, 23, 42, 0.04), 0 1px 3px 0 rgba(15, 23, 42, 0.03)',
+      // Resting card depth
+      card: '0 1px 3px 0 rgba(15, 23, 42, 0.06), 0 1px 2px 0 rgba(15, 23, 42, 0.04)',
       // Modals only
-      md: '0 4px 6px -1px rgba(15, 23, 42, 0.08)',
+      md: '0 4px 6px -1px rgba(15, 23, 42, 0.08), 0 2px 4px -1px rgba(15, 23, 42, 0.04)',
       // Dropdowns and popovers only
-      lg: '0 10px 15px -3px rgba(15, 23, 42, 0.10)',
+      lg: '0 10px 15px -3px rgba(15, 23, 42, 0.10), 0 4px 6px -2px rgba(15, 23, 42, 0.04)',
+      // Large elevation (auth card)
+      xl: '0 20px 25px -5px rgba(15, 23, 42, 0.10), 0 10px 10px -5px rgba(15, 23, 42, 0.04)',
       DEFAULT: '0 1px 2px 0 rgba(15, 23, 42, 0.05)',
-      focus: '0 0 0 2px rgba(0, 108, 171, 0.35)',
+      focus: '0 0 0 3px rgba(56, 103, 228, 0.18)',
     },
     extend: {
       ringColor: {

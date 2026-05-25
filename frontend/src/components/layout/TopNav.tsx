@@ -1,6 +1,8 @@
 import { useNavigate } from 'react-router-dom';
+import { Menu } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { Dropdown } from '../ui/Dropdown';
+import { Logo } from '../ui/Logo';
 import { NotificationsBell } from '../notifications/NotificationsBell';
 
 export interface TopNavProps {
@@ -12,56 +14,37 @@ export function TopNav({ onMenuToggle }: TopNavProps) {
   const navigate = useNavigate();
 
   return (
-    <header className="h-14 bg-surface border-b border-border-default flex items-center justify-between px-4 md:px-6 shrink-0 gap-2">
+    <header className="h-16 bg-surface border-b border-border-default flex items-center justify-between px-4 md:px-6 shrink-0 gap-2">
       <div className="flex items-center gap-3 min-w-0">
         <button
           type="button"
           aria-label="Open navigation"
           onClick={onMenuToggle}
-          className="md:hidden h-8 w-8 rounded-md hover:bg-surface-muted text-text-secondary hover:text-text-primary transition-colors duration-DEFAULT ease-DEFAULT inline-flex items-center justify-center shrink-0"
+          className="md:hidden h-9 w-9 rounded-md hover:bg-surface-muted text-text-secondary hover:text-text-primary transition-colors duration-DEFAULT ease-DEFAULT inline-flex items-center justify-center shrink-0"
         >
-          <svg
-            viewBox="0 0 16 16"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-            strokeLinecap="round"
-            className="h-4 w-4"
-            aria-hidden
-          >
-            <path d="M2 4h12M2 8h12M2 12h12" />
-          </svg>
+          <Menu className="h-5 w-5" aria-hidden />
         </button>
-        <div className="flex items-center gap-2 min-w-0">
-          <div
-            aria-hidden
-            className="w-6 h-6 rounded bg-primary text-text-on-primary flex items-center justify-center text-xs font-semibold shrink-0"
-          >
-            M
-          </div>
-          <span className="text-base font-semibold text-text-primary truncate tracking-tight">
-            <span className="hidden sm:inline">Monash Club Tasks</span>
-            <span className="sm:hidden">MCT</span>
-          </span>
-        </div>
+        <Logo size="md" />
       </div>
       {user && (
-        <div className="flex items-center gap-1 shrink-0">
+        <div className="flex items-center gap-2 shrink-0">
           <NotificationsBell />
           <Dropdown
             trigger={
               <button
                 type="button"
-                className="flex items-center gap-2 h-9 px-2 rounded-md hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT shrink-0"
+                className="flex items-center gap-2 h-10 pl-1.5 pr-2 rounded-md hover:bg-surface-muted transition-colors duration-DEFAULT ease-DEFAULT shrink-0"
               >
-                <span className="w-7 h-7 rounded-full bg-primary-subtle text-primary flex items-center justify-center font-medium text-sm">
+                <span className="w-8 h-8 rounded-full bg-primary text-text-on-primary flex items-center justify-center font-semibold text-sm shadow-sm">
                   {user.name.charAt(0).toUpperCase()}
                 </span>
-                <span className="text-text-primary font-medium text-sm hidden sm:inline truncate max-w-[160px]">
-                  {user.name}
-                </span>
-                <span className="text-text-tertiary text-xs hidden md:inline font-medium">
-                  {user.role === 'ADMIN' ? 'Admin' : 'Member'}
+                <span className="hidden sm:flex flex-col items-start leading-tight">
+                  <span className="text-text-primary font-semibold text-sm truncate max-w-[140px]">
+                    {user.name}
+                  </span>
+                  <span className="text-text-tertiary text-[11px] font-medium">
+                    {user.role === 'ADMIN' ? 'Admin' : 'Member'}
+                  </span>
                 </span>
               </button>
             }

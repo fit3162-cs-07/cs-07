@@ -1,9 +1,8 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Card } from '../components/ui/Card';
-import { Field } from '../components/ui/Field';
-import { Input } from '../components/ui/Input';
+import { Mail, Lock, Eye, EyeOff, Info } from 'lucide-react';
 import { Button } from '../components/ui/Button';
+import { Logo } from '../components/ui/Logo';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
 import { ApiError } from '../api/client';
@@ -46,140 +45,164 @@ export function LoginPage() {
   };
 
   return (
-    <div className="auth-bg min-h-full flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="flex items-center gap-2 justify-center mb-8">
-          <div
-            aria-hidden
-            className="w-9 h-9 rounded-lg bg-primary text-text-on-primary flex items-center justify-center text-lg font-semibold shadow-sm"
-          >
-            M
-          </div>
-          <span className="text-h3 font-semibold text-text-primary tracking-tight">
-            Monash Club Tasks
-          </span>
-        </div>
-        <Card className="shadow-md">
-          <div className="mb-6">
-            <h1 className="text-h2 font-semibold text-text-primary">Sign in</h1>
-            <p className="text-sm text-text-secondary mt-1">
-              Manage tasks for your Monash club.
-            </p>
-          </div>
-          <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
-            <Field label="Email" htmlFor="email" required>
-              <Input
-                id="email"
-                type="email"
-                autoComplete="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-              />
-            </Field>
-            <Field label="Password" htmlFor="password" required>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  required
-                  className="pr-14"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(v => !v)}
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  className="absolute inset-y-0 right-0 px-3 text-sm font-medium text-text-secondary hover:text-text-primary transition-colors duration-DEFAULT ease-DEFAULT"
-                >
-                  {showPassword ? 'Hide' : 'Show'}
-                </button>
-              </div>
-            </Field>
+    <div className="auth-bg auth-pattern min-h-full relative flex flex-col">
+      <header className="relative z-10 h-14 px-6 flex items-center justify-between">
+        <Logo size="md" />
+      </header>
 
-            <div className="flex items-center justify-between">
-              <label className="inline-flex items-center gap-2 text-sm text-text-primary select-none">
-                <input
-                  type="checkbox"
-                  checked={remember}
-                  onChange={e => setRemember(e.target.checked)}
-                  className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary"
-                />
-                Remember me
-              </label>
-              <button
-                type="button"
-                onClick={handleForgot}
-                className="text-sm text-primary font-medium hover:text-primary-hover transition-colors duration-DEFAULT ease-DEFAULT"
-              >
-                Forgot password?
-              </button>
+      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-6">
+        <div className="w-full max-w-[420px]">
+          <div className="bg-surface rounded-2xl shadow-xl border border-border-default/60 px-7 py-8 sm:px-9 sm:py-10">
+            <div className="text-center mb-6">
+              <h1 className="text-h1 font-bold text-text-primary tracking-tight">Log In</h1>
+              <p className="text-sm text-text-secondary mt-1.5">
+                Use your Monash email to sign in
+              </p>
             </div>
 
-            {error && (
-              <div
-                role="alert"
-                className="text-sm text-danger bg-danger-subtle border border-danger/20 rounded-md px-3 py-2"
-              >
-                {error}
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+              <div>
+                <label
+                  htmlFor="email"
+                  className="block text-sm font-medium text-text-primary mb-1.5"
+                >
+                  Email
+                </label>
+                <div className="relative">
+                  <Mail
+                    aria-hidden
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary"
+                  />
+                  <input
+                    id="email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    placeholder="Enter your Monash email"
+                    value={email}
+                    onChange={e => setEmail(e.target.value)}
+                    className="block w-full h-11 pl-10 pr-3 text-sm text-text-primary bg-surface border border-border-default rounded-lg placeholder:text-text-tertiary hover:border-border-strong focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
+                  />
+                </div>
               </div>
-            )}
-            <Button type="submit" loading={submitting} className="mt-2">
-              Sign in
-            </Button>
-          </form>
-          <div className="mt-6 text-sm text-text-secondary text-center">
-            Don&rsquo;t have an account?{' '}
-            <Link
-              to="/register"
-              className="text-primary font-medium hover:text-primary-hover transition-colors duration-DEFAULT ease-DEFAULT"
-            >
-              Create one
-            </Link>
-          </div>
-        </Card>
 
-        <div className="mt-4 rounded-lg border border-border-default bg-surface shadow-sm overflow-hidden">
-          <div className="flex items-center gap-2 px-4 py-2.5 bg-primary-subtle border-b border-border-default">
-            <svg
-              aria-hidden
-              viewBox="0 0 16 16"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              className="h-4 w-4 text-primary shrink-0"
-            >
-              <circle cx="8" cy="8" r="6.5" />
-              <path d="M8 5v3.5M8 11h.01" strokeLinecap="round" />
-            </svg>
-            <span className="text-xs font-semibold text-primary uppercase tracking-wider">
-              Demo accounts
-            </span>
+              <div>
+                <label
+                  htmlFor="password"
+                  className="block text-sm font-medium text-text-primary mb-1.5"
+                >
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock
+                    aria-hidden
+                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary"
+                  />
+                  <input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    required
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    className="block w-full h-11 pl-10 pr-10 text-sm text-text-primary bg-surface border border-border-default rounded-lg placeholder:text-text-tertiary hover:border-border-strong focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(v => !v)}
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-md text-text-tertiary hover:text-text-primary hover:bg-surface-muted inline-flex items-center justify-center transition-colors duration-DEFAULT ease-DEFAULT"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" aria-hidden />
+                    ) : (
+                      <Eye className="h-4 w-4" aria-hidden />
+                    )}
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between text-sm">
+                <label className="inline-flex items-center gap-2 text-text-primary select-none cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={e => setRemember(e.target.checked)}
+                    className="h-4 w-4 rounded border-border-strong text-primary focus:ring-primary cursor-pointer"
+                  />
+                  Remember me
+                </label>
+                <button
+                  type="button"
+                  onClick={handleForgot}
+                  className="text-primary font-medium hover:text-primary-hover transition-colors duration-DEFAULT ease-DEFAULT"
+                >
+                  Forgot password?
+                </button>
+              </div>
+
+              {error && (
+                <div
+                  role="alert"
+                  className="text-sm text-danger bg-danger-subtle border border-danger/20 rounded-lg px-3 py-2.5"
+                >
+                  {error}
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                loading={submitting}
+                className="mt-1 h-11 rounded-lg text-sm font-semibold"
+              >
+                Sign in
+              </Button>
+            </form>
+
+            <div className="mt-6 text-sm text-text-secondary text-center">
+              Don&rsquo;t have an account?{' '}
+              <Link
+                to="/register"
+                className="text-primary font-semibold hover:text-primary-hover transition-colors duration-DEFAULT ease-DEFAULT"
+              >
+                Create one
+              </Link>
+            </div>
           </div>
-          <ul className="px-4 py-3 space-y-2.5">
-            <li className="flex flex-col gap-0.5">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
-                Admin
+
+          <div className="mt-4 rounded-xl border border-primary-subtle bg-surface shadow-sm overflow-hidden">
+            <div className="flex items-center gap-2 px-4 py-2.5 bg-primary-subtle border-b border-primary-subtle">
+              <Info aria-hidden className="h-4 w-4 text-primary shrink-0" />
+              <span className="text-xs font-semibold text-primary uppercase tracking-wider">
+                Demo accounts
               </span>
-              <code className="font-mono text-xs text-text-primary break-all">
-                admin@monashclubs.org / Admin1234!
-              </code>
-            </li>
-            <li className="flex flex-col gap-0.5">
-              <span className="text-xs font-medium text-text-tertiary uppercase tracking-wider">
-                Member
-              </span>
-              <code className="font-mono text-xs text-text-primary break-all">
-                parsa.aghajani@monashclubs.org / Member1234!
-              </code>
-            </li>
-          </ul>
+            </div>
+            <ul className="px-4 py-3 space-y-2.5">
+              <li className="flex flex-col gap-0.5">
+                <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Admin
+                </span>
+                <code className="font-mono text-xs text-text-primary break-all">
+                  admin@monashclubs.org / Admin1234!
+                </code>
+              </li>
+              <li className="flex flex-col gap-0.5">
+                <span className="text-[11px] font-semibold text-text-tertiary uppercase tracking-wider">
+                  Member
+                </span>
+                <code className="font-mono text-xs text-text-primary break-all">
+                  parsa.aghajani@monashclubs.org / Member1234!
+                </code>
+              </li>
+            </ul>
+          </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="relative z-10 py-4 text-center text-xs text-text-tertiary">
+        By signing in you agree to the Terms of Use and Privacy Policy.
+      </footer>
     </div>
   );
 }

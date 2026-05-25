@@ -57,9 +57,10 @@ describe('TopNav', () => {
     expect(screen.getByText('Sam Member')).toBeInTheDocument();
   });
 
-  it('renders the brand label twice (long + short variants for responsive switch)', () => {
+  it('renders the Monash Club brand wordmark', () => {
     renderTopNav();
-    expect(screen.getByText('Monash Club Tasks')).toBeInTheDocument();
-    expect(screen.getByText('MCT')).toBeInTheDocument();
+    // Wordmark is split across two spans (neutral "Monash " + accent "Club")
+    expect(screen.getByText(/Monash/)).toBeInTheDocument();
+    expect(screen.getByText('Club')).toBeInTheDocument();
   });
 });
