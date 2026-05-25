@@ -34,7 +34,7 @@ export function Skeleton({
       role="status"
       aria-label={label}
       aria-busy="true"
-      className={cn('bg-border animate-pulse', shapeClasses[shape], className)}
+      className={cn('bg-border-default animate-pulse', shapeClasses[shape], className)}
       style={inline}
       {...rest}
     />

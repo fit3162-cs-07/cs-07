@@ -103,41 +103,57 @@ legacy/
 
 ## Design system rules (NON-NEGOTIABLE)
 
+The full reference is in [`docs/STYLE_GUIDE.md`](./STYLE_GUIDE.md). A live preview of every primitive renders at `/design/preview` in the running app. The summary below is a quick orientation; if it conflicts with the style guide, the style guide wins.
+
+### Anchors
+
+1. **Color identity:** Monash Blue (`#006CAB`) is primary. White and Monash Blue is the institutional pairing. Neutrals are slate. No generic indigo, no purple.
+2. **Execution:** borders over shadows, restrained color (neutral by default), 400 body / 500 emphasized / 600 headings (never bold body), 8px grid, quick subtle hover states.
+
 ### Palette — locked in `tailwind.config.ts`
 
-| Token            | Hex      | Use                                   |
-|------------------|----------|---------------------------------------|
-| `primary`        | #1E40AF  | Buttons, links, active states         |
-| `primary-hover`  | #1D4ED8  | Primary button hover                  |
-| `primary-soft`   | #EFF6FF  | Subtle section backgrounds, hover     |
-| `accent`         | #3B82F6  | Focus rings, highlights               |
-| `surface`        | #FFFFFF  | Card surfaces                         |
-| `page`           | #F8FAFC  | Page background                       |
-| `ink`            | #0F172A  | Primary text                          |
-| `muted`          | #64748B  | Secondary text, captions              |
-| `border`         | #E2E8F0  | 1px dividers                          |
-| `success`        | #059669  | Status badges only                    |
-| `error`          | #DC2626  | Validation errors, danger buttons     |
-| `warning`        | #D97706  | Due-date alerts only                  |
+| Token | Hex | Use |
+|---|---|---|
+| `primary` | `#006CAB` | Buttons, links, active states |
+| `primary-hover` | `#005A8F` | Primary button hover |
+| `primary-pressed` | `#004875` | Primary button active |
+| `primary-subtle` | `#E6F2F8` | Badge backgrounds, gentle tints |
+| `surface` | `#FFFFFF` | Card surfaces |
+| `surface-elevated` | `#FFFFFF` | Modals, popovers |
+| `surface-muted` | `#F8FAFC` | Page background |
+| `border-default` | `#E2E8F0` | 1px dividers, default control border |
+| `border-strong` | `#CBD5E1` | Hover border (no thickness change) |
+| `border-focus` | `#006CAB` | Focus border + ring |
+| `text-primary` | `#0F172A` | Primary text |
+| `text-secondary` | `#475569` | Secondary text |
+| `text-tertiary` | `#94A3B8` | Placeholders, captions |
+| `text-on-primary` | `#FFFFFF` | Text on Monash Blue |
+| `success` / `success-subtle` | `#059669` / `#D1FAE5` | Success state |
+| `warning` / `warning-subtle` | `#D97706` / `#FEF3C7` | Warning state |
+| `danger` / `danger-subtle` | `#DC2626` / `#FEE2E2` | Destructive / error |
 
-The Tailwind theme **overrides** the default colour palette — no stray
-purple/pink/teal/green class will compile. If you need a colour, it must be in
-the table above. Same goes for spacing (4/8/12/16/24/32/48 only) and font sizes.
+Backwards-compat aliases (`page`, `ink`, `muted`, `border`, `accent`, `error`, `primary-soft`) are kept temporarily so non-primitive code still compiles. They are removed in Tasks 2 and 3 — do not use them in new code.
 
 ### What's banned
 
-- Purple, pink, teal, green (except `success`)
+- Indigo, purple, pink, teal, green (except `success`)
 - Gradients, glassmorphism, neon, dark mode
-- Decorative illustrations, animated backgrounds
+- Decorative illustrations, animated backgrounds, page-transition animations
 - All-caps text outside tiny badge labels
-- `shadow-md`, `shadow-lg`, `shadow-2xl` (only `shadow-sm`)
-- Border radius beyond 8px (`rounded-sm`, `rounded-md`, `rounded-lg`)
+- `shadow-md` outside modals; `shadow-lg` outside dropdowns/popovers
+- Bold (`font-bold`) on body copy
+- Border-thickness changes on hover (use a darker border instead)
+- Arbitrary spacing (`p-[18px]`) — stick to the 8px grid
 
 ### Typography
 
-- Font: Inter (loaded once in `index.css`)
-- Body: 14–15px, weight 400, line-height 1.5
-- Headings: weight 600, line-height 1.25–1.5
+- Sans: Inter 400 / 500 / 600. Mono: JetBrains Mono 400 / 500. Both via Google Fonts.
+- Body: 14 / 20 / 400. Body large: 16 / 24 / 400. Small UI: 13 / 18 / 400.
+- Headings: H1 24 / 32 / 600 (-0.01em), H2 20 / 28 / 600, H3 16 / 24 / 600. Display 30 / 36 / 600 (-0.02em) for marketing-style hero text only.
+
+### Motion
+
+CSS transitions only. Default `120ms cubic-bezier(0.2, 0, 0, 1)`. Animate color/border/shadow shifts only — never layout, never opacity-only fades.
 
 ---
 

@@ -2,15 +2,16 @@ import type { ReactNode } from 'react';
 import { cn } from '../../lib/cn';
 import type { TaskPriority, TaskStatus } from '../../api/types';
 
-type BadgeTone = 'neutral' | 'primary' | 'success' | 'warning' | 'error' | 'soft';
+type BadgeTone = 'neutral' | 'primary' | 'success' | 'warning' | 'danger' | 'error' | 'soft';
 
 const toneStyles: Record<BadgeTone, string> = {
-  neutral: 'bg-page text-muted border border-border',
-  primary: 'bg-primary-soft text-primary border border-primary-soft',
-  success: 'bg-primary-soft text-success border border-primary-soft',
-  warning: 'bg-primary-soft text-warning border border-primary-soft',
-  error: 'bg-primary-soft text-error border border-primary-soft',
-  soft: 'bg-primary-soft text-ink border border-border',
+  neutral: 'bg-surface-muted text-text-secondary border border-border-default',
+  primary: 'bg-primary-subtle text-primary border border-primary-subtle',
+  success: 'bg-success-subtle text-success border border-success-subtle',
+  warning: 'bg-warning-subtle text-warning border border-warning-subtle',
+  danger: 'bg-danger-subtle text-danger border border-danger-subtle',
+  error: 'bg-danger-subtle text-danger border border-danger-subtle',
+  soft: 'bg-surface-muted text-text-primary border border-border-default',
 };
 
 export interface BadgeProps {
@@ -23,7 +24,7 @@ export function Badge({ tone = 'neutral', className, children }: BadgeProps) {
   return (
     <span
       className={cn(
-        'inline-flex items-center h-6 px-2 rounded-full text-xs font-semibold whitespace-nowrap',
+        'inline-flex items-center h-5 px-2 rounded-sm text-xs font-medium whitespace-nowrap',
         toneStyles[tone],
         className,
       )}
