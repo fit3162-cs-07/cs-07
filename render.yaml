@@ -5,7 +5,9 @@ services:
     region: singapore
     plan: free
     rootDir: .
-    buildCommand: npm ci && npm run build
+    # --include=dev is required: NODE_ENV=production below would otherwise
+    # cause npm to skip devDependencies, leaving tsc and @types/* uninstalled.
+    buildCommand: npm ci --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true
