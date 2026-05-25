@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Mail, Lock, Eye, EyeOff, Info } from 'lucide-react';
+import { Eye, EyeOff, Info } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Logo } from '../components/ui/Logo';
 import { useAuth } from '../hooks/useAuth';
@@ -46,13 +46,12 @@ export function LoginPage() {
 
   return (
     <div className="auth-bg auth-pattern min-h-full relative flex flex-col">
-      <header className="relative z-10 h-14 px-6 flex items-center justify-between">
-        <Logo size="md" />
-      </header>
-
       <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8">
         <div className="w-full max-w-[440px]">
           <div className="bg-surface rounded-2xl shadow-2xl ring-1 ring-border-default/60 px-8 py-10 sm:px-10 sm:py-12">
+            <div className="flex justify-center mb-6">
+              <Logo size="md" />
+            </div>
             <div className="text-center mb-8">
               <h1 className="text-h1 font-bold text-text-primary tracking-tight">Log In</h1>
               <p className="text-sm text-text-secondary mt-2">
@@ -68,22 +67,16 @@ export function LoginPage() {
                 >
                   Email
                 </label>
-                <div className="relative">
-                  <Mail
-                    aria-hidden
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-text-tertiary pointer-events-none"
-                  />
-                  <input
-                    id="email"
-                    type="email"
-                    autoComplete="email"
-                    required
-                    placeholder="Enter your Monash email"
-                    value={email}
-                    onChange={e => setEmail(e.target.value)}
-                    className="block w-full h-12 pl-11 pr-3 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
-                  />
-                </div>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder="Enter your Monash email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  className="block w-full h-12 px-3.5 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
+                />
               </div>
 
               <div>
@@ -94,10 +87,6 @@ export function LoginPage() {
                   Password
                 </label>
                 <div className="relative">
-                  <Lock
-                    aria-hidden
-                    className="absolute left-3.5 top-1/2 -translate-y-1/2 h-[18px] w-[18px] text-text-tertiary pointer-events-none"
-                  />
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -106,7 +95,7 @@ export function LoginPage() {
                     placeholder="Enter your password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
-                    className="block w-full h-12 pl-11 pr-12 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
+                    className="block w-full h-12 pl-3.5 pr-12 text-sm text-text-primary bg-surface border border-border-strong rounded-lg placeholder:text-text-tertiary hover:border-text-tertiary focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT"
                   />
                   <button
                     type="button"

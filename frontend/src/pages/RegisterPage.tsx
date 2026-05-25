@@ -1,6 +1,6 @@
 import { useMemo, useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User as UserIcon, Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { Logo } from '../components/ui/Logo';
 import { useAuth } from '../hooks/useAuth';
@@ -57,27 +57,25 @@ export function RegisterPage() {
 
   return (
     <div className="auth-bg auth-pattern min-h-full relative flex flex-col">
-      <header className="relative z-10 h-14 px-6 flex items-center justify-between">
-        <Logo size="md" />
-      </header>
-
-      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-6">
-        <div className="w-full max-w-[420px]">
-          <div className="bg-surface rounded-2xl shadow-xl border border-border-default/60 px-7 py-8 sm:px-9 sm:py-10">
-            <div className="text-center mb-6">
+      <main className="relative z-10 flex-1 flex items-center justify-center px-4 py-8">
+        <div className="w-full max-w-[440px]">
+          <div className="bg-surface rounded-2xl shadow-2xl ring-1 ring-border-default/60 px-8 py-10 sm:px-10 sm:py-12">
+            <div className="flex justify-center mb-6">
+              <Logo size="md" />
+            </div>
+            <div className="text-center mb-8">
               <h1 className="text-h1 font-bold text-text-primary tracking-tight">
                 Create your account
               </h1>
-              <p className="text-sm text-text-secondary mt-1.5">
+              <p className="text-sm text-text-secondary mt-2">
                 Join your club&rsquo;s task workspace.
               </p>
             </div>
 
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
               <RegisterField
                 id="name"
                 label="Full name"
-                icon={UserIcon}
                 autoComplete="name"
                 placeholder="Your full name"
                 value={name}
@@ -88,7 +86,6 @@ export function RegisterPage() {
                 id="email"
                 label="Email"
                 type="email"
-                icon={Mail}
                 autoComplete="email"
                 placeholder="you@monashclubs.org"
                 value={email}
@@ -99,15 +96,11 @@ export function RegisterPage() {
               <div>
                 <label
                   htmlFor="password"
-                  className="block text-sm font-medium text-text-primary mb-1.5"
+                  className="block text-sm font-semibold text-text-primary mb-2"
                 >
                   Password <span className="text-text-tertiary font-normal">(required)</span>
                 </label>
                 <div className="relative">
-                  <Lock
-                    aria-hidden
-                    className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary"
-                  />
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
@@ -117,22 +110,22 @@ export function RegisterPage() {
                     onChange={e => setPassword(e.target.value)}
                     aria-invalid={!!errors.password}
                     className={cn(
-                      'block w-full h-11 pl-10 pr-10 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
+                      'block w-full h-12 pl-3.5 pr-12 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
                       errors.password
                         ? 'border-danger focus:border-danger'
-                        : 'border-border-default hover:border-border-strong focus:border-primary',
+                        : 'border-border-strong hover:border-text-tertiary focus:border-primary',
                     )}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 rounded-md text-text-tertiary hover:text-text-primary hover:bg-surface-muted inline-flex items-center justify-center transition-colors duration-DEFAULT ease-DEFAULT"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-md text-text-tertiary hover:text-text-primary hover:bg-surface-muted inline-flex items-center justify-center transition-colors duration-DEFAULT ease-DEFAULT"
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4" aria-hidden />
+                      <EyeOff className="h-[18px] w-[18px]" aria-hidden />
                     ) : (
-                      <Eye className="h-4 w-4" aria-hidden />
+                      <Eye className="h-[18px] w-[18px]" aria-hidden />
                     )}
                   </button>
                 </div>
@@ -200,7 +193,6 @@ interface RegisterFieldProps {
   id: string;
   label: string;
   type?: string;
-  icon: React.ComponentType<{ className?: string; 'aria-hidden'?: boolean }>;
   autoComplete?: string;
   placeholder?: string;
   value: string;
@@ -212,7 +204,6 @@ function RegisterField({
   id,
   label,
   type = 'text',
-  icon: Icon,
   autoComplete,
   placeholder,
   value,
@@ -221,30 +212,24 @@ function RegisterField({
 }: RegisterFieldProps) {
   return (
     <div>
-      <label htmlFor={id} className="block text-sm font-medium text-text-primary mb-1.5">
+      <label htmlFor={id} className="block text-sm font-semibold text-text-primary mb-2">
         {label} <span className="text-text-tertiary font-normal">(required)</span>
       </label>
-      <div className="relative">
-        <Icon
-          aria-hidden
-          className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-tertiary"
-        />
-        <input
-          id={id}
-          type={type}
-          autoComplete={autoComplete}
-          placeholder={placeholder}
-          value={value}
-          onChange={e => onChange(e.target.value)}
-          aria-invalid={!!error}
-          className={cn(
-            'block w-full h-11 pl-10 pr-3 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
-            error
-              ? 'border-danger focus:border-danger'
-              : 'border-border-default hover:border-border-strong focus:border-primary',
-          )}
-        />
-      </div>
+      <input
+        id={id}
+        type={type}
+        autoComplete={autoComplete}
+        placeholder={placeholder}
+        value={value}
+        onChange={e => onChange(e.target.value)}
+        aria-invalid={!!error}
+        className={cn(
+          'block w-full h-12 px-3.5 text-sm text-text-primary bg-surface border rounded-lg placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary/20 transition-colors duration-DEFAULT ease-DEFAULT',
+          error
+            ? 'border-danger focus:border-danger'
+            : 'border-border-strong hover:border-text-tertiary focus:border-primary',
+        )}
+      />
       {error && <p className="text-xs text-danger mt-1">{error}</p>}
     </div>
   );
