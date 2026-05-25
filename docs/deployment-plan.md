@@ -42,6 +42,37 @@ This is a written plan **only**. No cloud provider account, deployment, or schem
 
 ---
 
+## 1.5 Account ownership strategy
+
+The team intends to keep this project around as portfolio material after graduation. The cloud accounts that own Atlas, Render, Vercel, and UptimeRobot must survive the moment Monash deactivates the student emails, or we will lose access to our own deployed system mid-portfolio-window.
+
+### Recommended pattern
+
+| Service                | Primary account owner                              | Why                                                                                       |
+| ---------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| MongoDB Atlas          | Shared team Gmail (e.g. `fit3162.s2cs07@gmail.com`) | Free Gmail, no expiry, shared password in a team password manager                          |
+| Render                 | Same shared team Gmail                              | One identity across all four services; no per-service account juggling                    |
+| Vercel                 | Same shared team Gmail                              | Same                                                                                      |
+| UptimeRobot            | Same shared team Gmail                              | Same                                                                                      |
+| GitHub Student Pack    | Thanh's Monash email (`tlee0091@student.monash.edu`) | Additive bonus credits (Atlas extra storage, Vercel Pro trial, Render credit) applied to the shared-Gmail-owned accounts — the Pack does **not** bind those accounts to the student email |
+
+### Explicitly NOT recommended
+
+Using a Monash student email (anyone's) as the primary account holder for Atlas / Render / Vercel. The student email is deactivated post-graduation; **the team would lose admin access to its own deployment**, including the ability to rotate the JWT secret if it leaks or to delete the cluster when free-tier limits change.
+
+### Override
+
+If the team decides to use a Monash email as primary anyway, the post-graduation access loss must be added to §7 risks with an explicit mitigation (export of Atlas data + transfer-of-ownership procedure documented before graduation).
+
+### Setup steps (for whoever runs Phase 1)
+
+1. Create `fit3162.s2cs07@gmail.com` (or similar — confirm name in team meeting).
+2. Store the password in 1Password / Bitwarden / equivalent shared vault.
+3. Sign up to Atlas, Render, Vercel, UptimeRobot using that Gmail.
+4. Thanh separately verifies the GitHub Student Pack on his student email and applies the credits to the shared-account services as bonuses.
+
+---
+
 ## 2. MongoDB migration plan
 
 ### 2.1 Boundary
@@ -119,6 +150,7 @@ Conventions used throughout:
 - **`assigneeId` reference vs population.** Reference (string UUID), no Mongoose `ref` population. We resolve user names in the frontend via `useUsers`, not in the backend query. Keeps `MongoTaskRepository` returns identical to in-memory.
 - **`dueDate` index.** Required — the reminder check scans tasks every 5 min with a date-range filter; without an index this becomes a full collection scan at scale.
 - **Composite index for reminder check.** Recommend `{ status: 1, dueDate: 1 }` so `CheckDueRemindersUseCase`'s `status != DONE && dueDate in window` is fully indexable. Mongo can't use a composite index for an inequality on the first field plus a range on the second, so single-field indexes on each are sufficient; revisit only if reminder check shows slow logs.
+- **Composite index `{ assigneeId: 1, status: 1 }`.** Required — the Kanban-by-assignee query (frontend asks "give me tasks for user X grouped by status") becomes a single index hit, and avoids fetching the assignee's whole task set into memory to bucket client-side.
 - **No `deletedAt` / `archived` flag.** Hard delete preserved. If R6 (attachments) lands, revisit so attachment cleanup can run.
 
 **Mapper**: `TaskMapper.toDomain(doc) → new Task({ ..., tags: doc.tags })` — `Task` constructor accepts `tags?: string[]` and calls `Tag.createMany`, so the round-trip is one line.
@@ -156,7 +188,7 @@ Today, `CheckDueRemindersUseCase` holds a `Set<string>` of already-reminded task
 
 **Field-level decisions to ratify**
 
-- **Doc `_id` = `taskId`.** Recommended — gives free uniqueness and a 1-doc `findById` fast-path on every reminder check.
+- **Doc `_id` = `taskId`.** Recommended — Mongo's primary key is implicitly uniquely indexed, so this satisfies the "one ReminderState per task" invariant for free, and every reminder check resolves via a single 1-doc `findById`. No separate unique index needs to be declared.
 - **No `reminderType` discriminator.** Defer until we have a second reminder type (e.g. 1-hour-before vs 24-hour-before). When we add one, promote `_id` to a composite `${taskId}:${type}` or restructure as `{ taskId, type, remindedAt }` with a unique compound index.
 - **Cleanup.** On task completion / deletion, `MongoTaskRepository.delete` deletes the matching `ReminderState` doc in the same operation (best-effort, non-transactional).
 
@@ -207,6 +239,23 @@ What changes test-wise:
 Expected new test count after Sprint 11: **~149 backend tests** (129 existing + ~20 new Mongo repo round-trip tests). Frontend unchanged (still 91).
 
 **Why this beats a single `REPOSITORY_DRIVER` switch.** Explicit driver + presence-check on `MONGODB_URI` means three good behaviours: (a) tests automatically get in-memory because they never set the env var; (b) local dev gets in-memory by default with no setup; (c) prod gets a startup crash if `MONGODB_URI` is missing, instead of silently dropping writes.
+
+### 2.6.1 `mongodb-memory-server` harness specifics
+
+To make the Mongo integration tests reproducible and CI-friendly without an external dependency, the harness is constrained to these properties:
+
+| Property                       | Decision                                                                                                                                                              |
+| ------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Package version                | `mongodb-memory-server` **v9+** (current line as of 2026; supports modern Mongo binaries and Node 18+ out of the box). Pin via `^9` so security patches apply         |
+| Isolation granularity          | **Per test suite (`describe` block / file), not per test.** One in-memory server per Jest worker, one fresh database per suite. Tests inside a suite share the database |
+| Cleanup between tests          | `beforeEach` runs `db.dropDatabase()` so tests within a suite still observe a clean slate without paying the binary-spin-up cost per test                              |
+| Teardown                       | Jest `globalTeardown` script stops the in-memory server and removes its data directory. No orphan `mongod` processes between runs                                     |
+| Binary cache                   | Cache the downloaded Mongo binary in CI under `~/.cache/mongodb-binaries` so the first download (~80 MB) is paid once per CI environment, not per run                  |
+| CI job                         | Separate GitHub Actions job `mongo-integration` that runs `npm run test:mongo`. **Advisory only — does not block PR merge.** Marked `continue-on-error: true`         |
+| Local invocation               | `npm run test:mongo` from repo root. First run downloads the Mongo binary; subsequent runs hit the cache                                                              |
+| Expected test count            | **~20 integration tests** total: 4–5 per Mongo repo × 4 repos (User, Task, Notification, ReminderState), covering CRUD + each repo's aggregate-specific queries        |
+
+**Why advisory not gating.** The integration tests provide signal but should not block the team from shipping unrelated PRs if `mongodb-memory-server` has a transient binary-download flake or a Mongo binary release breaks downstream. The unit/integration tests against in-memory repos remain the gating CI job — they cover behaviour, the Mongo tests cover persistence wiring.
 
 ---
 
@@ -403,9 +452,28 @@ Sequential phases; each phase's exit criterion must be met before the next begin
 
 ---
 
-## Open questions for review
+## Open questions for review — defaults proposed, awaiting team sign-off
 
-1. **Mongoose or native driver?** Plan uses Mongoose for schema validation + middleware ergonomics. Alternative is the native `mongodb` driver (smaller dep, no schema layer). Recommend Mongoose for the schema-as-documentation benefit during a fast sprint, but happy to switch if the team objects.
-2. **Atlas region.** Recommend Sydney (`ap-southeast-2`) for lowest Melbourne latency. Trade-off: Render's free Singapore region adds ~50 ms vs co-locating in Sydney, but Render free tier does not offer Sydney.
-3. **Audit log persistence (§2.6).** In or out of Sprint 11? Recommended out; flagging here so it doesn't surprise the report writers.
-4. **Schema decisions §2.3.** Each per-aggregate "Field-level decisions to ratify" block needs a sign-off before code is written. Suggest a 30-min sync this week to walk through the four sets of decisions together.
+Each question has a **default answer** the plan will proceed with unless explicitly overridden in PR comments. To reject a default, leave a comment on this PR naming the question number and proposing an alternative.
+
+### Q1. Mongoose or native MongoDB driver?
+
+**Default: Mongoose.** Schema-as-documentation pays off during a fast sprint where the schema review (§2.3) IS the contract — declaring fields, indexes, and validators in one place makes review tractable. The native `mongodb` driver is smaller but pushes validation into application code where it scatters across the four Mongo repos.
+
+### Q2. Atlas region
+
+**Default: Sydney (`ap-southeast-2`).** Lowest Melbourne latency, same continent as the demo audience, free on M0. Render's closest free region is Singapore, so we pay an extra ~50 ms hop on every Render → Atlas query — acceptable, as the slow path is Render's cold start (30–50 s), not steady-state DB latency (sub-100 ms).
+
+### Q3. Audit log persistence (§2.6)
+
+**Default: DEFER to post-capstone.** R7 (RBAC) evidence is satisfied by the middleware + the 401/403 test assertions across the integration suite, not by audit history. The deployed `/api/v1/audit` endpoint will return only events since the last Render restart; this limitation will be called out in the final report's NFR section. Promoting durable audit to Sprint 11 scope would double Phase 1's scope for a benefit the rubric does not require.
+
+### Q4. Account ownership strategy (§1.5)
+
+**Default: shared team Gmail** (e.g. `fit3162.s2cs07@gmail.com`) owns Atlas, Render, Vercel, and UptimeRobot. Thanh's Monash student email verifies the GitHub Student Pack separately to apply bonus credits. This pattern keeps the deployment alive past graduation for portfolio use; using anyone's Monash student email as primary would lose admin access the moment Monash deactivates the account.
+
+### Q5. Schema decisions sign-off (§2.3 per-aggregate "Field-level decisions to ratify")
+
+**Default: walk through the four blocks in a 30-min team sync this week** (User, Task, Notification, ReminderState). Schemas are cheap to change now and expensive to change after Atlas has real data — review must happen synchronously, not over async PR comments, because the index decisions trade off against each other (e.g. `{assigneeId, status}` compound vs separate `status` index — pick one, not both).
+
+**Sync proposed time:** Wed of plan-merge week, 30 min — Thanh to send invite once this PR is approved in principle.
