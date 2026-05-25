@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: cs07-backend
+    runtime: node
+    region: singapore
+    plan: free
+    rootDir: .
+    # --include=dev is required: NODE_ENV=production below would otherwise
+    # cause npm to skip devDependencies, leaving tsc and @types/* uninstalled.
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRY
+        value: 15m
+      - key: REPOSITORY_DRIVER
+        value: mongo
+      - key: MONGODB_URI
+        sync: false
+      - key: FRONTEND_ORIGIN
+        sync: false

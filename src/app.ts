@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import { config } from './config';
 import { requestLogger } from './shared/infrastructure/middleware/requestLogger';
 import { errorHandler } from './shared/infrastructure/middleware/errorHandler';
 import { authMiddleware } from './shared/infrastructure/middleware/authMiddleware';
@@ -29,9 +30,13 @@ export function createApp(
   const app = express();
 
   app.use(helmet());
-  app.use(cors());
+  app.use(cors(buildCorsOptions()));
   app.use(express.json());
   app.use(requestLogger);
+
+  app.get('/health', (_req, res) => {
+    res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  });
 
   // Set up audit logging
   const auditLogger = new AuditLogger(eventBus);
@@ -77,4 +82,16 @@ export function createApp(
   app.use(errorHandler);
 
   return app;
+}
+
+function buildCorsOptions(): cors.CorsOptions {
+  if (!config.frontendOrigin) return {};
+  const allowed = [config.frontendOrigin, 'http://localhost:5173', 'http://localhost:5174'];
+  return {
+    origin: (origin, callback) => {
+      if (!origin || allowed.includes(origin)) return callback(null, true);
+      return callback(new Error(`Origin ${origin} not allowed by CORS`));
+    },
+    credentials: true,
+  };
 }
