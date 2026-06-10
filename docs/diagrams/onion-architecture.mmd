@@ -1,0 +1,57 @@
+%% Onion Architecture — Monash Club Task Manager (backend)
+%% Source of truth: classes/files verified against main @ commit 1cef7b8
+%% Render: paste into https://mermaid.live  OR  `mmdc -i onion-architecture.mmd -o onion-architecture.svg`
+
+flowchart TB
+    classDef infra fill:#FEF3C7,stroke:#92400E,stroke-width:2px,color:#451A03,font-weight:bold
+    classDef app fill:#DBEAFE,stroke:#1E40AF,stroke-width:2px,color:#0C1E66,font-weight:bold
+    classDef domain fill:#DCFCE7,stroke:#166534,stroke-width:2px,color:#0A2E1A,font-weight:bold
+    classDef legend fill:#F8FAFC,stroke:#475569,stroke-width:1px,color:#0F172A
+
+    subgraph L1["&nbsp;INFRASTRUCTURE LAYER&nbsp;"]
+        direction LR
+        I1["Express Controllers<br/><i>taskRoutes.ts</i>"]
+        I2["JWT Auth Middleware<br/><i>authMiddleware.ts</i>"]
+        I3["Mongoose Repository<br/><i>MongoTaskRepository</i>"]
+        I4["Mongoose Schema<br/><i>TaskModel</i>"]
+        I5["Cron Scheduler<br/><i>ReminderScheduler</i>"]
+    end
+
+    subgraph L2["&nbsp;APPLICATION LAYER&nbsp;"]
+        direction LR
+        A1["CreateTaskUseCase"]
+        A2["AssignTaskUseCase"]
+        A3["CheckDueRemindersUseCase"]
+        A4["IEventBus<br/><i>interface</i>"]
+    end
+
+    subgraph L3["&nbsp;DOMAIN LAYER (CORE)&nbsp;"]
+        direction LR
+        D1["Task<br/><i>entity</i>"]
+        D2["Tag<br/><i>value object</i>"]
+        D3["TaskFilter<br/><i>value object</i>"]
+        D4["ITaskRepository<br/><i>interface</i>"]
+        D5["TaskCreatedEvent<br/><i>domain event</i>"]
+    end
+
+    L1 ==>|"depends on"| L2
+    L2 ==>|"depends on"| L3
+
+    I3 -.->|"implements"| D4
+    I1 -.->|"invokes"| A1
+    I1 -.->|"invokes"| A2
+    I5 -.->|"invokes"| A3
+    A1 -.->|"uses"| D4
+    A2 -.->|"uses"| D4
+    A3 -.->|"uses"| D4
+
+    Rule["<b>Dependency Rule</b><br/>Arrows point INWARD only.<br/>Domain knows nothing of Application.<br/>Application knows nothing of Infrastructure."]
+
+    class I1,I2,I3,I4,I5 infra
+    class A1,A2,A3,A4 app
+    class D1,D2,D3,D4,D5 domain
+    class Rule legend
+
+    style L1 fill:#FFFBEB,stroke:#92400E,stroke-width:3px,color:#451A03
+    style L2 fill:#EFF6FF,stroke:#1E40AF,stroke-width:3px,color:#0C1E66
+    style L3 fill:#F0FDF4,stroke:#166534,stroke-width:3px,color:#0A2E1A
