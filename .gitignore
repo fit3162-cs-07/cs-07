@@ -1,23 +1,12 @@
-# Personal AI workflow files (not for team repo) — match anywhere in tree
-CLAUDE.md
-**/CLAUDE.md
-AGENT_HANDOFF.md
-**/AGENT_HANDOFF.md
-ClaudeCode_*.md
-**/ClaudeCode_*.md
+# Personal local-only notes (not for team repo) — match anywhere in tree
+*.local.md
+**/*.local.md
 *_Prompt.md
 **/*_Prompt.md
 PROMPT_*.md
 **/PROMPT_*.md
 prompts/
 **/prompts/
-ai-prompts/
-**/ai-prompts/
-claude-prompts/
-**/claude-prompts/
-*.local.md
-.claude-local/
-.claude/
 
 # Design mockups (local reference only)
 design-mockups/
